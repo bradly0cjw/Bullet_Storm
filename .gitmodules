@@ -1,0 +1,3 @@
+[submodule "lib/PTSD-src"]
+	path = lib/PTSD-src
+	url = https://github.com/ntut-open-source-club/practical-tools-for-simple-design.git
