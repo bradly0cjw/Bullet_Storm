@@ -1,5 +1,6 @@
 #include "App.hpp"
 
+#include "ResourceManager.hpp"
 #include "Util/Image.hpp"
 #include "Util/Input.hpp"
 #include "Util/Keycode.hpp"
@@ -13,7 +14,22 @@ void App::Start() {
 void App::Update() {
     
     //TODO: do your things here and delete this line <3
-    
+
+    ResourceManger::ResourceManger() {
+
+        m_Background = std::make_shared<BackgroundImage>();
+    }
+
+    void ResourceManger::NextPhase() {
+        if (m_Phase == 7) return;
+        LOG_DEBUG("Passed! Next phase: {}", m_Phase);
+        m_Background->NextPhase(m_Phase);
+//
+    }
+
+
+
+
     /*
      * Do not touch the code below as they serve the purpose for
      * closing the window.
