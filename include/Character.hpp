@@ -4,6 +4,7 @@
 #include <string>
 
 #include "Util/GameObject.hpp"
+#include "Bullet.hpp"
 
 class Character : public Util::GameObject {
 public:
@@ -27,6 +28,11 @@ public:
 
     void SetPosition(const glm::vec2& Position) { m_Transform.translation = Position; }
 
+    void Shoot();  // 新增射擊
+    void UseSkill();  // 新增技能
+    void Update();  // 更新所有子彈
+
+    std::vector<std::shared_ptr<Bullet>> GetBullets() { return m_Bullets; } // 取得子彈列表
     // TODO: Implement the collision detection
     [[nodiscard]] bool IfCollides(const std::shared_ptr<Character>& other) const {
         auto thisPosition = GetPosition();
@@ -42,6 +48,7 @@ private:
     void ResetPosition() { m_Transform.translation = {0, 0}; }
 
     std::string m_ImagePath;
+    std::vector<std::shared_ptr<Bullet>> m_Bullets;
 };
 
 

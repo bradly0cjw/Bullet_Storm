@@ -7,6 +7,10 @@
 
 void App::Start() {
     LOG_TRACE("Start");
+    Util::Logger::Init();
+    Util::Logger::SetLevel(Util::Logger::Level::DEBUG);  // 👈 設定最低 Log Level
+
+    LOG_INFO("Game Started!");
 
     // 1️⃣ 創建玩家角色 (戰機)
     m_Player = std::make_shared<Character>(RESOURCE_DIR "/character/test_plane.png");
@@ -25,11 +29,12 @@ void App::Start() {
 }
 
 void App::Update() {
-    
+
     //TODO: do your things here and delete this line <3
     const float speed = 10.0f; // 控制移動速度
     float x = m_Player->GetPosition().x;
     float y = m_Player->GetPosition().y;
+
 
     if (Util::Input::IsKeyPressed(Util::Keycode::UP)) {
         y += speed;
@@ -42,16 +47,40 @@ void App::Update() {
     }
     if (Util::Input::IsKeyPressed(Util::Keycode::RIGHT)) {
         x += speed;
+
+    }
+
+    // 按空白鍵射擊
+    if (Util::Input::IsKeyPressed(Util::Keycode::SPACE)) {
+        LOG_INFO("Space key detected on key down!");
+        m_Player->Shoot();
+    }
+
+    // 按 `Z` 鍵使用技能
+    if (Util::Input::IsKeyPressed(Util::Keycode::Z)) {
+        m_Player->UseSkill();
     }
 
     // 設定新的玩家位置
     m_Player->SetPosition({x, y});
 
+    // 更新玩家與子彈
+    m_Player->Update();
     // 更新畫面
+    for (auto &bullet : m_Player->GetBullets()) {
+        if (!bullet->IsInRenderer()) {
+            LOG_INFO("Adding bullet to Renderer at position ({}, {})", bullet->GetPosition().x, bullet->GetPosition().y);
+            m_Renderer->AddChild(bullet);
+            bullet->MarkAsInRenderer();
+        }
+    }
+
+
+
     m_Renderer->Update();
 
 
-    
+
     /*
      * Do not touch the code below as they serve the purpose for
      * closing the window.

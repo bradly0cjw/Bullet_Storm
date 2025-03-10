@@ -35,6 +35,8 @@ add_executable(${PROJECT_NAME}
     ${SRC_DIR}/main.cpp
     ${SRC_FILES}
     ${HEADER_FILES}
+        include/Bullet.hpp
+        src/Bullet.cpp
 )
 
 if(MSVC)
