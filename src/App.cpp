@@ -27,8 +27,30 @@ void App::Start() {
 void App::Update() {
     
     //TODO: do your things here and delete this line <3
-    // 更新Renderer以繪製角色物件
+    const float speed = 10.0f; // 控制移動速度
+    float x = m_Player->GetPosition().x;
+    float y = m_Player->GetPosition().y;
+
+    if (Util::Input::IsKeyPressed(Util::Keycode::UP)) {
+        y += speed;
+    }
+    if (Util::Input::IsKeyPressed(Util::Keycode::DOWN)) {
+        y -= speed;
+    }
+    if (Util::Input::IsKeyPressed(Util::Keycode::LEFT)) {
+        x -= speed;
+    }
+    if (Util::Input::IsKeyPressed(Util::Keycode::RIGHT)) {
+        x += speed;
+    }
+
+    // 設定新的玩家位置
+    m_Player->SetPosition({x, y});
+
+    // 更新畫面
     m_Renderer->Update();
+
+
     
     /*
      * Do not touch the code below as they serve the purpose for
@@ -38,6 +60,9 @@ void App::Update() {
         Util::Input::IfExit()) {
         m_CurrentState = State::END;
     }
+
+
+
 }
 
 void App::End() { // NOLINT(this method will mutate members in the future)
