@@ -1,5 +1,6 @@
 #include "App.hpp"
 
+#include "ResourceManager.hpp"
 #include "Util/Image.hpp"
 #include "Util/Input.hpp"
 #include "Util/Keycode.hpp"
