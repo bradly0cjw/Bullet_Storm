@@ -16,10 +16,12 @@ public:
     void Update();
     bool IsInRenderer() const { return m_InRenderer; }
     void MarkAsInRenderer() { m_InRenderer = true; }
+    bool InBound();
 
 private:
     glm::vec2 m_Velocity;
     bool m_InRenderer = false;
+
 };
 
 #endif //BULLET_H

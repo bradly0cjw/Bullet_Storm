@@ -28,3 +28,11 @@ void Bullet::Update() {
     }
 }
 
+bool Bullet::InBound(){
+    if (m_Transform.translation.y < -50 || m_Transform.translation.y > 850) {
+        SetVisible(false);
+        return false;
+    }
+    return true;
+}
+

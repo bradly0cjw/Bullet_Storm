@@ -2,7 +2,7 @@
 #define CHARACTER_HPP
 
 #include <string>
-
+#include "Util/Logger.hpp"
 #include "Util/GameObject.hpp"
 #include "Bullet.hpp"
 
@@ -33,6 +33,14 @@ public:
     void Update();  // 更新所有子彈
 
     std::vector<std::shared_ptr<Bullet>> GetBullets() { return m_Bullets; } // 取得子彈列表
+
+    void RmBullets(const std::shared_ptr<Bullet>& bullet) {
+        auto it = std::find(m_Bullets.begin(), m_Bullets.end(), bullet);
+        if (it != m_Bullets.end()) {
+            m_Bullets.erase(it);  // Remove the shared_ptr from m_Bullets
+        }
+    }
+
     // TODO: Implement the collision detection
     [[nodiscard]] bool IfCollides(const std::shared_ptr<Character>& other) const {
         auto thisPosition = GetPosition();
