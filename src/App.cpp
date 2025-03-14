@@ -78,7 +78,7 @@ void App::Update() {
             m_Renderer->AddChild(bullet);
             bullet->MarkAsInRenderer();
         }
-        if(bullet->InBound()){
+        if(!bullet->InBound()){
             LOG_INFO("Bullet removed at position ({}, {})",  bullet->GetPosition().x,  bullet->GetPosition().y);
             m_Player->RmBullets(bullet);
             m_Renderer->RemoveChild(bullet);
