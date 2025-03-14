@@ -13,6 +13,10 @@ void App::Start() {
 
     LOG_INFO("Game Started!");
 
+    m_BackGround = std::make_shared<BackgroundImage>();
+
+
+
     // 1️⃣ 創建玩家角色 (戰機)
     m_Player = std::make_shared<Character>(RESOURCE_DIR "/character/test_plane.png");
     m_Player->SetPosition({-112.5f, -140.5f});  // 螢幕中央
@@ -73,6 +77,11 @@ void App::Update() {
             LOG_INFO("Adding bullet to Renderer at position ({}, {})", bullet->GetPosition().x, bullet->GetPosition().y);
             m_Renderer->AddChild(bullet);
             bullet->MarkAsInRenderer();
+        }
+        if(bullet->InBound()){
+            LOG_INFO("Bullet removed at position ({}, {})",  bullet->GetPosition().x,  bullet->GetPosition().y);
+            m_Player->RmBullets(bullet);
+            m_Renderer->RemoveChild(bullet);
         }
     }
 

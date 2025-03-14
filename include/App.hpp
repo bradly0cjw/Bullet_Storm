@@ -8,6 +8,7 @@
 #include "Util/Renderer.hpp"
 #include "Character.hpp"
 #include "AnimatedCharacter.hpp"
+#include "BackgroundImage.hpp"
 
 
 class App {
@@ -33,6 +34,9 @@ private:
 
     // 遊戲根物件，負責管理所有物件
     Util::GameObject m_Root;
+
+    // Background
+    std::shared_ptr<BackgroundImage> m_BackGround;
 
     // 角色物件
     std::shared_ptr<Character> m_Player;
