@@ -9,7 +9,7 @@
 
 # Game Introduction
 
-《Bullet Storm》是一款類似經典射擊遊戲《[雷電（Raiden）](https://store.steampowered.com/app/570050/Raiden_V_Directors_Cut___V_Directors_Cut__V/?l=tchinese)》的垂直捲軸彈幕射擊遊戲。玩家將操控一架高科技戰機，穿越重重敵人與關卡，挑戰最終 Boss，並力求生存與獲勝。遊戲將包含以下核心要素：
+《Bullet Storm》是一款類似經典射擊遊戲《[雷電（Raiden）]([https://store.steampowered.com/app/570050/Raiden_V_Directors_Cut___V_Directors_Cut__V/?l=tchinese](https://www.i-gamer.net/play/194.html))》的垂直捲軸彈幕射擊遊戲。玩家將操控一架高科技戰機，穿越重重敵人與關卡，挑戰最終 Boss，並力求生存與獲勝。遊戲將包含以下核心要素：
 
 - **會死掉**：玩家的戰機擁有有限的生命值，被敵方彈幕擊中則會損失生命，當生命值歸零時遊戲結束。
 - **會獲勝**：當玩家成功擊敗所有關卡的最終 Boss，則判定通關成功。
