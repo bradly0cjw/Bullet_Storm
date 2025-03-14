@@ -22,14 +22,11 @@ void Bullet::Update() {
     LOG_INFO("Bullet position: ({}, {})", m_Transform.translation.x, m_Transform.translation.y);
 
     // 修正錯誤的移除判定
-    if (m_Transform.translation.y < -50 || m_Transform.translation.y > 850) {
-        SetVisible(false);
-        LOG_INFO("Bullet removed at position ({}, {})", m_Transform.translation.x, m_Transform.translation.y);
-    }
+
 }
 
 bool Bullet::InBound(){
-    if (m_Transform.translation.y < -50 || m_Transform.translation.y > 850) {
+    if (m_Transform.translation.y < -400 || m_Transform.translation.y > 400) {
         SetVisible(false);
         return false;
     }
