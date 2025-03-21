@@ -1,0 +1,17 @@
+score = 0;
+bbno = 3;
+missionno = 1;
+credit = 15;
+busedno = 0;
+itemno = 0;
+medal1 = 0;
+medal2 = 0;
+fairyno = 0;
+scroll = 0;
+pause = 0;
+pau = 0;
+gvc = 1;
+gls = 0;
+gps = 0;
+mnc = 0;
+mhm = 0;

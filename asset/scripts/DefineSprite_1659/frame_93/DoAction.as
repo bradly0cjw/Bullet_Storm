@@ -1,0 +1,15 @@
+_root.id = _root.id + 1;
+io = new Object();
+io._x = 80;
+io._y = 180;
+grn.attachMovie("rtank","en" + _root.id,_root.id,io);
+_root.id = _root.id + 1;
+io = new Object();
+io._x = 180;
+io._y = 190;
+grn.attachMovie("rtank","en" + _root.id,_root.id,io);
+_root.id = _root.id + 1;
+io = new Object();
+io._x = 180;
+io._y = 230;
+grn.attachMovie("rtank","en" + _root.id,_root.id,io);

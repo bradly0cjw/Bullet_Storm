@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns:ffdec="https://www.free-decompiler.com/flash" xmlns:xlink="http://www.w3.org/1999/xlink" ffdec:objectType="shape" height="29.0px" width="29.0px" xmlns="http://www.w3.org/2000/svg">
+  <g transform="matrix(1.0, 0.0, 0.0, 1.0, 12.5, 12.5)">
+    <path d="M16.5 -7.75 L16.5 16.5 -7.7 16.5 -11.5 12.7 -11.5 -11.5 12.75 -11.5 16.5 -7.75" fill="#000000" fill-opacity="0.7529412" fill-rule="evenodd" stroke="none"/>
+    <path d="M9.7 -5.45 L9.7 -9.2 9.7 -5.45 M-11.5 -2.45 L-11.5 -11.5 12.75 -11.5 12.75 -2.45 12.75 3.6 12.75 12.7 -11.5 12.7 -11.5 3.6 -11.5 -2.45 M3.85 -4.35 L3.85 -8.85 3.85 -4.35 M4.85 -2.45 L4.85 -6.95 4.85 -2.45 M3.85 8.9 L3.85 4.4 3.85 8.9 M4.85 8.9 L4.85 4.4 4.85 8.9 M9.7 9.7 L9.7 7.6 9.7 9.7 M7.55 3.35 Q8.4 1.45 10.15 0.05 L6.65 -1.05 6.85 3.55 Q6.95 4.65 7.55 3.35 M-8.45 -5.45 L-8.45 -9.2 -8.45 -5.45 M-3.7 -4.35 L-3.7 -8.85 -3.7 -4.35 M-2.75 -2.45 L-2.75 -6.95 -2.75 -2.45 M-8.45 9.7 L-8.45 7.45 -8.45 9.7 M-3.7 8.9 L-3.7 4.4 -3.7 8.9 M-2.75 8.9 L-2.75 4.4 -2.75 8.9 M-6.65 3.35 Q-6.05 4.65 -6.0 3.55 L-5.75 -1.05 -9.25 0.05 Q-7.5 1.45 -6.65 3.35" fill="#a09060" fill-rule="evenodd" stroke="none"/>
+    <path d="M7.55 3.35 Q6.95 4.65 6.85 3.55 L6.65 -1.05 10.15 0.05 Q8.4 1.45 7.55 3.35 M-6.65 3.35 Q-7.5 1.45 -9.25 0.05 L-5.75 -1.05 -6.0 3.55 Q-6.05 4.65 -6.65 3.35" fill="#989898" fill-rule="evenodd" stroke="none"/>
+    <path d="M9.7 -9.2 L9.7 -5.45 M9.7 7.6 L9.7 9.7 M-8.45 -9.2 L-8.45 -5.45 M-8.45 7.45 L-8.45 9.7" fill="none" stroke="#483820" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.0"/>
+    <path d="M3.85 -8.85 L3.85 -4.35 M3.85 4.4 L3.85 8.9 M-3.7 -8.85 L-3.7 -4.35 M-3.7 4.4 L-3.7 8.9" fill="none" stroke="#d0b080" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.0"/>
+    <path d="M-11.5 -2.45 L-11.5 -11.5 12.75 -11.5 12.75 -2.45 M12.75 3.6 L12.75 12.7 -11.5 12.7 -11.5 3.6" fill="none" stroke="#706840" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.0"/>
+    <path d="M12.75 -2.45 L12.75 3.6 M-11.5 3.6 L-11.5 -2.45" fill="none" stroke="#d83800" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.0"/>
+    <path d="M4.85 -6.95 L4.85 -2.45 M4.85 4.4 L4.85 8.9 M-2.75 -6.95 L-2.75 -2.45 M-2.75 4.4 L-2.75 8.9" fill="none" stroke="#7f6f48" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.0"/>
+  </g>
+</svg>

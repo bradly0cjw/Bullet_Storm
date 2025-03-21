@@ -1,0 +1,2 @@
+delete xp;
+delete yp;
