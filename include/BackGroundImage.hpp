@@ -9,21 +9,13 @@
 #include "Util/Image.hpp"
 
 class BackgroundImage : public Util::GameObject {
-
 public:
-    BackgroundImage() : GameObject(
-            std::make_unique<Util::Image>(RESOURCE_DIR"/asset/image1.png"), -10) {
-    }
+    BackgroundImage();
 
-    void NextPhase(const int phase) {
-        auto temp = std::dynamic_pointer_cast<Util::Image>(m_Drawable);
-        temp->SetImage(ImagePath(phase));
-    }
+    void NextPhase(const int phase);
 
 private:
-    inline std::string ImagePath(const int phase) {
-        return RESOURCE_DIR"/asset/image1" + std::to_string(phase) + ".png";
-    }
+    std::string ImagePath(const int phase);
 };
 
-#endif //BACKGROUND_IMAGE_HPP
+#endif // BACKGROUND_IMAGE_HPP

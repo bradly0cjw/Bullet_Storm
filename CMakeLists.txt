@@ -28,18 +28,25 @@ set(INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include)
 list(TRANSFORM SRC_FILES PREPEND ${SRC_DIR}/)
 list(TRANSFORM INCLUDE_FILES PREPEND ${INCLUDE_DIR}/)
 
+
+file(GLOB_RECURSE SRC_FILES src/*.cpp)
+file(GLOB_RECURSE HEADER_FILES include/*.hpp)
+
+add_executable(${PROJECT_NAME} ${SRC_FILES} ${HEADER_FILES})
+
 # file(GLOB_RECURSE SRC_FILES src/*)
 # file(GLOB_RECURSE HEADER_FILES include/*)
-
-add_executable(${PROJECT_NAME}
-    ${SRC_DIR}/main.cpp
-    ${SRC_FILES}
-    ${HEADER_FILES}
-        include/Bullet.hpp
-        src/Bullet.cpp
-        include/Enemy.hpp
-        src/Enemy.cpp
-)
+#
+#add_executable(${PROJECT_NAME}
+#    ${SRC_DIR}/main.cpp
+#    ${SRC_FILES}
+#    ${HEADER_FILES}
+#        include/Bullet.hpp
+#        src/Bullet.cpp
+#        include/Enemy.hpp
+#        src/Enemy.cpp
+#
+#)
 
 if(MSVC)
     target_compile_options(${PROJECT_NAME} PRIVATE /W4)
