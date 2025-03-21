@@ -1,0 +1,12 @@
+_root.id = _root.id + 1;
+sky.attachMovie("fly4","en" + _root.id,_root.id,io);
+_root.id = _root.id + 1;
+io = new Object();
+io._x = 80;
+io._y = 80;
+grn.attachMovie("rtank","en" + _root.id,_root.id,io);
+_root.id = _root.id + 1;
+io = new Object();
+io._x = 216;
+io._y = 80;
+grn.attachMovie("rtank","en" + _root.id,_root.id,io);

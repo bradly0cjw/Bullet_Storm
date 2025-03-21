@@ -1,0 +1,10 @@
+_root.id = _root.id + 1;
+io = new Object();
+io._x = 246;
+io._rotation = 90;
+grn.attachMovie("submarine","en" + _root.id,_root.id,io);
+_root.id = _root.id + 1;
+io = new Object();
+io._x = 216;
+io._rotation = 90;
+grn.attachMovie("struc","en" + _root.id,_root.id,io);

@@ -1,0 +1,43 @@
+mr += 22.5;
+mr2 -= 22.5;
+if(gone == 0)
+{
+   _root.id = _root.id + 1;
+   initObject = new Object();
+   initObject._x = xp;
+   initObject._y = yp;
+   initObject._rotation = mr - 15;
+   _root.itemc.attachMovie("shot7","shot" + _root.id,_root.id,initObject);
+   _root.id = _root.id + 1;
+   initObject = new Object();
+   initObject._x = xp;
+   initObject._y = yp;
+   initObject._rotation = mr;
+   _root.itemc.attachMovie("shot7","shot" + _root.id,_root.id,initObject);
+   _root.id = _root.id + 1;
+   initObject = new Object();
+   initObject._x = xp;
+   initObject._y = yp;
+   initObject._rotation = mr + 15;
+   _root.itemc.attachMovie("shot7","shot" + _root.id,_root.id,initObject);
+   bsound.start(0,0);
+   _root.id = _root.id + 1;
+   initObject = new Object();
+   initObject._x = xp;
+   initObject._y = yp;
+   initObject._rotation = mr2 - 15;
+   _root.itemc.attachMovie("shot7","shot" + _root.id,_root.id,initObject);
+   _root.id = _root.id + 1;
+   initObject = new Object();
+   initObject._x = xp;
+   initObject._y = yp;
+   initObject._rotation = mr2;
+   _root.itemc.attachMovie("shot7","shot" + _root.id,_root.id,initObject);
+   _root.id = _root.id + 1;
+   initObject = new Object();
+   initObject._x = xp;
+   initObject._y = yp;
+   initObject._rotation = mr2 + 15;
+   _root.itemc.attachMovie("shot7","shot" + _root.id,_root.id,initObject);
+   bsound.start(0,0);
+}

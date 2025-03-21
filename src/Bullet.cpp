@@ -21,8 +21,6 @@ void Bullet::Update() {
 
     LOG_INFO("Bullet position: ({}, {})", m_Transform.translation.x, m_Transform.translation.y);
 
-    // 修正錯誤的移除判定
-
 }
 
 bool Bullet::InBound(){

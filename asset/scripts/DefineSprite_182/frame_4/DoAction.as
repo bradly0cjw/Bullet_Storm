@@ -1,0 +1,11 @@
+_root.id = _root.id + 1;
+initObject = new Object();
+initObject._x = _parent.xp;
+initObject._y = _parent.yp;
+_root.debris.attachMovie("bushd","debris" + _root.id,_root.id,initObject);
+_root.fairy._x = _parent.xp;
+_root.fairy._y = _parent.yp;
+_root.fairy.gotoAndStop(2);
+_root.score += Math.round(_root.dif * 5000 / 10) * 10;
+_parent.gone = 1;
+_parent.gotoAndStop(2);

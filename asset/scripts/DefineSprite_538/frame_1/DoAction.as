@@ -1,0 +1,2 @@
+letter = "";
+gotoAndStop(2);

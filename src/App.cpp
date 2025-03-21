@@ -48,16 +48,16 @@ void App::Update() {
     float y = m_Player->GetPosition().y;
 
 
-    if (Util::Input::IsKeyPressed(Util::Keycode::UP)) {
+    if (Util::Input::IsKeyPressed(Util::Keycode::UP) || Util::Input::IsKeyPressed(Util::Keycode::W)) {
         y += speed;
     }
-    if (Util::Input::IsKeyPressed(Util::Keycode::DOWN)) {
+    if (Util::Input::IsKeyPressed(Util::Keycode::DOWN)|| Util::Input::IsKeyPressed(Util::Keycode::S)) {
         y -= speed;
     }
-    if (Util::Input::IsKeyPressed(Util::Keycode::LEFT)) {
+    if (Util::Input::IsKeyPressed(Util::Keycode::LEFT)|| Util::Input::IsKeyPressed(Util::Keycode::A)) {
         x -= speed;
     }
-    if (Util::Input::IsKeyPressed(Util::Keycode::RIGHT)) {
+    if (Util::Input::IsKeyPressed(Util::Keycode::RIGHT)|| Util::Input::IsKeyPressed(Util::Keycode::D)) {
         x += speed;
 
     }
@@ -89,8 +89,10 @@ void App::Update() {
             LOG_INFO("Bullet removed at position ({}, {})",  bullet->GetPosition().x,  bullet->GetPosition().y);
             m_Player->RmBullets(bullet);
             m_Renderer->RemoveChild(bullet);
+            LOG_INFO("Bullet Count: {}", m_Player->GetBullets().size());
         }
     }
+
 
 
 
@@ -102,8 +104,13 @@ void App::Update() {
 
     // 生成新敵機
     if (m_EnemySpawnTimer > enemySpawnInterval) {
-        int randomX = std::rand() % 800-400; // 在 0~800 之間隨機生成 X 座標
+        // use srand to generate random number
+        std::srand(std::time(nullptr));
 
+        // TODO: fit screen size
+        int randomX = (std::rand() % 800) - 400; // 在 0~800 之間隨機生成 X 座標
+
+        LOG_INFO("Current random x value",randomX);
         // 隨機選擇敵機的移動模式
         Enemy::MovePattern randomPattern = static_cast<Enemy::MovePattern>(std::rand() % 5);
 

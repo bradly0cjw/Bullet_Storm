@@ -1,0 +1,11 @@
+_parent.gone = 1;
+_root.lv1.planeArray[_parent.adt] = null;
+_root.lv1.upd();
+_root.id = _root.id + 1;
+initObject = new Object();
+initObject._x = _parent.xp;
+initObject._y = _parent.yp;
+initObject._alpha = 33;
+_root.debris.attachMovie("tankdead","debris" + _root.id,_root.id,initObject);
+fly.gotoAndStop(1);
+_root.score += Math.round(_root.dif * 240 / 10) * 10;

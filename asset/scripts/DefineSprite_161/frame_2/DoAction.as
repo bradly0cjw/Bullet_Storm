@@ -1,0 +1,10 @@
+_root.lv1.planeArray[_parent.adt] = null;
+_root.lv1.upd();
+_root.id = _root.id + 1;
+initObject = new Object();
+initObject._x = _parent.xp;
+initObject._y = _parent.yp;
+initObject.stat = fly.fly.ico._currentframe;
+_root.itemc.attachMovie("mup","mup" + _root.id,_root.id,initObject);
+_root.score += 300;
+_parent.gone = 1;
