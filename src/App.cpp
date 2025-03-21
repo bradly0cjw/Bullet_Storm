@@ -30,6 +30,13 @@ void App::Start() {
         std::vector<std::shared_ptr<Util::GameObject>>{std::make_shared<Util::GameObject>(m_Root)}
     );
 
+    m_EnemySpawnTimer = 0.0f;
+
+    // 測試：生成一架敵機
+    auto enemy = std::make_shared<Enemy>(glm::vec2(400, -50), Enemy::MovePattern::WAVE);
+    m_Enemies.push_back(enemy);
+    m_Renderer->AddChild(enemy);
+
     m_CurrentState = State::UPDATE;
 }
 
@@ -87,6 +94,33 @@ void App::Update() {
 
 
 
+    m_Renderer->Update();
+
+    //敵機生成
+    const float enemySpawnInterval = 100.0f; // 每 100 帧生成一架敵機
+    m_EnemySpawnTimer += 1.0f;
+
+    // 生成新敵機
+    if (m_EnemySpawnTimer > enemySpawnInterval) {
+        int randomX = std::rand() % 800-400; // 在 0~800 之間隨機生成 X 座標
+
+        // 隨機選擇敵機的移動模式
+        Enemy::MovePattern randomPattern = static_cast<Enemy::MovePattern>(std::rand() % 5);
+
+        auto enemy = std::make_shared<Enemy>(glm::vec2(randomX, -50), randomPattern);
+        m_Enemies.push_back(enemy);
+        m_Renderer->AddChild(enemy);
+        LOG_INFO("Spawned enemy at ({}, {}) with pattern {}", randomX, -50, static_cast<int>(randomPattern));
+
+        m_EnemySpawnTimer = 0.0f; // 重置計時器
+    }
+
+    // 更新所有敵機
+    for (auto& enemy : m_Enemies) {
+        enemy->Update(m_Player->GetPosition()); // 讓敵機能夠追蹤玩家
+    }
+
+    // 更新畫面
     m_Renderer->Update();
 
 
