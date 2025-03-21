@@ -1,0 +1,1 @@
+fly.gotoAndPlay(4);

@@ -1,0 +1,10 @@
+delete eArray();
+delete tempArray();
+delete upd();
+delete newNdx;
+delete percent;
+shtopt = 90;
+bbopt = 88;
+dif = 1;
+bspd = 4.5;
+id = 0;

@@ -1,0 +1,10 @@
+_root.id = _root.id + 1;
+initObject = new Object();
+initObject._x = 195;
+initObject._y = -16;
+attachMovie("box","enemy" + _root.id,-39,initObject);
+_root.id = _root.id + 1;
+initObject = new Object();
+initObject._x = 244;
+initObject._y = -16;
+attachMovie("box","enemy" + _root.id,-40,initObject);

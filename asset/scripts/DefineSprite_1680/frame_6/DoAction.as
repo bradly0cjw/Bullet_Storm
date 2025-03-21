@@ -1,0 +1,2 @@
+bgMusic.stop();
+stop();
