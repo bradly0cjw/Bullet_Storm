@@ -37,6 +37,8 @@ add_executable(${PROJECT_NAME}
     ${HEADER_FILES}
         include/Bullet.hpp
         src/Bullet.cpp
+        include/Enemy.hpp
+        src/Enemy.cpp
 )
 
 if(MSVC)

@@ -9,7 +9,8 @@
 #include "Character.hpp"
 #include "AnimatedCharacter.hpp"
 #include "BackgroundImage.hpp"
-
+#include "Enemy.hpp"
+#include <vector>
 
 class App {
 public:
@@ -44,6 +45,10 @@ private:
 
     // 遊戲渲染器
     std::unique_ptr<Util::Renderer> m_Renderer;
+
+    // 敵機
+    std::vector<std::shared_ptr<Enemy>> m_Enemies;
+    float m_EnemySpawnTimer;
 };
 
 #endif
