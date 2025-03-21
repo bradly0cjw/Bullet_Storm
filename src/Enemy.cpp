@@ -23,7 +23,6 @@ std::string Enemy::GetImagePath(MovePattern pattern) {
             return RESOURCE_DIR "/enemies/enemy_default.png"; // 預設敵機圖片
     }
 }
-
 //(RESOURCE_DIR "/enemy/enemy_plane.png"), 1)
 Enemy::Enemy(const glm::vec2 &position, MovePattern pattern)
         : Util::GameObject(std::make_shared<Util::Image>(GetImagePath(pattern)), 1),
@@ -60,7 +59,7 @@ void Enemy::Update(glm::vec2 playerPosition) {
             break;
 
         case MovePattern::ZIGZAG:
-            m_Transform.translation.y += m_Speed;
+            m_Transform.translation.y -= m_Speed;
             m_Transform.translation.x += (std::rand() % 2 == 0 ? -2.0f : 2.0f); // 隨機左右移動
             break;
 

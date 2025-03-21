@@ -17,6 +17,8 @@ public:
     bool IsInRenderer() const { return m_InRenderer; }
     void MarkAsInRenderer() { m_InRenderer = true; }
     bool InBound();
+    bool CollidesWith(const std::shared_ptr<Util::GameObject>& other) const;
+
 
 private:
     glm::vec2 m_Velocity;

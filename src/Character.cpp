@@ -37,6 +37,8 @@ void Character::Shoot() {
 
 
 
+
+
 void Character::UseSkill() {
     // 技能：發射 3 顆子彈
     m_Bullets.push_back(std::make_shared<Bullet>(GetPosition(), glm::vec2(-3, 10))); // 左斜

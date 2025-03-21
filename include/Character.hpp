@@ -32,6 +32,7 @@ public:
     void UseSkill();  // 新增技能
     void Update();  // 更新所有子彈
 
+
     std::vector<std::shared_ptr<Bullet>> GetBullets() { return m_Bullets; } // 取得子彈列表
 
     void RmBullets(const std::shared_ptr<Bullet>& bullet) {

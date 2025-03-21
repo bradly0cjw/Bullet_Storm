@@ -114,7 +114,7 @@ void App::Update() {
         // 隨機選擇敵機的移動模式
         Enemy::MovePattern randomPattern = static_cast<Enemy::MovePattern>(std::rand() % 5);
 
-        auto enemy = std::make_shared<Enemy>(glm::vec2(randomX, -50), randomPattern);
+        auto enemy = std::make_shared<Enemy>(glm::vec2(randomX, 350), randomPattern);
         m_Enemies.push_back(enemy);
         m_Renderer->AddChild(enemy);
         LOG_INFO("Spawned enemy at ({}, {}) with pattern {}", randomX, -50, static_cast<int>(randomPattern));
@@ -125,6 +125,32 @@ void App::Update() {
     // 更新所有敵機
     for (auto& enemy : m_Enemies) {
         enemy->Update(m_Player->GetPosition()); // 讓敵機能夠追蹤玩家
+    }
+
+    // 紀錄要移除的子彈與敵機
+    std::vector<std::shared_ptr<Bullet>> bulletsToRemove;
+    std::vector<std::shared_ptr<Enemy>> enemiesToRemove;
+
+    for (auto& bullet : m_Player->GetBullets()) {
+        for (auto& enemy : m_Enemies) {
+            if (bullet->CollidesWith(enemy)) {
+                LOG_INFO("Bullet hit enemy at ({}, {})", enemy->GetPosition().x, enemy->GetPosition().y);
+                bulletsToRemove.push_back(bullet);
+                enemiesToRemove.push_back(enemy);
+            }
+        }
+    }
+
+    // 移除子彈-------------------------------------
+    for (auto& bullet : bulletsToRemove) {
+        m_Player->RmBullets(bullet);           // 從子彈容器中移除
+        m_Renderer->RemoveChild(bullet);       // 從畫面上移除
+    }
+
+    // 移除敵機-------------------------------------
+    for (auto& enemy : enemiesToRemove) {
+        m_Enemies.erase(std::remove(m_Enemies.begin(), m_Enemies.end(), enemy), m_Enemies.end());
+        m_Renderer->RemoveChild(enemy);
     }
 
     // 更新畫面
