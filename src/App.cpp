@@ -51,18 +51,27 @@ void App::Update() {
     float x = m_Player->GetPosition().x;
     float y = m_Player->GetPosition().y;
 
+    // Check if the player is in bound     then accept the input
 
     if (Util::Input::IsKeyPressed(Util::Keycode::UP) || Util::Input::IsKeyPressed(Util::Keycode::W)) {
-        y += speed;
+        if (m_Player->GetPosition().y < 300) {
+            y += speed;
+        }
     }
     if (Util::Input::IsKeyPressed(Util::Keycode::DOWN) || Util::Input::IsKeyPressed(Util::Keycode::S)) {
-        y -= speed;
+        if (m_Player->GetPosition().y > -300) {
+            y -= speed;
+        }
     }
     if (Util::Input::IsKeyPressed(Util::Keycode::LEFT) || Util::Input::IsKeyPressed(Util::Keycode::A)) {
-        x -= speed;
+        if (m_Player->GetPosition().x > -400) {
+            x -= speed;
+        }
     }
     if (Util::Input::IsKeyPressed(Util::Keycode::RIGHT) || Util::Input::IsKeyPressed(Util::Keycode::D)) {
-        x += speed;
+        if (m_Player->GetPosition().x < 400) {
+            x += speed;
+        }
 
     }
 
@@ -150,11 +159,21 @@ void App::Update() {
         m_Renderer->RemoveChild(bullet);       // 從畫面上移除
     }
 
+    // Check if enemy is out of bound
+    for (auto &enemy: m_Enemies) {
+        if (enemy->IsOutOfScreen()) {
+            LOG_INFO("Enemy removed at position ({}, {})", enemy->GetPosition().x, enemy->GetPosition().y);
+            enemiesToRemove.push_back(enemy);
+        }
+    }
+
+
     // 移除敵機-------------------------------------
     for (auto &enemy: enemiesToRemove) {
         m_Enemies.erase(std::remove(m_Enemies.begin(), m_Enemies.end(), enemy), m_Enemies.end());
         m_Renderer->RemoveChild(enemy);
     }
+    LOG_INFO("enemy Count: {}", m_Enemies.size());
 
     // 更新畫面
     m_Renderer->Update();

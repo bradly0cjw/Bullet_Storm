@@ -70,12 +70,12 @@ void Enemy::Update(glm::vec2 playerPosition) {
             break;
     }
 
-    // 超出畫面範圍則隱藏
-    if (IsOutOfScreen()) {
-        SetVisible(false);
-    }
+//    // 超出畫面範圍則隱藏
+//    if (IsOutOfScreen()) {
+//        SetVisible(false);
+//    }
 }
 
 bool Enemy::IsOutOfScreen() const {
-    return m_Transform.translation.y > 900; // 900px 以下則消失
+    return m_Transform.translation.y > 900 || m_Transform.translation.y < -900; // 900px 以下則消失
 }
