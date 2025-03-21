@@ -23,6 +23,7 @@ std::string Enemy::GetImagePath(MovePattern pattern) {
             return RESOURCE_DIR "/enemies/enemy_default.png"; // 預設敵機圖片
     }
 }
+
 //(RESOURCE_DIR "/enemy/enemy_plane.png"), 1)
 Enemy::Enemy(const glm::vec2 &position, MovePattern pattern)
         : Util::GameObject(std::make_shared<Util::Image>(GetImagePath(pattern)), 1),

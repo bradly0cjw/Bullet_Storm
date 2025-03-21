@@ -10,6 +10,7 @@
 #include "AnimatedCharacter.hpp"
 #include "BackgroundImage.hpp"
 #include "Enemy.hpp"
+#include "PhaseResourceManager.hpp"
 #include <vector>
 
 class App {
@@ -38,6 +39,9 @@ private:
 
     // Background
     std::shared_ptr<BackgroundImage> m_BackGround;
+
+    // PhaseResourceManager
+    std::shared_ptr<PhaseResourceManager> m_PRM;
 
     // 角色物件
     std::shared_ptr<Character> m_Player;

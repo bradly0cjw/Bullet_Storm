@@ -5,6 +5,7 @@
 #include "Util/Input.hpp"
 #include "Util/Keycode.hpp"
 #include "Util/Logger.hpp"
+#include "PhaseResourceManager.hpp"
 
 void App::Start() {
     LOG_TRACE("Start");
@@ -13,7 +14,6 @@ void App::Start() {
 
     LOG_INFO("Game Started!");
 
-    m_BackGround = std::make_shared<BackgroundImage>();
 
 
 
@@ -29,6 +29,10 @@ void App::Start() {
     m_Renderer = std::make_unique<Util::Renderer>(
         std::vector<std::shared_ptr<Util::GameObject>>{std::make_shared<Util::GameObject>(m_Root)}
     );
+
+    m_PRM = std::make_shared<PhaseResourceManager>();
+    m_Renderer->AddChildren(m_PRM->GetChildren());
+
 
     m_EnemySpawnTimer = 0.0f;
 
