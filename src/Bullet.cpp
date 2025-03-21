@@ -14,7 +14,13 @@ Bullet::Bullet(const glm::vec2& position, const glm::vec2& velocity)
     }
 }
 
+bool Bullet::CollidesWith(const std::shared_ptr<Util::GameObject> &other) const {
+    glm::vec2 a = m_Transform.translation;
+    glm::vec2 b = other->GetTransform().translation;
 
+    float distance = glm::distance(a, b);
+    return distance < 32.0f; // 半徑碰撞，32 可依照子彈/敵機圖大小調整
+}
 
 void Bullet::Update() {
     m_Transform.translation += m_Velocity;

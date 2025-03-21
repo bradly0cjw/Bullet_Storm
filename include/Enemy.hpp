@@ -22,7 +22,9 @@ public:
     void Update(glm::vec2 playerPosition); // 傳入玩家位置，讓敵機能夠追蹤
     bool IsOutOfScreen() const; // 檢查是否超出畫面
     static std::string GetImagePath(MovePattern pattern); // 取得不同敵機的圖片
-
+    glm::vec2 GetPosition() const {
+        return m_Transform.translation;
+    }
 private:
     glm::vec2 m_Velocity;
     MovePattern m_MovePattern;

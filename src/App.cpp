@@ -27,7 +27,7 @@ void App::Start() {
 
     // 3️⃣ 初始化 Renderer 並加入根物件
     m_Renderer = std::make_unique<Util::Renderer>(
-        std::vector<std::shared_ptr<Util::GameObject>>{std::make_shared<Util::GameObject>(m_Root)}
+            std::vector<std::shared_ptr<Util::GameObject>>{std::make_shared<Util::GameObject>(m_Root)}
     );
 
     m_PRM = std::make_shared<PhaseResourceManager>();
@@ -55,13 +55,13 @@ void App::Update() {
     if (Util::Input::IsKeyPressed(Util::Keycode::UP) || Util::Input::IsKeyPressed(Util::Keycode::W)) {
         y += speed;
     }
-    if (Util::Input::IsKeyPressed(Util::Keycode::DOWN)|| Util::Input::IsKeyPressed(Util::Keycode::S)) {
+    if (Util::Input::IsKeyPressed(Util::Keycode::DOWN) || Util::Input::IsKeyPressed(Util::Keycode::S)) {
         y -= speed;
     }
-    if (Util::Input::IsKeyPressed(Util::Keycode::LEFT)|| Util::Input::IsKeyPressed(Util::Keycode::A)) {
+    if (Util::Input::IsKeyPressed(Util::Keycode::LEFT) || Util::Input::IsKeyPressed(Util::Keycode::A)) {
         x -= speed;
     }
-    if (Util::Input::IsKeyPressed(Util::Keycode::RIGHT)|| Util::Input::IsKeyPressed(Util::Keycode::D)) {
+    if (Util::Input::IsKeyPressed(Util::Keycode::RIGHT) || Util::Input::IsKeyPressed(Util::Keycode::D)) {
         x += speed;
 
     }
@@ -83,21 +83,20 @@ void App::Update() {
     // 更新玩家與子彈
     m_Player->Update();
     // 更新畫面
-    for (auto &bullet : m_Player->GetBullets()) {
+    for (auto &bullet: m_Player->GetBullets()) {
         if (!bullet->IsInRenderer()) {
-            LOG_INFO("Adding bullet to Renderer at position ({}, {})", bullet->GetPosition().x, bullet->GetPosition().y);
+            LOG_INFO("Adding bullet to Renderer at position ({}, {})", bullet->GetPosition().x,
+                     bullet->GetPosition().y);
             m_Renderer->AddChild(bullet);
             bullet->MarkAsInRenderer();
         }
-        if(!bullet->InBound()){
-            LOG_INFO("Bullet removed at position ({}, {})",  bullet->GetPosition().x,  bullet->GetPosition().y);
+        if (!bullet->InBound()) {
+            LOG_INFO("Bullet removed at position ({}, {})", bullet->GetPosition().x, bullet->GetPosition().y);
             m_Player->RmBullets(bullet);
             m_Renderer->RemoveChild(bullet);
             LOG_INFO("Bullet Count: {}", m_Player->GetBullets().size());
         }
     }
-
-
 
 
     m_Renderer->Update();
@@ -114,7 +113,7 @@ void App::Update() {
         // TODO: fit screen size
         int randomX = (std::rand() % 800) - 400; // 在 0~800 之間隨機生成 X 座標
 
-        LOG_INFO("Current random x value",randomX);
+        LOG_INFO("Current random x value", randomX);
         // 隨機選擇敵機的移動模式
         Enemy::MovePattern randomPattern = static_cast<Enemy::MovePattern>(std::rand() % 5);
 
@@ -127,12 +126,39 @@ void App::Update() {
     }
 
     // 更新所有敵機
-    for (auto& enemy : m_Enemies) {
+    for (auto &enemy: m_Enemies) {
         enemy->Update(m_Player->GetPosition()); // 讓敵機能夠追蹤玩家
+    }
+
+    // 紀錄要移除的子彈與敵機
+    std::vector<std::shared_ptr<Bullet>> bulletsToRemove;
+    std::vector<std::shared_ptr<Enemy>> enemiesToRemove;
+
+    for (auto &bullet: m_Player->GetBullets()) {
+        for (auto &enemy: m_Enemies) {
+            if (bullet->CollidesWith(enemy)) {
+                LOG_INFO("Bullet hit enemy at ({}, {})", enemy->GetPosition().x, enemy->GetPosition().y);
+                bulletsToRemove.push_back(bullet);
+                enemiesToRemove.push_back(enemy);
+            }
+        }
+    }
+
+    // 移除子彈-------------------------------------
+    for (auto &bullet: bulletsToRemove) {
+        m_Player->RmBullets(bullet);           // 從子彈容器中移除
+        m_Renderer->RemoveChild(bullet);       // 從畫面上移除
+    }
+
+    // 移除敵機-------------------------------------
+    for (auto &enemy: enemiesToRemove) {
+        m_Enemies.erase(std::remove(m_Enemies.begin(), m_Enemies.end(), enemy), m_Enemies.end());
+        m_Renderer->RemoveChild(enemy);
     }
 
     // 更新畫面
     m_Renderer->Update();
+
 
 
 
@@ -144,7 +170,6 @@ void App::Update() {
         Util::Input::IfExit()) {
         m_CurrentState = State::END;
     }
-
 
 
 }
