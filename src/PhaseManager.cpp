@@ -10,6 +10,13 @@ PhaseResourceManager::PhaseResourceManager() {
     m_Background = std::make_shared<BackgroundImage>();
 }
 
+void PhaseResourceManager::ScrollScene() {
+    m_Background->ScrollScene();
+}
+
+void PhaseResourceManager::SetPosition(const glm::vec2 &Position) {
+    m_Background->SetPosition(Position);
+}
 void PhaseResourceManager::NextPhase() {
     if (m_Phase == 7) return;
     LOG_DEBUG("Passed! Next phase: {}", m_Phase);

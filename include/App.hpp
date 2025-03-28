@@ -33,6 +33,7 @@ public:
 private:
     void ValidTask();
 
+
     State m_CurrentState = State::START;
 
     // 遊戲根物件，負責管理所有物件

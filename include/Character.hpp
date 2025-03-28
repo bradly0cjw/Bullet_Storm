@@ -41,22 +41,32 @@ public:
         }
     }
 
+    bool IfCollides(const std::shared_ptr<Util::GameObject> &other) const;
+
     // TODO: Implement the collision detection
-    [[nodiscard]] bool IfCollides(const std::shared_ptr<Character>& other) const {
-        auto thisPosition = GetPosition();
-        auto otherPosition = other->GetPosition();
-        bool collitionx = thisPosition.x < otherPosition.x + thisPosition.r && thisPosition.x + thisPosition.r >otherPosition.x;
-        bool collitiony = thisPosition.y < otherPosition.y + thisPosition.s && thisPosition.y + thisPosition.s >otherPosition.y;
-        return collitionx && collitiony;
-    }
+//    [[nodiscard]] bool IfCollides(const std::shared_ptr<Character>& other) const {
+//        auto thisPosition = GetPosition();
+//        auto otherPosition = other->GetPosition();
+//        bool collitionx = thisPosition.x < otherPosition.x + thisPosition.r && thisPosition.x + thisPosition.r >otherPosition.x;
+//        bool collitiony = thisPosition.y < otherPosition.y + thisPosition.s && thisPosition.y + thisPosition.s >otherPosition.y;
+//        return collitionx && collitiony;
+//    }
 
     // TODO: Add and implement more methods and properties as needed to finish Giraffe Adventure.
+    void SetHealth(int health) { m_health = health; }
+
+    int GetHealth() const { return m_health; }
+
+    void modifyHealth(int health) { m_health += health; }
 
 private:
     void ResetPosition() { m_Transform.translation = {0, 0}; }
 
+    int m_health = 3;
+    std::tuple<int, int> m_skill = std::make_tuple(0, 0);
     std::string m_ImagePath;
     std::vector<std::shared_ptr<Bullet>> m_Bullets;
+
 };
 
 
