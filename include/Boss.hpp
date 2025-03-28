@@ -19,6 +19,12 @@ public:
     void Activate() {
         m_Active = true;
     }
+    float GetWidth() const { return m_HitboxWidth; }
+    float GetHeight() const { return m_HitboxHeight; }
+
+    float m_HitboxWidth = 600.0f;
+    float m_HitboxHeight = 291.0f;
+
 
 
 

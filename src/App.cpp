@@ -168,7 +168,7 @@ void App::Update() {
     m_Timer += 1.0f / 60.0f; // 假設 60 FPS，每 frame 約 1/60 秒
 
     // Boss 出現條件
-    if (!m_Boss->IsVisible() && m_Timer >= 30.0f) {
+    if (!m_Boss->IsVisible() && m_Timer >= 10.0f) {
         m_Boss->SetVisible(true);
         m_Boss->SetZIndex(100);  // 確保在最上層
         m_Boss->Activate();      // <<==== 加這行
