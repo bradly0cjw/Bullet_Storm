@@ -1,5 +1,6 @@
 #include "Bullet.hpp"
 #include "Util/Logger.hpp"
+#include "Boss.hpp"
 
 Bullet::Bullet(const glm::vec2& position, const glm::vec2& velocity)
     : Util::GameObject(std::make_shared<Util::Image>(RESOURCE_DIR "/character/bullet.png"), 1),
@@ -14,13 +15,28 @@ Bullet::Bullet(const glm::vec2& position, const glm::vec2& velocity)
     }
 }
 
-bool Bullet::CollidesWith(const std::shared_ptr<Util::GameObject> &other) const {
-    glm::vec2 a = m_Transform.translation;
-    glm::vec2 b = other->GetTransform().translation;
+bool Bullet::CollidesWith(const std::shared_ptr<Util::GameObject>& other) const {
+    glm::vec2 bulletPos = m_Transform.translation;
+    glm::vec2 targetPos = other->GetTransform().translation;
 
-    float distance = glm::distance(a, b);
-    return distance < 32.0f; // 半徑碰撞，32 可依照子彈/敵機圖大小調整
+    // 取得對方 hitbox（如果是 Boss，就用自定義範圍；否則預設）
+    float halfW = 32.0f;
+    float halfH = 32.0f;
+
+    // 判斷是否是 Boss 並轉型
+    if (auto boss = std::dynamic_pointer_cast<Boss>(other)) {
+        halfW = boss->GetWidth() / 2.0f;
+        halfH = boss->GetHeight() / 2.0f;
+    }
+
+    return (
+        bulletPos.x > targetPos.x - halfW &&
+        bulletPos.x < targetPos.x + halfW &&
+        bulletPos.y > targetPos.y - halfH &&
+        bulletPos.y < targetPos.y + halfH
+    );
 }
+
 
 void Bullet::Update() {
     m_Transform.translation += m_Velocity;
