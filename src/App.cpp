@@ -114,6 +114,8 @@ void App::Update() {
     const float enemySpawnInterval = 100.0f; // 每 100 帧生成一架敵機
     m_EnemySpawnTimer += 1.0f;
 
+    m_PRM->ScrollScene();
+
     // 生成新敵機
     if (m_EnemySpawnTimer > enemySpawnInterval) {
         // use srand to generate random number
@@ -172,8 +174,8 @@ void App::Update() {
     for (auto &enemy: enemiesToRemove) {
         m_Enemies.erase(std::remove(m_Enemies.begin(), m_Enemies.end(), enemy), m_Enemies.end());
         m_Renderer->RemoveChild(enemy);
+        LOG_INFO("enemy Count: {}", m_Enemies.size());
     }
-    LOG_INFO("enemy Count: {}", m_Enemies.size());
 
     // 更新畫面
     m_Renderer->Update();
