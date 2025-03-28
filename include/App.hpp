@@ -12,6 +12,7 @@
 #include "Enemy.hpp"
 #include "PhaseResourceManager.hpp"
 #include <vector>
+#include "Boss.hpp"
 
 class App {
 public:
@@ -53,6 +54,10 @@ private:
     // 敵機
     std::vector<std::shared_ptr<Enemy>> m_Enemies;
     float m_EnemySpawnTimer;
+
+    std::shared_ptr<Boss> m_Boss;
+    float m_Timer;  // 記錄遊戲經過時間（秒）
+
 };
 
 #endif

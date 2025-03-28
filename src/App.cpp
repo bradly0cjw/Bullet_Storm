@@ -41,6 +41,12 @@ void App::Start() {
     m_Enemies.push_back(enemy);
     m_Renderer->AddChild(enemy);
 
+    // generate boss
+    m_Timer = 0.0f;
+
+    m_Boss = std::make_shared<Boss>(glm::vec2(100, 350));  // 從畫面外開始
+    m_Renderer->AddChild(m_Boss);
+
     m_CurrentState = State::UPDATE;
 }
 
@@ -117,7 +123,7 @@ void App::Update() {
         // 隨機選擇敵機的移動模式
         Enemy::MovePattern randomPattern = static_cast<Enemy::MovePattern>(std::rand() % 5);
 
-        auto enemy = std::make_shared<Enemy>(glm::vec2(randomX, -50), randomPattern);
+        auto enemy = std::make_shared<Enemy>(glm::vec2(randomX, 350), randomPattern);
         m_Enemies.push_back(enemy);
         m_Renderer->AddChild(enemy);
         LOG_INFO("Spawned enemy at ({}, {}) with pattern {}", randomX, -50, static_cast<int>(randomPattern));
@@ -159,6 +165,39 @@ void App::Update() {
     // 更新畫面
     m_Renderer->Update();
 
+    m_Timer += 1.0f / 60.0f; // 假設 60 FPS，每 frame 約 1/60 秒
+
+    // Boss 出現條件
+    if (!m_Boss->IsVisible() && m_Timer >= 30.0f) {
+        m_Boss->SetVisible(true);
+        m_Boss->SetZIndex(100);  // 確保在最上層
+        m_Boss->Activate();      // <<==== 加這行
+        LOG_INFO("Boss appears!");
+    }
+
+
+    // 更新 Boss 移動
+    if (m_Boss->IsVisible() && !m_Boss->IsDead()) {
+        m_Boss->Update();
+    }
+
+    if (m_Boss->IsDead()) {
+        m_Renderer->RemoveChild(m_Boss);
+        LOG_INFO("Boss fully removed from Renderer.");
+    }
+
+
+    // Boss 碰撞檢查
+    if (m_Boss->IsVisible() && !m_Boss->IsDead()) {
+        for (auto& bullet : m_Player->GetBullets()) {
+            if (bullet->CollidesWith(m_Boss)) {
+                m_Player->RmBullets(bullet);
+                m_Renderer->RemoveChild(bullet);
+                m_Boss->TakeDamage(1);  // 每顆子彈傷害 1
+                break; // 一顆子彈最多打一個物件
+            }
+        }
+    }
 
 
 
