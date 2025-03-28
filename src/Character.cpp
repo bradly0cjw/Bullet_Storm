@@ -4,14 +4,14 @@
 #include "Util/Logger.hpp"
 
 
-Character::Character(const std::string& ImagePath) {
+Character::Character(const std::string &ImagePath) {
     LOG_INFO("Character created with image path: {}", ImagePath);
     SetImage(ImagePath);
 
     ResetPosition();
 }
 
-void Character::SetImage(const std::string& ImagePath) {
+void Character::SetImage(const std::string &ImagePath) {
     m_ImagePath = ImagePath;
 
     m_Drawable = std::make_shared<Util::Image>(m_ImagePath);
@@ -34,19 +34,30 @@ void Character::Shoot() {
     LOG_INFO("Bullet created at ({}, {})", bulletStartPos.x, bulletStartPos.y);
 }
 
+bool Character::IfCollides(const std::shared_ptr<Util::GameObject> &other) const {
+    glm::vec2 a = m_Transform.translation;
+    glm::vec2 b = other->GetTransform().translation;
 
-
+    float distance = glm::distance(a, b);
+    return distance < 32.0f; // 半徑碰撞，32 可依照子彈/敵機圖大小調整
+}
 
 void Character::UseSkill() {
+    if (std::get<0>(m_skill) == 0) {
+        LOG_INFO("Skill not ready!");
+        return;
+    }
     // 技能：發射 3 顆子彈
     m_Bullets.push_back(std::make_shared<Bullet>(GetPosition(), glm::vec2(-3, 10))); // 左斜
     m_Bullets.push_back(std::make_shared<Bullet>(GetPosition(), glm::vec2(0, 10)));  // 直線
     m_Bullets.push_back(std::make_shared<Bullet>(GetPosition(), glm::vec2(3, 10)));  // 右斜
+    // subtract 1 from skill count
+    std::get<0>(m_skill) -= 1;
 }
 
 void Character::Update() {
     // 更新所有子彈
-    for (auto &bullet : m_Bullets) {
+    for (auto &bullet: m_Bullets) {
         bullet->Update();
     }
 }

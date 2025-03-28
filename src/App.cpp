@@ -169,6 +169,14 @@ void App::Update() {
         }
     }
 
+    // Check if player collides with enemy or enemy bullet
+    for (auto &enemy: m_Enemies) {
+        if (m_Player->IfCollides(enemy)) {
+            LOG_INFO("Player collided with enemy at position ({}, {})", enemy->GetPosition().x, enemy->GetPosition().y);
+            m_Player->modifyHealth(-1);
+//            enemiesToRemove.push_back(enemy);
+        }
+    }
 
     // 移除敵機-------------------------------------
     for (auto &enemy: enemiesToRemove) {
@@ -177,8 +185,12 @@ void App::Update() {
         LOG_INFO("enemy Count: {}", m_Enemies.size());
     }
 
+    if (m_Player->GetHealth() <= 0) {
+        m_CurrentState = State::END;
+    }
     // 更新畫面
     m_Renderer->Update();
+    ss
 
 
 
