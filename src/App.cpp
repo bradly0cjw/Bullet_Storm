@@ -196,7 +196,6 @@ void App::Update() {
     }
     // 更新畫面
     m_Renderer->Update();
-    ss
 
     m_Timer += 1.0f / 60.0f; // 假設 60 FPS，每 frame 約 1/60 秒
 
