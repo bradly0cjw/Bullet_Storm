@@ -34,7 +34,7 @@ void App::Start() {
     m_Renderer->AddChildren(m_PRM->GetChildren());
 
 
-    m_EnemySpawnTimer = 0.0f;
+    m_EnemySpawnTimer = std::time(nullptr);
 
     // 測試：生成一架敵機
     auto enemy = std::make_shared<Enemy>(glm::vec2(400, -50), Enemy::MovePattern::WAVE);
@@ -42,7 +42,7 @@ void App::Start() {
     m_Renderer->AddChild(enemy);
 
     // generate boss
-    m_Timer = 0.0f;
+    m_Timer = std::time(nullptr);
 
     m_Boss = std::make_shared<Boss>(glm::vec2(100, 350));  // 從畫面外開始
     m_Renderer->AddChild(m_Boss);
@@ -117,13 +117,13 @@ void App::Update() {
     m_Renderer->Update();
 
     //敵機生成
-    const float enemySpawnInterval = 100.0f; // 每 100 帧生成一架敵機
-    m_EnemySpawnTimer += 1.0f;
+    const float enemySpawnInterval = 1.0f; // 每 1 秒生成一架敵機
+    auto currentTime_Enemy = std::time(nullptr);
 
     m_PRM->ScrollScene();
 
     // 生成新敵機
-    if (m_EnemySpawnTimer > enemySpawnInterval) {
+    if (std::difftime(currentTime_Enemy, m_EnemySpawnTimer) > enemySpawnInterval) {
         // use srand to generate random number
         std::srand(std::time(nullptr));
 
@@ -139,7 +139,7 @@ void App::Update() {
         m_Renderer->AddChild(enemy);
         LOG_INFO("Spawned enemy at ({}, {}) with pattern {}", randomX, -50, static_cast<int>(randomPattern));
 
-        m_EnemySpawnTimer = 0.0f; // 重置計時器
+        m_EnemySpawnTimer = std::time(nullptr); // 重置計時器
     }
 
     // 更新所有敵機
@@ -174,13 +174,16 @@ void App::Update() {
             enemiesToRemove.push_back(enemy);
         }
     }
-
-    // Check if player collides with enemy or enemy bullet
+// Check if player collides with enemy or enemy bullet
     for (auto &enemy: m_Enemies) {
         if (m_Player->IfCollides(enemy)) {
-            LOG_INFO("Player collided with enemy at position ({}, {})", enemy->GetPosition().x, enemy->GetPosition().y);
-            m_Player->modifyHealth(-1);
-//            enemiesToRemove.push_back(enemy);
+            auto currentTime = std::time(nullptr);
+            if (currentTime - m_collisionTimer >= 3) { // 3 seconds cooldown
+                LOG_INFO("Player collided with enemy at position ({}, {})", enemy->GetPosition().x,
+                         enemy->GetPosition().y);
+                m_Player->modifyHealth(-1);
+                m_collisionTimer = currentTime;
+            }
         }
     }
 
@@ -197,16 +200,15 @@ void App::Update() {
     // 更新畫面
     m_Renderer->Update();
 
-    m_Timer += 1.0f / 60.0f; // 假設 60 FPS，每 frame 約 1/60 秒
 
     // Boss 出現條件
-    if (!m_Boss->IsVisible() && m_Timer >= 10.0f) {
+    auto currentTime_Boss = std::time(nullptr);
+    if (!m_Boss->IsVisible() && currentTime_Boss - m_Timer >= 10) {
         m_Boss->SetVisible(true);
         m_Boss->SetZIndex(100);  // 確保在最上層
         m_Boss->Activate();      // <<==== 加這行
         LOG_INFO("Boss appears!");
     }
-
 
     // 更新 Boss 移動
     if (m_Boss->IsVisible() && !m_Boss->IsDead()) {
@@ -221,13 +223,22 @@ void App::Update() {
 
     // Boss 碰撞檢查
     if (m_Boss->IsVisible() && !m_Boss->IsDead()) {
-        for (auto& bullet : m_Player->GetBullets()) {
+        for (auto &bullet: m_Player->GetBullets()) {
             if (bullet->CollidesWith(m_Boss)) {
                 m_Player->RmBullets(bullet);
                 m_Renderer->RemoveChild(bullet);
                 m_Boss->TakeDamage(1);  // 每顆子彈傷害 1
                 break; // 一顆子彈最多打一個物件
             }
+        }
+    }
+    //Check if player collides with boss
+    if (m_Player->IfCollides(m_Boss)) {
+        auto currentTime = std::time(nullptr);
+        if (currentTime - m_collisionTimer >= 3) { // 3 seconds cooldown
+//            LOG_INFO("Player collided with boss at position ({}, {})", m_Boss->GetPosition().x, m_Boss->GetPosition().y);
+            m_Player->modifyHealth(-1);
+            m_collisionTimer = currentTime;
         }
     }
 

@@ -1,6 +1,6 @@
 #ifndef APP_HPP
 #define APP_HPP
-
+#define ll long long
 #include "pch.hpp" // IWYU pragma: export
 
 #include "Util/Image.hpp"
@@ -54,11 +54,11 @@ private:
 
     // 敵機
     std::vector<std::shared_ptr<Enemy>> m_Enemies;
-    float m_EnemySpawnTimer;
+    ll m_EnemySpawnTimer;
 
     std::shared_ptr<Boss> m_Boss;
-    float m_Timer;  // 記錄遊戲經過時間（秒）
-
+    ll m_Timer;  // 記錄遊戲經過時間（秒）
+    ll m_collisionTimer = 0.0f;  // 紀錄碰撞時間
 };
 
 #endif

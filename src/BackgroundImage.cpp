@@ -13,7 +13,7 @@ BackgroundImage::BackgroundImage() : GameObject(
         m_ImageSize = temp->GetSize();
         auto position = m_ImageSize;
         position.x = 0;
-        position.y *= 1;
+        position.y /= 2;
         SetPosition(position);
         LOG_WARN("current position: ({}, {})", m_Transform.translation.x, m_Transform.translation.y);
     }
@@ -26,10 +26,10 @@ void BackgroundImage::NextPhase(const int phase) {
 
 void BackgroundImage::ScrollScene() {
     // if the background is on y = 0, then don't scroll
-//    if (m_Transform.translation.y == 0) {
-//        return;
-//    }
-    m_Transform.translation.y -= 5;
+    if (m_Transform.translation.y == -(m_ImageSize.y / 2)) {
+        return;
+    }
+    m_Transform.translation.y -= 1;
 }
 
 std::string BackgroundImage::ImagePath(const int phase) {
