@@ -5,6 +5,7 @@
 #include "Util/Logger.hpp"
 #include <cmath>
 #include <cstdlib>
+#include "Character.hpp"
 
 //取得圖片
 std::string Enemy::GetImagePath(MovePattern pattern) {
@@ -31,6 +32,22 @@ Enemy::Enemy(const glm::vec2 &position, MovePattern pattern)
           m_Speed(3.0f),
           m_WaveAngle(0.0f) {
     m_Transform.translation = position;
+}
+
+void Enemy::Shoot(glm::vec2 playerPosition) {
+    // 取得當前敵機位置
+    glm::vec2 enemyPos = GetPosition();
+
+    // 設定子彈起始位置（稍微往前，避免被敵機遮住）
+    glm::vec2 bulletStartPos = enemyPos + glm::vec2(0, -50); // 改為 50px 正方向
+
+    // 讓子彈向前飛行
+    auto bullet = std::make_shared<Bullet>(bulletStartPos, glm::vec2(0, -10)); // 改為正方向
+
+    m_Bullets.push_back(bullet);
+    bullet->SetVisible(true); // 確保子彈可見
+    LOG_INFO("Enemy Shoot At ({}, {})", bulletStartPos.x, bulletStartPos.y);
+
 }
 
 void Enemy::Update(glm::vec2 playerPosition) {
@@ -68,12 +85,19 @@ void Enemy::Update(glm::vec2 playerPosition) {
             m_Transform.translation.y -= m_Speed;
             m_Transform.translation.x += (std::rand() % 5 - 2); // 在 -2 ~ +2 之間隨機左右移動
             break;
+        default:
+            LOG_ERROR("Unknown move pattern!");
+            break;
     }
-
+    Shoot(playerPosition); // 每次更新都射擊
 //    // 超出畫面範圍則隱藏
 //    if (IsOutOfScreen()) {
 //        SetVisible(false);
 //    }
+    for (auto &bullet: m_Bullets) {
+        bullet->Update();
+        LOG_WARN("Updated by enemy");
+    }
 }
 
 bool Enemy::IsOutOfScreen() const {

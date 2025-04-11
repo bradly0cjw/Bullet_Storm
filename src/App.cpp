@@ -122,7 +122,7 @@ void App::Update() {
     m_Renderer->Update();
 
     //敵機生成
-    const float enemySpawnInterval = 1.0f; // 每 1 秒生成一架敵機
+    const float enemySpawnInterval = 10.0f; // 每 1 秒生成一架敵機
     auto currentTime_Enemy = std::time(nullptr);
 
     m_PRM->ScrollScene();
