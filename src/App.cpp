@@ -1,6 +1,7 @@
 #include "App.hpp"
 
 #include "ResourceManager.hpp"
+#include "Util/Text.hpp"
 #include "Util/Image.hpp"
 #include "Util/Input.hpp"
 #include "Util/Keycode.hpp"
@@ -39,6 +40,7 @@ void App::Start() {
     // 測試：生成一架敵機
     auto enemy = std::make_shared<Enemy>(glm::vec2(400, -50), Enemy::MovePattern::WAVE);
     m_Enemies.push_back(enemy);
+
     m_Renderer->AddChild(enemy);
 
     // generate boss
@@ -47,10 +49,53 @@ void App::Start() {
     m_Boss = std::make_shared<Boss>(glm::vec2(100, 350));  // 從畫面外開始
     m_Renderer->AddChild(m_Boss);
 
+    m_ResultText = std::make_shared<ResultText>("YOU WIN!");
+
     m_CurrentState = State::UPDATE;
 }
 
+void App::result() {
+    for (auto& enemy : m_Enemies) {
+        m_Renderer->RemoveChild(enemy);
+    }
+    m_Enemies.clear();
+
+    for (auto& bullet : m_Player->GetBullets()) {
+        m_Renderer->RemoveChild(bullet);
+    }
+
+    m_Renderer->RemoveChild(m_Player);
+    m_Renderer->RemoveChild(m_PRM->GetChildren()[0]);
+    m_Player->SetVisible(false);
+
+
+    if (!m_ResultShown) {
+        //LOG_INFO("test");
+        m_Renderer->AddChild(m_ResultText);
+        //m_ResultShown = true;
+        m_Renderer->Update();
+
+    }
+
+    // 每一幀都會檢查一次這段
+    if (m_WaitForSpaceRelease) {
+        if (!Util::Input::IsKeyPressed(Util::Keycode::SPACE)) {
+            m_WaitForSpaceRelease = false;
+        }
+    } else {
+        if (Util::Input::IsKeyDown(Util::Keycode::SPACE)) {
+            m_CurrentState = State::END;
+        }
+    }
+
+
+}
+
 void App::Update() {
+
+
+
+
 
     //TODO: do your things here and delete this line <3
     const float speed = 10.0f; // 控制移動速度
@@ -100,16 +145,16 @@ void App::Update() {
     // 更新畫面
     for (auto &bullet: m_Player->GetBullets()) {
         if (!bullet->IsInRenderer()) {
-            LOG_INFO("Adding bullet to Renderer at position ({}, {})", bullet->GetPosition().x,
-                     bullet->GetPosition().y);
+            //LOG_INFO("Adding bullet to Renderer at position ({}, {})", bullet->GetPosition().x,
+                     //bullet->GetPosition().y);
             m_Renderer->AddChild(bullet);
             bullet->MarkAsInRenderer();
         }
         if (!bullet->InBound()) {
-            LOG_INFO("Bullet removed at position ({}, {})", bullet->GetPosition().x, bullet->GetPosition().y);
+            //LOG_INFO("Bullet removed at position ({}, {})", bullet->GetPosition().x, bullet->GetPosition().y);
             m_Player->RmBullets(bullet);
             m_Renderer->RemoveChild(bullet);
-            LOG_INFO("Bullet Count: {}", m_Player->GetBullets().size());
+            //LOG_INFO("Bullet Count: {}", m_Player->GetBullets().size());
         }
     }
 
@@ -130,14 +175,14 @@ void App::Update() {
         // TODO: fit screen size
         int randomX = (std::rand() % 800) - 400; // 在 0~800 之間隨機生成 X 座標
 
-        LOG_INFO("Current random x value", randomX);
+        //LOG_INFO("Current random x value", randomX);
         // 隨機選擇敵機的移動模式
         Enemy::MovePattern randomPattern = static_cast<Enemy::MovePattern>(std::rand() % 5);
 
         auto enemy = std::make_shared<Enemy>(glm::vec2(randomX, 350), randomPattern);
         m_Enemies.push_back(enemy);
         m_Renderer->AddChild(enemy);
-        LOG_INFO("Spawned enemy at ({}, {}) with pattern {}", randomX, -50, static_cast<int>(randomPattern));
+        //LOG_INFO("Spawned enemy at ({}, {}) with pattern {}", randomX, -50, static_cast<int>(randomPattern));
 
         m_EnemySpawnTimer = 0.0f; // 重置計時器
     }
@@ -154,7 +199,7 @@ void App::Update() {
     for (auto &bullet: m_Player->GetBullets()) {
         for (auto &enemy: m_Enemies) {
             if (bullet->CollidesWith(enemy)) {
-                LOG_INFO("Bullet hit enemy at ({}, {})", enemy->GetPosition().x, enemy->GetPosition().y);
+                //LOG_INFO("Bullet hit enemy at ({}, {})", enemy->GetPosition().x, enemy->GetPosition().y);
                 bulletsToRemove.push_back(bullet);
                 enemiesToRemove.push_back(enemy);
             }
@@ -170,7 +215,7 @@ void App::Update() {
     // Check if enemy is out of bound
     for (auto &enemy: m_Enemies) {
         if (enemy->IsOutOfScreen()) {
-            LOG_INFO("Enemy removed at position ({}, {})", enemy->GetPosition().x, enemy->GetPosition().y);
+            //LOG_INFO("Enemy removed at position ({}, {})", enemy->GetPosition().x, enemy->GetPosition().y);
             enemiesToRemove.push_back(enemy);
         }
     }
@@ -200,7 +245,7 @@ void App::Update() {
     m_Timer += 1.0f / 60.0f; // 假設 60 FPS，每 frame 約 1/60 秒
 
     // Boss 出現條件
-    if (!m_Boss->IsVisible() && m_Timer >= 10.0f) {
+    if (!m_Boss->IsVisible() && m_Timer >= 1.0f) {
         m_Boss->SetVisible(true);
         m_Boss->SetZIndex(100);  // 確保在最上層
         m_Boss->Activate();      // <<==== 加這行
@@ -216,6 +261,8 @@ void App::Update() {
     if (m_Boss->IsDead()) {
         m_Renderer->RemoveChild(m_Boss);
         LOG_INFO("Boss fully removed from Renderer.");
+        LOG_INFO("Boss defeated, switching to RESULT state!");
+        m_CurrentState = State::RESULT;
     }
 
 
@@ -231,6 +278,10 @@ void App::Update() {
         }
     }
 
+    // 結算判定
+
+
+
 
 
     /*
@@ -243,8 +294,12 @@ void App::Update() {
     }
 
 
+
+
 }
 
 void App::End() { // NOLINT(this method will mutate members in the future)
+
     LOG_TRACE("End");
+    exit(0);  // ✅ 或是切換回主選單（延伸功能）
 }

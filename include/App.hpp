@@ -4,6 +4,7 @@
 #include "pch.hpp" // IWYU pragma: export
 
 #include "Util/Image.hpp"
+#include "ResultText.hpp"
 #include "Util/GameObject.hpp"
 #include "Util/Renderer.hpp"
 #include "Character.hpp"
@@ -19,6 +20,7 @@ public:
     enum class State {
         START,
         UPDATE,
+        RESULT,
         END,
     };
 
@@ -27,6 +29,7 @@ public:
     void Start();
 
     void Update();
+    void result();
 
     void End(); // NOLINT(readability-convert-member-functions-to-static)
 
@@ -58,6 +61,17 @@ private:
 
     std::shared_ptr<Boss> m_Boss;
     float m_Timer;  // 記錄遊戲經過時間（秒）
+
+    std::shared_ptr<ResultText> m_ResultText;
+    bool m_ResultShown = false;
+
+    // 讓結束頁面停住
+    bool m_WaitForSpaceRelease = true;
+
+
+
+
+
 
 };
 
