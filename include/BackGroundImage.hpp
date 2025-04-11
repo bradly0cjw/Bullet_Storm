@@ -14,6 +14,8 @@ public:
 
     void SetPosition(const glm::vec2 &Position) { m_Transform.translation = Position; }
 
+    [[nodiscard]] const glm::vec2 &GetPosition() { return m_Transform.translation; }
+
     [[nodiscard]] const glm::vec2 &GetPosition() const { return m_Transform.translation; }
 
     [[nodiscard]] const glm::vec2 &GetImageSize() const { return m_ImageSize; }

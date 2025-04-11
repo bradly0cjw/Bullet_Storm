@@ -13,8 +13,12 @@ BackgroundImage::BackgroundImage() : GameObject(
         m_ImageSize = temp->GetSize();
         auto position = m_ImageSize;
         position.x = 0;
-        position.y /= 2;
+        position.y = (m_ImageSize.y / 2);
+        auto piv = glm::vec<2, float>(0, 0);
+        Util::GameObject::SetPivot(piv);
+
         SetPosition(position);
+
         LOG_WARN("current position: ({}, {})", m_Transform.translation.x, m_Transform.translation.y);
     }
 }

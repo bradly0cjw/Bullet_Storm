@@ -56,6 +56,9 @@ private:
     std::vector<std::shared_ptr<Enemy>> m_Enemies;
     ll m_EnemySpawnTimer;
 
+    // bullet
+    ll m_bulletCooldownTimer = 0.0f; // 紀錄子彈冷卻時間
+
     std::shared_ptr<Boss> m_Boss;
     ll m_Timer;  // 記錄遊戲經過時間（秒）
     ll m_collisionTimer = 0.0f;  // 紀錄碰撞時間

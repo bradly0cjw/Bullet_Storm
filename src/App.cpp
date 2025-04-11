@@ -20,7 +20,7 @@ void App::Start() {
     // 1️⃣ 創建玩家角色 (戰機)
     m_Player = std::make_shared<Character>(RESOURCE_DIR "/character/test_plane.png");
     m_Player->SetPosition({-112.5f, -140.5f});  // 螢幕中央
-    m_Player->SetZIndex(10);                  // 讓玩家顯示在最前面
+    m_Player->SetZIndex(1);                  // 讓玩家顯示在最前面
     m_Root.AddChild(m_Player);
 
 
@@ -81,10 +81,15 @@ void App::Update() {
 
     }
 
+    auto bullet_cooldown = std::clock(); // Use std::clock() for clarity
     // 按空白鍵射擊
     if (Util::Input::IsKeyPressed(Util::Keycode::SPACE)) {
         LOG_INFO("Space key detected on key down!");
-        m_Player->Shoot();
+        // 檢查子彈冷卻時間
+        if (static_cast<float>(bullet_cooldown - m_bulletCooldownTimer) / CLOCKS_PER_SEC > 0.2f) { // 0.2 秒冷卻時間
+            m_bulletCooldownTimer = bullet_cooldown; // 更新冷卻時間
+            m_Player->Shoot();
+        }
     }
 
     // 按 `Z` 鍵使用技能
@@ -174,6 +179,9 @@ void App::Update() {
             enemiesToRemove.push_back(enemy);
         }
     }
+
+    bool isPlayerHit = false;
+
 // Check if player collides with enemy or enemy bullet
     for (auto &enemy: m_Enemies) {
         if (m_Player->IfCollides(enemy)) {
@@ -182,6 +190,7 @@ void App::Update() {
                 LOG_INFO("Player collided with enemy at position ({}, {})", enemy->GetPosition().x,
                          enemy->GetPosition().y);
                 m_Player->modifyHealth(-1);
+                isPlayerHit = true;
                 m_collisionTimer = currentTime;
             }
         }
@@ -239,9 +248,18 @@ void App::Update() {
 //            LOG_INFO("Player collided with boss at position ({}, {})", m_Boss->GetPosition().x, m_Boss->GetPosition().y);
             m_Player->modifyHealth(-1);
             m_collisionTimer = currentTime;
+            isPlayerHit = true;
         }
     }
 
+    //Remove all enemy if player is hit(except boss)
+    if (isPlayerHit) {
+        for (auto &enemy: m_Enemies) {
+            m_Renderer->RemoveChild(enemy);
+        }
+        m_Enemies.clear();
+        LOG_INFO("All enemies removed from Renderer.");
+    }
 
 
     /*
