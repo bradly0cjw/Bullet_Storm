@@ -34,7 +34,8 @@ file(GLOB_RECURSE HEADER_FILES include/*.hpp)
 
 add_executable(${PROJECT_NAME} ${SRC_FILES} ${HEADER_FILES}
         include/Boss.hpp
-        src/Boss.cpp)
+        src/Boss.cpp
+        include/ResultText.hpp)
 
 # file(GLOB_RECURSE SRC_FILES src/*)
 # file(GLOB_RECURSE HEADER_FILES include/*)
