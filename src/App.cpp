@@ -122,7 +122,7 @@ void App::Update() {
     m_Renderer->Update();
 
     //敵機生成
-    const float enemySpawnInterval = 10.0f; // 每 1 秒生成一架敵機
+    const float enemySpawnInterval = 1.0f; // 每 1 秒生成一架敵機
     auto currentTime_Enemy = std::time(nullptr);
 
     m_PRM->ScrollScene();
@@ -151,7 +151,23 @@ void App::Update() {
     for (auto &enemy: m_Enemies) {
         enemy->Update(m_Player->GetPosition()); // 讓敵機能夠追蹤玩家
     }
-
+    // render all enemies bullets
+    for (auto &enemy: m_Enemies) {
+        for (auto &bullet: enemy->GetBullets()) {
+            if (!bullet->IsInRenderer()) {
+                LOG_INFO("Adding enemy bullet to Renderer at position ({}, {})", bullet->GetPosition().x,
+                         bullet->GetPosition().y);
+                m_Renderer->AddChild(bullet);
+                bullet->MarkAsInRenderer();
+            }
+            if (!bullet->InBound()) {
+                LOG_INFO("Enemy Bullet removed at position ({}, {})", bullet->GetPosition().x, bullet->GetPosition().y);
+                enemy->RmBullets(bullet);
+                m_Renderer->RemoveChild(bullet);
+                LOG_INFO("Enemy Bullet Count: {}", enemy->GetBullets().size());
+            }
+        }
+    }
     // 紀錄要移除的子彈與敵機
     std::vector<std::shared_ptr<Bullet>> bulletsToRemove;
     std::vector<std::shared_ptr<Enemy>> enemiesToRemove;
@@ -194,11 +210,29 @@ void App::Update() {
                 m_collisionTimer = currentTime;
             }
         }
+        // check collides with enemy bullet
+        for (auto &bullet: enemy->GetBullets()) {
+            if (m_Player->IfCollides(bullet)) {
+                auto currentTime = std::time(nullptr);
+                if (currentTime - m_collisionTimer >= 3) { // 3 seconds cooldown
+                    LOG_INFO("Player collided with enemy bullet at position ({}, {})", bullet->GetPosition().x,
+                             bullet->GetPosition().y);
+                    m_Player->modifyHealth(-1);
+                    isPlayerHit = true;
+                    m_collisionTimer = currentTime;
+                }
+            }
+        }
     }
 
     // 移除敵機-------------------------------------
     for (auto &enemy: enemiesToRemove) {
         m_Enemies.erase(std::remove(m_Enemies.begin(), m_Enemies.end(), enemy), m_Enemies.end());
+        //remove bullet which enemy shooted
+        for (auto &bullet: enemy->GetBullets()) {
+            m_Renderer->RemoveChild(bullet);
+            LOG_INFO("Enemy Bullet removed at position ({}, {})", bullet->GetPosition().x, bullet->GetPosition().y);
+        }
         m_Renderer->RemoveChild(enemy);
         LOG_INFO("enemy Count: {}", m_Enemies.size());
     }
@@ -256,6 +290,11 @@ void App::Update() {
     if (isPlayerHit) {
         for (auto &enemy: m_Enemies) {
             m_Renderer->RemoveChild(enemy);
+            //remove bullet which enemy shooted
+            for (auto &bullet: enemy->GetBullets()) {
+                m_Renderer->RemoveChild(bullet);
+                LOG_INFO("Enemy Bullet removed at position ({}, {})", bullet->GetPosition().x, bullet->GetPosition().y);
+            }
         }
         m_Enemies.clear();
         LOG_INFO("All enemies removed from Renderer.");

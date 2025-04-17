@@ -58,6 +58,13 @@ void Character::UseSkill() {
 void Character::Update() {
     // 更新所有子彈
     for (auto &bullet: m_Bullets) {
-        bullet->Update();
+        if (!bullet->InBound()) {
+            //TODO: Migrate delete logic to here
+//            RmBullets(bullet);
+        } else {
+            bullet->Update();
+        }
+        // remove if out of bound
+
     }
 }

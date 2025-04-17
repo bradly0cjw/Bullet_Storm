@@ -30,7 +30,8 @@ Enemy::Enemy(const glm::vec2 &position, MovePattern pattern)
         : Util::GameObject(std::make_shared<Util::Image>(GetImagePath(pattern)), 1),
           m_MovePattern(pattern),
           m_Speed(3.0f),
-          m_WaveAngle(0.0f) {
+          m_WaveAngle(0.0f),
+          m_LastShootTime(std::chrono::steady_clock::now()) {
     m_Transform.translation = position;
 }
 
@@ -89,17 +90,35 @@ void Enemy::Update(glm::vec2 playerPosition) {
             LOG_ERROR("Unknown move pattern!");
             break;
     }
-    Shoot(playerPosition); // 每次更新都射擊
+    if (CanShoot()) { // 每 1 秒射擊一次
+        Shoot(playerPosition);
+    }
 //    // 超出畫面範圍則隱藏
 //    if (IsOutOfScreen()) {
 //        SetVisible(false);
 //    }
     for (auto &bullet: m_Bullets) {
         bullet->Update();
+        // remove if out of bound
+        if (!bullet->InBound()) {
+            //TODO RmBullets(bullet);
+        }
         LOG_WARN("Updated by enemy");
     }
 }
 
 bool Enemy::IsOutOfScreen() const {
     return m_Transform.translation.y > 900 || m_Transform.translation.y < -900; // 900px 以下則消失
+}
+
+
+#include <chrono>
+
+bool Enemy::CanShoot() {
+    auto now = std::chrono::steady_clock::now();
+    if (now - m_LastShootTime >= std::chrono::milliseconds(300)) {
+        m_LastShootTime = now;
+        return true;
+    }
+    return false;
 }
