@@ -11,7 +11,7 @@ Bullet::Bullet(const glm::vec2& position, const glm::vec2& velocity)
     if (!m_Drawable) {
         LOG_ERROR("Bullet image failed to load!");
     } else {
-        LOG_INFO("Bullet created at ({}, {}) with image", m_Transform.translation.x, m_Transform.translation.y);
+       // LOG_INFO("Bullet created at ({}, {}) with image", m_Transform.translation.x, m_Transform.translation.y);
     }
 }
 
@@ -41,7 +41,7 @@ bool Bullet::CollidesWith(const std::shared_ptr<Util::GameObject>& other) const 
 void Bullet::Update() {
     m_Transform.translation += m_Velocity;
 
-    LOG_INFO("Bullet position: ({}, {})", m_Transform.translation.x, m_Transform.translation.y);
+    //LOG_INFO("Bullet position: ({}, {})", m_Transform.translation.x, m_Transform.translation.y);
 
 }
 

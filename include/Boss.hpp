@@ -6,8 +6,9 @@
 #define BOSS_HPP
 #include "Util/GameObject.hpp"
 #include "Util/Image.hpp"
+#include "Enemy.hpp"
 
-class Boss : public Util::GameObject {
+class Boss : public Enemy {
 public:
     Boss(const glm::vec2& position);
     void Update();  // 控制移動

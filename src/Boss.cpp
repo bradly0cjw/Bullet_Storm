@@ -6,11 +6,16 @@
 #include "Util/Logger.hpp"
 
 Boss::Boss(const glm::vec2& position)
-    : Util::GameObject(std::make_shared<Util::Image>(RESOURCE_DIR "/enemy/boss.png"), 2),
-      m_Health(500), m_Active(false) {
+    : Enemy(position, MovePattern::STRAIGHT),  // 先用 STRAIGHT，不會實際移動
+      m_Health(10), m_Active(false) {
     m_Transform.translation = position;
-    SetVisible(false);  // 預設不可見
+    SetVisible(false);
+
+    // 換 boss 專屬圖片
+    SetDrawable(std::make_shared<Util::Image>(RESOURCE_DIR "/enemy/boss.png"));
+    SetZIndex(100);
 }
+
 
 void Boss::Update() {
     if (!m_Active) return;
