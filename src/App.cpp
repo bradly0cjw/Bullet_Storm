@@ -57,7 +57,15 @@ void App::Start() {
 void App::result() {
     for (auto& enemy : m_Enemies) {
         m_Renderer->RemoveChild(enemy);
+        //remove bullet which enemy shooted
+        for (auto& bullet : enemy->GetBullets()) {
+            m_Renderer->RemoveChild(bullet);
+            LOG_INFO("Enemy Bullet removed at position ({}, {})", bullet->GetPosition().x, bullet->GetPosition().y);
+        }
     }
+
+    m_Renderer->RemoveChild(m_Boss);
+
     m_Enemies.clear();
 
     for (auto& bullet : m_Player->GetBullets()) {
@@ -283,7 +291,8 @@ void App::Update() {
     }
 
     if (m_Player->GetHealth() <= 0) {
-        m_CurrentState = State::END;
+        m_ResultText= std::make_shared<ResultText>("YOU LOSE!");
+        m_CurrentState = State::RESULT;
     }
     // 更新畫面
     m_Renderer->Update();
@@ -308,6 +317,7 @@ void App::Update() {
         m_Renderer->RemoveChild(m_Boss);
         LOG_INFO("Boss fully removed from Renderer.");
         LOG_INFO("Boss defeated, switching to RESULT state!");
+        m_ResultText = std::make_shared<ResultText>("YOU WIN!");
         m_CurrentState = State::RESULT;
     }
 
