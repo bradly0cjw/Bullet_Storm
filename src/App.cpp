@@ -8,28 +8,68 @@
 #include "Util/Logger.hpp"
 #include "PhaseResourceManager.hpp"
 
-void App::Start() {
+void App::Menu() {
     LOG_TRACE("Start");
     Util::Logger::Init();
     Util::Logger::SetLevel(Util::Logger::Level::DEBUG);  // 👈 設定最低 Log Level
+    // 3️⃣ 初始化 Renderer 並加入根物件
+    if (!m_MenuInitialized) {
+        // 只做一次
+        m_Renderer = std::make_unique<Util::Renderer>(
+          std::vector<std::shared_ptr<Util::GameObject>>{ std::make_shared<Util::GameObject>(m_Root) }
+        );
+        m_MenuTitle = std::make_shared<Util::GameObject>(
+          std::make_shared<Util::Image>(RESOURCE_DIR "/entrance/title.png"), 100);
+        m_MenuTitle->m_Transform.translation = {0, 100};
+        m_StartButton = std::make_shared<Util::GameObject>(
+          std::make_shared<Util::Image>(RESOURCE_DIR "/entrance/start.png"), 100);
+        m_StartButton->m_Transform.translation = {0, -50};
+
+        m_Renderer->AddChild(m_MenuTitle);
+        m_Renderer->AddChild(m_StartButton);
+
+        m_MenuInitialized = true;
+    }
+    // 偵測滑鼠點擊
+    if (Util::Input::IsKeyDown(Util::Keycode::MOUSE_LB)) {
+        auto pos = Util::Input::GetCursorPosition();
+        // GameObject 位置在 m_Transform.translation
+        auto btnPos = m_StartButton->m_Transform.translation;
+        // 假設 start button 大小 200×80
+        if (pos.x >= btnPos.x - 120 && pos.x <= btnPos.x + 120 &&
+            pos.y >= btnPos.y -  140 && pos.y <= btnPos.y +  140) {
+            m_ButtonPressed = true;
+            }
+    }
+    // 等滑鼠放開再真正觸發
+    if (m_ButtonPressed && !Util::Input::IsKeyPressed(Util::Keycode::MOUSE_LB)) {
+        // 清掉 menu 圖片
+        m_Renderer->RemoveChild(m_MenuTitle);
+        m_Renderer->RemoveChild(m_StartButton);
+        m_MenuTitle.reset();
+        m_StartButton.reset();
+        m_ButtonPressed = false;
+
+        // 切到 START 做遊戲初始化
+        m_CurrentState = State::START;
+    }
+
+    m_Renderer->Update();
+
+}
+
+void App::Start() {
+
 
     LOG_INFO("Game Started!");
-
-
-
 
     // 1️⃣ 創建玩家角色 (戰機)
     m_Player = std::make_shared<Character>(RESOURCE_DIR "/character/test_plane.png");
     m_Player->SetPosition({-112.5f, -140.5f});  // 螢幕中央
     m_Player->SetZIndex(1);                  // 讓玩家顯示在最前面
-    m_Root.AddChild(m_Player);
+    //m_Root.AddChild(m_Player);
+    m_Renderer->AddChild(m_Player);
 
-
-
-    // 3️⃣ 初始化 Renderer 並加入根物件
-    m_Renderer = std::make_unique<Util::Renderer>(
-            std::vector<std::shared_ptr<Util::GameObject>>{std::make_shared<Util::GameObject>(m_Root)}
-    );
 
     m_PRM = std::make_shared<PhaseResourceManager>();
     m_Renderer->AddChildren(m_PRM->GetChildren());
@@ -37,23 +77,15 @@ void App::Start() {
 
     m_EnemySpawnTimer = std::time(nullptr);
 
-    // 測試：生成一架敵機
-    auto enemy = std::make_shared<Enemy>(glm::vec2(400, -50), Enemy::MovePattern::WAVE);
-    m_Enemies.push_back(enemy);
-
-    m_Renderer->AddChild(enemy);
-
     // generate boss
     m_Timer = std::time(nullptr);
 
     m_Boss = std::make_shared<Boss>(glm::vec2(100, 350));  // 從畫面外開始
     m_Renderer->AddChild(m_Boss);
 
-
-
     m_ResultText = std::make_shared<ResultText>("YOU WIN!");
 
-
+    m_Renderer->Update();
     m_CurrentState = State::UPDATE;
 }
 
@@ -326,7 +358,7 @@ void App::Update() {
 
 
     auto currentTime_Boss = std::time(nullptr);
-    if (!m_Boss->IsVisible() && currentTime_Boss - m_Timer >= 60) {
+    if (!m_Boss->IsVisible() && currentTime_Boss - m_Timer >= 10) {
 
         m_Boss->SetVisible(true);
         m_Boss->SetZIndex(100);  // 確保在最上層
