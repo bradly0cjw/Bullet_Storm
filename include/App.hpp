@@ -14,6 +14,8 @@
 #include "PhaseResourceManager.hpp"
 #include <vector>
 #include "Boss.hpp"
+#include "PowerUp.hpp"
+
 
 class App {
 public:
@@ -73,6 +75,9 @@ private:
     std::shared_ptr<Boss> m_Boss;
     ll m_Timer;  // 記錄遊戲經過時間（秒）
     ll m_collisionTimer = 0.0f;  // 紀錄碰撞時間
+
+    // powerup
+    std::vector<std::shared_ptr<PowerUp>> m_PowerUps;
 
 };
 

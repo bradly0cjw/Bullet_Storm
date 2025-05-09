@@ -49,7 +49,10 @@ void App::Start() {
     m_Boss = std::make_shared<Boss>(glm::vec2(100, 350));  // 從畫面外開始
     m_Renderer->AddChild(m_Boss);
 
+
+
     m_ResultText = std::make_shared<ResultText>("YOU WIN!");
+
 
     m_CurrentState = State::UPDATE;
 }
@@ -72,6 +75,11 @@ void App::result() {
         m_Renderer->RemoveChild(bullet);
     }
 
+    for (auto &pup : m_PowerUps) {
+        m_Renderer->RemoveChild(pup);
+    }
+
+    m_PowerUps.clear();
     m_Renderer->RemoveChild(m_Player);
     m_Renderer->RemoveChild(m_PRM->GetChildren()[0]);
     m_Player->SetVisible(false);
@@ -288,7 +296,25 @@ void App::Update() {
         }
         m_Renderer->RemoveChild(enemy);
         LOG_INFO("enemy Count: {}", m_Enemies.size());
+
+
+        // 移除enemy的同時掉落道具
+        if (std::rand() % 2 == 0) { // 50% 機率掉落道具
+            PowerUpType type = static_cast<PowerUpType>(std::rand() % 3);
+            glm::vec2 pos = enemy->GetPosition();
+            // 隨機初速度 (X 亂 -1~1, Y 往上 +2)
+            glm::vec2 vel = { (std::rand()%200 - 100) / 100.0f,  2.0f };
+            auto pup = std::make_shared<PowerUp>(type, pos, vel);
+            m_PowerUps.push_back(pup);
+            m_Renderer->AddChild(pup);
+        }
     }
+    for (auto &pup : m_PowerUps) {
+        pup->Update();
+    }
+
+    // 🔄 然後才呼叫 Renderer 繪製
+    m_Renderer->Update();
 
     if (m_Player->GetHealth() <= 0) {
         m_ResultText= std::make_shared<ResultText>("YOU LOSE!");
@@ -300,7 +326,7 @@ void App::Update() {
 
 
     auto currentTime_Boss = std::time(nullptr);
-    if (!m_Boss->IsVisible() && currentTime_Boss - m_Timer >= 10) {
+    if (!m_Boss->IsVisible() && currentTime_Boss - m_Timer >= 60) {
 
         m_Boss->SetVisible(true);
         m_Boss->SetZIndex(100);  // 確保在最上層
