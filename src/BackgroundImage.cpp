@@ -7,13 +7,13 @@
 #include "Util/Logger.hpp"
 
 BackgroundImage::BackgroundImage() : GameObject(
-        std::make_unique<Util::Image>(RESOURCE_DIR"/image2.jpg"), -10) {
+        std::make_unique<Util::Image>(RESOURCE_DIR"/map/map1.png"), -10) {
     auto temp = dynamic_cast<Util::Image *>(m_Drawable.get());
     if (temp) {
         m_ImageSize = temp->GetSize();
         auto position = m_ImageSize;
         position.x = 0;
-        position.y = (m_ImageSize.y / 2);
+        position.y = (m_ImageSize.y / 2.5);
         auto piv = glm::vec<2, float>(0, 0);
         Util::GameObject::SetPivot(piv);
 
