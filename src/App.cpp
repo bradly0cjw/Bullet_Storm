@@ -1,4 +1,4 @@
-#include "App.hpp"
+#include "App.hpp"   // 假设你在 include/Bullet_Storm/App.hpp
 
 #include "ResourceManager.hpp"
 #include "Util/Text.hpp"
@@ -18,9 +18,16 @@ void App::Menu() {
         m_Renderer = std::make_unique<Util::Renderer>(
           std::vector<std::shared_ptr<Util::GameObject>>{ std::make_shared<Util::GameObject>(m_Root) }
         );
+
+        m_MenuBackground = std::make_shared<Util::GameObject>(
+    std::make_shared<Util::Image>(RESOURCE_DIR "/entrance/background.png"),
+        /* z-index */ 0);
+        // 如果背景圖要充滿畫面，通常 translation = {0,0} 就好（中心對齊）
+        m_MenuBackground->m_Transform.translation = { 0.0f, 0.0f };
+        m_Renderer->AddChild(m_MenuBackground);
         m_MenuTitle = std::make_shared<Util::GameObject>(
           std::make_shared<Util::Image>(RESOURCE_DIR "/entrance/title.png"), 100);
-        m_MenuTitle->m_Transform.translation = {0, 100};
+        m_MenuTitle->m_Transform.translation = {0, 0};
         m_StartButton = std::make_shared<Util::GameObject>(
           std::make_shared<Util::Image>(RESOURCE_DIR "/entrance/start.png"), 100);
         m_StartButton->m_Transform.translation = {0, -50};
@@ -46,8 +53,10 @@ void App::Menu() {
         // 清掉 menu 圖片
         m_Renderer->RemoveChild(m_MenuTitle);
         m_Renderer->RemoveChild(m_StartButton);
+        m_Renderer->RemoveChild(m_MenuBackground);
         m_MenuTitle.reset();
         m_StartButton.reset();
+        m_MenuBackground.reset();
         m_ButtonPressed = false;
 
         // 切到 START 做遊戲初始化
@@ -146,6 +155,8 @@ void App::Update() {
 
 
     //TODO: do your things here and delete this line <3
+
+
     const float speed = 10.0f; // 控制移動速度
     float x = m_Player->GetPosition().x;
     float y = m_Player->GetPosition().y;
@@ -340,6 +351,9 @@ void App::Update() {
             m_PowerUps.push_back(pup);
             m_Renderer->AddChild(pup);
         }
+
+        m_DefeatedThisLevel += 1;
+        m_PlayerScore = (m_Level - 1) * 0 + m_DefeatedThisLevel * 10; // 或直接累加：m_PlayerScore += 10;
     }
     for (auto &pup : m_PowerUps) {
         pup->Update();
@@ -431,6 +445,7 @@ void App::Update() {
 
 
 }
+
 
 void App::End() { // NOLINT(this method will mutate members in the future)
 
