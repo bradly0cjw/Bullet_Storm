@@ -98,52 +98,60 @@ void App::Start() {
     m_CurrentState = State::UPDATE;
 }
 
+// App.cpp (only show修改過的 result() 部分)
 void App::result() {
     if (!m_ResultShown) {
-        // ——1. 清除所有遊戲物件（沿用你原本的邏輯）——
+        // ——1. 清除所有舊遊戲物件（沿用你原本邏輯）——
         for (auto& enemy : m_Enemies) {
             m_Renderer->RemoveChild(enemy);
             for (auto& b : enemy->GetBullets())
                 m_Renderer->RemoveChild(b);
         }
         m_Enemies.clear();
-
         m_Renderer->RemoveChild(m_Boss);
-
         for (auto& b : m_Player->GetBullets())
             m_Renderer->RemoveChild(b);
-
         for (auto& pup : m_PowerUps)
             m_Renderer->RemoveChild(pup);
         m_PowerUps.clear();
-
         m_Renderer->RemoveChild(m_Player);
         m_Renderer->RemoveChild(m_PRM->GetChildren()[0]);
         m_Player->SetVisible(false);
 
-        // ——2. 顯示菜單背景——
+        // ——2. 血量檢查：顯示 GameOver 圖片或關卡結算——
+        if (m_Player->GetHealth() <= 0) {
+            // 顯示大大的 Game Over 圖
+            m_GameOverImage = std::make_shared<Util::GameObject>(
+                std::make_shared<Util::Image>(RESOURCE_DIR "/entrance/gameover.png"),
+                /* z-index */ 100
+            );
+            m_GameOverImage->m_Transform.translation = {0.0f, 0.0f};
+            m_Renderer->AddChild(m_GameOverImage);
+        }
+        else {
+            // 顯示菜單背景 + 標題
+            m_MenuBackground = std::make_shared<Util::GameObject>(
+                std::make_shared<Util::Image>(RESOURCE_DIR "/entrance/background.png"),
+                0
+            );
+            m_MenuBackground->m_Transform.translation = {0.0f, 0.0f};
+            m_MenuTitle = std::make_shared<Util::GameObject>(
+                std::make_shared<Util::Image>(RESOURCE_DIR "/entrance/title.png"),
+                100
+            );
+            m_MenuTitle->m_Transform.translation = {0, 50};
+            m_Renderer->AddChild(m_MenuBackground);
+            m_Renderer->AddChild(m_MenuTitle);
 
-        m_MenuTitle = std::make_shared<Util::GameObject>(
-        std::make_shared<Util::Image>(RESOURCE_DIR "/entrance/title.png"), 100);
-        m_MenuTitle->m_Transform.translation = {0, 50};
-        m_MenuBackground = std::make_shared<Util::GameObject>(
-            std::make_shared<Util::Image>(RESOURCE_DIR "/entrance/background.png"),
-            /* z-index */ 0
-        );
-        m_MenuBackground->m_Transform.translation = {0.0f, 0.0f};
-        m_Renderer->AddChild(m_MenuBackground);
-        m_Renderer->AddChild(m_MenuTitle);
-
-        // 1️⃣ 组装结算信息
-        std::string info =
-            "HP: "       + std::to_string(m_Player->GetHealth())       + "\n" +
-            "LEVEL: "       + std::to_string(m_Level)                    + "\n" +
-            "KILLED: " + std::to_string(m_DefeatedThisLevel)       + "\n" +
-            "SCORE: "       + std::to_string(m_DefeatedThisLevel * 10*m_Player->GetHealth());
-
-        // 2️⃣ 用 ResultText 来创建文字物件
-        m_ResultText = std::make_shared<ResultText>(info);
-        m_Renderer->AddChild(m_ResultText);
+            // 關卡結算文字
+            std::string info =
+                "HP: "     + std::to_string(m_Player->GetHealth())       + "\n" +
+                "LEVEL: "  + std::to_string(m_Level)                     + "\n" +
+                "KILLED: " + std::to_string(m_DefeatedThisLevel)        + "\n" +
+                "SCORE: "  + std::to_string(m_DefeatedThisLevel * 10);
+            m_ResultText = std::make_shared<ResultText>(info);
+            m_Renderer->AddChild(m_ResultText);
+        }
 
         m_ResultShown = true;
     }
@@ -151,44 +159,48 @@ void App::result() {
     // 每一幀都要刷新畫面
     m_Renderer->Update();
 
-    // 等玩家放開再按 Space 離開
+    // 偵測空白鍵放開後再按下
     if (m_WaitForSpaceRelease) {
         if (!Util::Input::IsKeyPressed(Util::Keycode::SPACE))
             m_WaitForSpaceRelease = false;
     }
     else if (Util::Input::IsKeyDown(Util::Keycode::SPACE)) {
-        if (m_Level < MAX_LEVEL) {
-            // ① 移除「結算畫面」文字
-            if (m_ResultText) {
-                m_Renderer->RemoveChild(m_ResultText);
-                m_ResultText.reset();
-            }
-            // ② 移除菜單背景（如果還在畫面上）
-            if (m_MenuBackground) {
-                m_Renderer->RemoveChild(m_MenuBackground);
-                m_MenuBackground.reset();
-            }
-            // ③ 移除菜單標題（如果還在畫面上）
-            if (m_MenuTitle) {
-                m_Renderer->RemoveChild(m_MenuTitle);
-                m_MenuTitle.reset();
-            }
-
-            // ④ 切下一關
-            m_Level++;
-            ResetLevel();
-            m_CurrentState = State::UPDATE;
+        // ——3. 按下空白鍵，清除所有 result 狀態的 UI——
+        if (m_GameOverImage) {
+            m_Renderer->RemoveChild(m_GameOverImage);
+            m_GameOverImage.reset();
         }
-        else {
+        if (m_ResultText) {
+            m_Renderer->RemoveChild(m_ResultText);
+            m_ResultText.reset();
+        }
+        if (m_MenuBackground) {
+            m_Renderer->RemoveChild(m_MenuBackground);
+            m_MenuBackground.reset();
+        }
+        if (m_MenuTitle) {
+            m_Renderer->RemoveChild(m_MenuTitle);
+            m_MenuTitle.reset();
+        }
+
+        // ——4. 狀態轉換：玩家死了直接結束，否則進下一關或結束——
+        if (m_Player->GetHealth() <= 0) {
+            m_CurrentState = State::END;
+        }
+        else if (m_Level < MAX_LEVEL) {
+            m_Level++;
+            ResetLevel();            // 清場並重製下一關
+            m_CurrentState = State::UPDATE;
+        } else {
             m_CurrentState = State::END;
         }
 
-        // 重置 flag，讓下一次 result() 會重新跑「只做一次」區塊
+        // 重置標記，下次再進 result() 時可重新顯示
         m_ResultShown         = false;
         m_WaitForSpaceRelease = true;
     }
-
 }
+
 
 
 void App::Update() {

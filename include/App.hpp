@@ -55,6 +55,7 @@ private:
     int m_Level;                    // 1,2,3
     int m_DefeatedThisLevel;        // 本關擊殺敵機數
     int m_Score;              // 總分
+    std::shared_ptr<Util::GameObject> m_GameOverImage;  // gameover 圖片
 
 
     // 通用文字顯示
