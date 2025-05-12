@@ -157,15 +157,41 @@ void App::result() {
             m_WaitForSpaceRelease = false;
     }
     else if (Util::Input::IsKeyDown(Util::Keycode::SPACE)) {
-        m_CurrentState = State::END;
+        if (m_Level < MAX_LEVEL) {
+            // ① 移除「結算畫面」文字
+            if (m_ResultText) {
+                m_Renderer->RemoveChild(m_ResultText);
+                m_ResultText.reset();
+            }
+            // ② 移除菜單背景（如果還在畫面上）
+            if (m_MenuBackground) {
+                m_Renderer->RemoveChild(m_MenuBackground);
+                m_MenuBackground.reset();
+            }
+            // ③ 移除菜單標題（如果還在畫面上）
+            if (m_MenuTitle) {
+                m_Renderer->RemoveChild(m_MenuTitle);
+                m_MenuTitle.reset();
+            }
+
+            // ④ 切下一關
+            m_Level++;
+            ResetLevel();
+            m_CurrentState = State::UPDATE;
+        }
+        else {
+            m_CurrentState = State::END;
+        }
+
+        // 重置 flag，讓下一次 result() 會重新跑「只做一次」區塊
+        m_ResultShown         = false;
+        m_WaitForSpaceRelease = true;
     }
+
 }
 
 
 void App::Update() {
-
-
-
 
 
     //TODO: do your things here and delete this line <3
@@ -369,7 +395,7 @@ void App::Update() {
         }
 
         m_DefeatedThisLevel += 1;
-        m_PlayerScore = (m_Level - 1) * 0 + m_DefeatedThisLevel * 10; // 或直接累加：m_PlayerScore += 10;
+        m_Score = (m_Level - 1) * 0 + m_DefeatedThisLevel * 10; // 或直接累加：m_PlayerScore += 10;
     }
     for (auto &pup : m_PowerUps) {
         pup->Update();
@@ -404,8 +430,9 @@ void App::Update() {
     if (m_Boss->IsDead()) {
         m_Renderer->RemoveChild(m_Boss);
 
-            m_CurrentState = State::RESULT;
-        m_WaitForSpaceRelease = true;       // 重置輸入偵測
+        m_CurrentState        = State::RESULT;
+        m_ResultShown         = false;    // 讓 result() 重新執行裡面的「只一次」邏輯
+        m_WaitForSpaceRelease = true;     // 重置空白鍵偵測
     }
 
 
@@ -458,6 +485,67 @@ void App::Update() {
 
 
 }
+
+void App::ResetLevel() {
+    // 1. 移除所有敵人及其子彈
+    for (auto& enemy : m_Enemies) {
+        m_Renderer->RemoveChild(enemy);
+        for (auto& b : enemy->GetBullets()) {
+            m_Renderer->RemoveChild(b);
+        }
+    }
+    m_Enemies.clear();
+
+    // 2. 移除玩家的所有子彈
+    for (auto& b : m_Player->GetBullets()) {
+        m_Renderer->RemoveChild(b);
+    }
+    m_Player->GetBullets().clear();
+
+    // 3. 移除所有道具
+    for (auto& pup : m_PowerUps) {
+        m_Renderer->RemoveChild(pup);
+    }
+    m_PowerUps.clear();
+
+    // 4. 移除 Boss
+    if (m_Boss) {
+        m_Renderer->RemoveChild(m_Boss);
+        m_Boss.reset();
+    }
+
+    // 5. 移除玩家本體
+    m_Renderer->RemoveChild(m_Player);
+
+    // 6. 移除背景節點（PhaseResourceManager 的 child）
+    if (m_PRM) {
+        for (auto& child : m_PRM->GetChildren()) {
+            m_Renderer->RemoveChild(child);
+        }
+        m_PRM.reset();
+    }
+
+    // ——以上對應 result() 的清除邏輯——
+
+    // 7. 重建玩家
+    m_Player->SetPosition({-112.5f, -140.5f});
+    m_Player->SetVisible(true);
+    m_Renderer->AddChild(m_Player);
+
+    // 8. 重建場景背景
+    m_PRM = std::make_shared<PhaseResourceManager>();
+    m_Renderer->AddChildren(m_PRM->GetChildren());
+
+    // 9. 重建（隱藏狀態的）Boss
+    m_Boss = std::make_shared<Boss>(glm::vec2(100, 350));
+    m_Boss->SetVisible(false);
+    m_Renderer->AddChild(m_Boss);
+
+    // 10. 重置計時器
+    m_EnemySpawnTimer = std::time(nullptr);
+    m_Timer           = std::time(nullptr);
+}
+
 
 
 

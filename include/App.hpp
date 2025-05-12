@@ -33,7 +33,7 @@ public:
     App() :
         m_Level(1),
         m_DefeatedThisLevel(0),
-        m_PlayerScore(0)
+        m_Score(0)
     {}
 
     State GetCurrentState() const { return m_CurrentState; }
@@ -54,7 +54,8 @@ private:
     // 關卡相關
     int m_Level;                    // 1,2,3
     int m_DefeatedThisLevel;        // 本關擊殺敵機數
-    int m_PlayerScore;              // 總分
+    int m_Score;              // 總分
+
 
     // 通用文字顯示
     std::shared_ptr<Util::GameObject> m_LevelEndText ;
