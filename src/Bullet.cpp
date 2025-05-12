@@ -25,8 +25,8 @@ bool Bullet::CollidesWith(const std::shared_ptr<Util::GameObject>& other) const 
 
     // 判斷是否是 Boss 並轉型
     if (auto boss = std::dynamic_pointer_cast<Boss>(other)) {
-        halfW = boss->GetWidth() / 2.0f;
-        halfH = boss->GetHeight() / 2.0f;
+        halfW = boss->GetHitboxWidth() / 2.0f;
+        halfH = boss->GetHitboxHeight() / 2.0f;
     }
 
     return (

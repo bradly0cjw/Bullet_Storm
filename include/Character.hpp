@@ -5,6 +5,7 @@
 #include "Util/Logger.hpp"
 #include "Util/GameObject.hpp"
 #include "Bullet.hpp"
+#include "PowerUp.hpp"
 
 class Character : public Util::GameObject {
 public:
@@ -58,6 +59,10 @@ public:
     int GetHealth() const { return m_health; }
 
     void modifyHealth(int health) { m_health += health; }
+
+    void ApplyPowerUp(PowerUpType power_up)
+    {
+    }; //TODO
 
 private:
     void ResetPosition() { m_Transform.translation = {0, 0}; }
