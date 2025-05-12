@@ -16,6 +16,9 @@
 #include "Boss.hpp"
 #include "PowerUp.hpp"
 
+// App.hpp (或 App.cpp 最上方)
+static constexpr int MAX_LEVEL = 3;
+
 
 class App {
 public:
@@ -37,7 +40,8 @@ public:
 
     void Start();
     void Menu();
-
+    void ResetLevel() ;
+    void LevelEnd();
 
     void Update();
     void result();

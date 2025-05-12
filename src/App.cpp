@@ -99,54 +99,68 @@ void App::Start() {
 }
 
 void App::result() {
-    for (auto& enemy : m_Enemies) {
-        m_Renderer->RemoveChild(enemy);
-        //remove bullet which enemy shooted
-        for (auto& bullet : enemy->GetBullets()) {
-            m_Renderer->RemoveChild(bullet);
-            LOG_INFO("Enemy Bullet removed at position ({}, {})", bullet->GetPosition().x, bullet->GetPosition().y);
-        }
-    }
-
-    m_Renderer->RemoveChild(m_Boss);
-
-    m_Enemies.clear();
-
-    for (auto& bullet : m_Player->GetBullets()) {
-        m_Renderer->RemoveChild(bullet);
-    }
-
-    for (auto &pup : m_PowerUps) {
-        m_Renderer->RemoveChild(pup);
-    }
-
-    m_PowerUps.clear();
-    m_Renderer->RemoveChild(m_Player);
-    m_Renderer->RemoveChild(m_PRM->GetChildren()[0]);
-    m_Player->SetVisible(false);
-
-
     if (!m_ResultShown) {
-        //LOG_INFO("test");
+        // ——1. 清除所有遊戲物件（沿用你原本的邏輯）——
+        for (auto& enemy : m_Enemies) {
+            m_Renderer->RemoveChild(enemy);
+            for (auto& b : enemy->GetBullets())
+                m_Renderer->RemoveChild(b);
+        }
+        m_Enemies.clear();
+
+        m_Renderer->RemoveChild(m_Boss);
+
+        for (auto& b : m_Player->GetBullets())
+            m_Renderer->RemoveChild(b);
+
+        for (auto& pup : m_PowerUps)
+            m_Renderer->RemoveChild(pup);
+        m_PowerUps.clear();
+
+        m_Renderer->RemoveChild(m_Player);
+        m_Renderer->RemoveChild(m_PRM->GetChildren()[0]);
+        m_Player->SetVisible(false);
+
+        // ——2. 顯示菜單背景——
+
+        m_MenuTitle = std::make_shared<Util::GameObject>(
+        std::make_shared<Util::Image>(RESOURCE_DIR "/entrance/title.png"), 100);
+        m_MenuTitle->m_Transform.translation = {0, 50};
+        m_MenuBackground = std::make_shared<Util::GameObject>(
+            std::make_shared<Util::Image>(RESOURCE_DIR "/entrance/background.png"),
+            /* z-index */ 0
+        );
+        m_MenuBackground->m_Transform.translation = {0.0f, 0.0f};
+        m_Renderer->AddChild(m_MenuBackground);
+        m_Renderer->AddChild(m_MenuTitle);
+
+        // 1️⃣ 组装结算信息
+        std::string info =
+            "HP: "       + std::to_string(m_Player->GetHealth())       + "\n" +
+            "LEVEL: "       + std::to_string(m_Level)                    + "\n" +
+            "KILLED: " + std::to_string(m_DefeatedThisLevel)       + "\n" +
+            "SCORE: "       + std::to_string(m_DefeatedThisLevel * 10*m_Player->GetHealth());
+
+        // 2️⃣ 用 ResultText 来创建文字物件
+        m_ResultText = std::make_shared<ResultText>(info);
         m_Renderer->AddChild(m_ResultText);
-        //m_ResultShown = true;
-        m_Renderer->Update();
 
+        m_ResultShown = true;
     }
 
-    // 每一幀都會檢查一次這段
+    // 每一幀都要刷新畫面
+    m_Renderer->Update();
+
+    // 等玩家放開再按 Space 離開
     if (m_WaitForSpaceRelease) {
-        if (!Util::Input::IsKeyPressed(Util::Keycode::SPACE)) {
+        if (!Util::Input::IsKeyPressed(Util::Keycode::SPACE))
             m_WaitForSpaceRelease = false;
-        }
-    } else {
-        if (Util::Input::IsKeyDown(Util::Keycode::SPACE)) {
-            m_CurrentState = State::END;
-        }
     }
-
-
+    else if (Util::Input::IsKeyDown(Util::Keycode::SPACE)) {
+        m_CurrentState = State::END;
+    }
 }
+
 
 void App::Update() {
 
@@ -324,6 +338,8 @@ void App::Update() {
                     m_Player->modifyHealth(-1);
                     isPlayerHit = true;
                     m_collisionTimer = currentTime;
+                    m_DefeatedThisLevel += 1;
+
                 }
             }
         }
@@ -387,10 +403,9 @@ void App::Update() {
 
     if (m_Boss->IsDead()) {
         m_Renderer->RemoveChild(m_Boss);
-        LOG_INFO("Boss fully removed from Renderer.");
-        LOG_INFO("Boss defeated, switching to RESULT state!");
-        m_ResultText = std::make_shared<ResultText>("YOU WIN!");
-        m_CurrentState = State::RESULT;
+
+            m_CurrentState = State::RESULT;
+        m_WaitForSpaceRelease = true;       // 重置輸入偵測
     }
 
 
@@ -442,9 +457,8 @@ void App::Update() {
     }
 
 
-
-
 }
+
 
 
 void App::End() { // NOLINT(this method will mutate members in the future)

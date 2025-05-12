@@ -12,14 +12,14 @@ public:
     ResultText(const std::string& message)
         : GameObject(
             std::make_unique<Util::Text>(
-                RESOURCE_DIR "/Font/Inkfree.ttf",  // ✅ 字型路徑依照你的格式
+                RESOURCE_DIR "/Font/236_Smudger.ttf",  // ✅ 字型路徑依照你的格式
                 64,
                 message,
                 Util::Color::FromName(Util::Colors::WHITE)
             ),
             100  // z-index
         ) {
-        m_Transform.translation = glm::vec2(0.0f, 0.0f);  // ✅ 顯示在畫面中間
+        m_Transform.translation = glm::vec2(0.0f, -70.0f);  // ✅ 顯示在畫面中間
         LOG_INFO("ResultText created with message: {}", message);
         LOG_INFO("ResultText positioned at ({}, {})", m_Transform.translation.x, m_Transform.translation.y);
 
