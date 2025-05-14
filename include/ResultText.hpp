@@ -15,15 +15,18 @@ public:
     ResultText(const std::string& initialMessage)
         : GameObject(
             std::make_shared<Util::Text>( // Use make_shared since m_Drawable is shared_ptr
-                RESOURCE_DIR "/Font/Inkfree.ttf", // Font path
+                RESOURCE_DIR "/Font/236_Smudger.ttf", // Font path
                 64, // Font size
                 initialMessage, // Initial text message
                 Util::Color::FromName(Util::Colors::WHITE) // Text color
             ),
             100 // z-index
         ) {
-        m_Transform.translation = glm::vec2(0.0f, 0.0f); // Center position
+
+        m_Transform.translation = glm::vec2(0.0f, -70.0f);  // ✅ 顯示在畫面中間
         LOG_INFO("ResultText created with message: {}", initialMessage);
+        LOG_INFO("ResultText positioned at ({}, {})", m_Transform.translation.x, m_Transform.translation.y);
+
 
         // Check if font file exists (useful for debugging)
         // Note: Original log checked arial.ttf, ensure Inkfree.ttf is the correct one to check if needed.

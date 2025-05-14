@@ -16,6 +16,9 @@
 #include "Boss.hpp"
 #include "PowerUp.hpp"
 
+// App.hpp (或 App.cpp 最上方)
+static constexpr int MAX_LEVEL = 3;
+
 
 class App {
 public:
@@ -23,15 +26,22 @@ public:
         MENU,
         START,
         UPDATE,
+        LEVEL_END,
         RESULT,
         END,
     };
-    App() : m_CurrentState(State::MENU) {}   // 初始進入 Menu
+    App() :
+        m_Level(1),
+        m_DefeatedThisLevel(0),
+        m_Score(0)
+    {}
 
     State GetCurrentState() const { return m_CurrentState; }
 
     void Start();
     void Menu();
+    void ResetLevel() ;
+    void LevelEnd();
 
     void Update();
     void result();
@@ -41,8 +51,19 @@ public:
 private:
     void ValidTask();
 
+    // 關卡相關
+    int m_Level;                    // 1,2,3
+    int m_DefeatedThisLevel;        // 本關擊殺敵機數
+    int m_Score;              // 總分
+    std::shared_ptr<Util::GameObject> m_GameOverImage;  // gameover 圖片
+
+
+    // 通用文字顯示
+    std::shared_ptr<Util::GameObject> m_LevelEndText ;
+
     std::shared_ptr<Util::GameObject> m_MenuTitle;
     std::shared_ptr<Util::GameObject> m_StartButton;
+    std::shared_ptr<Util::GameObject> m_MenuBackground;
     bool m_ButtonPressed = false;
     bool m_MenuInitialized = false;
 
