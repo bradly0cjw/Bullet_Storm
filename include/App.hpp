@@ -20,15 +20,18 @@
 class App {
 public:
     enum class State {
+        MENU,
         START,
         UPDATE,
         RESULT,
         END,
     };
+    App() : m_CurrentState(State::MENU) {}   // 初始進入 Menu
 
     State GetCurrentState() const { return m_CurrentState; }
 
     void Start();
+    void Menu();
 
     void Update();
     void result();
@@ -38,8 +41,12 @@ public:
 private:
     void ValidTask();
 
+    std::shared_ptr<Util::GameObject> m_MenuTitle;
+    std::shared_ptr<Util::GameObject> m_StartButton;
+    bool m_ButtonPressed = false;
+    bool m_MenuInitialized = false;
 
-    State m_CurrentState = State::START;
+    State m_CurrentState = State::MENU;
 
     // 遊戲根物件，負責管理所有物件
     Util::GameObject m_Root;
