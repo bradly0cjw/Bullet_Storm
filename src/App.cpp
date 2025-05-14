@@ -7,11 +7,18 @@
 #include "Util/Keycode.hpp"
 #include "Util/Logger.hpp"
 #include "PhaseResourceManager.hpp"
+#include "Enemy.hpp" // Make sure this points to your new Enemy.hpp
+#include "Boss.hpp"
+#include <cstdlib> // For std::srand, std::rand
+#include <ctime>   // For std::time
+
 
 void App::Menu() {
     LOG_TRACE("Start");
     Util::Logger::Init();
     Util::Logger::SetLevel(Util::Logger::Level::DEBUG);  // 👈 設定最低 Log Level
+    std::srand(static_cast<unsigned int>(std::time(nullptr))); // Seed RNG once
+    LOG_INFO("Game Started!");
     // 3️⃣ 初始化 Renderer 並加入根物件
     if (!m_MenuInitialized) {
         // 只做一次
@@ -75,9 +82,10 @@ void App::Start() {
     // 1️⃣ 創建玩家角色 (戰機)
     m_Player = std::make_shared<Character>(RESOURCE_DIR "/character/test_plane.png");
     m_Player->SetPosition({-112.5f, -140.5f});  // 螢幕中央
-    m_Player->SetZIndex(1);                  // 讓玩家顯示在最前面
-    //m_Root.AddChild(m_Player);
-    m_Renderer->AddChild(m_Player);
+
+    m_Player->SetZIndex(50); // 讓玩家顯示在最前面
+    m_Root.AddChild(m_Player);
+
 
 
     m_PRM = std::make_shared<PhaseResourceManager>();
@@ -85,16 +93,14 @@ void App::Start() {
 
 
     m_EnemySpawnTimer = std::time(nullptr);
+    m_Timer = std::time(nullptr); // Game timer for boss spawn etc.
 
-    // generate boss
-    m_Timer = std::time(nullptr);
 
-    m_Boss = std::make_shared<Boss>(glm::vec2(100, 350));  // 從畫面外開始
-    m_Renderer->AddChild(m_Boss);
+    // Create Boss instance (initially inactive/invisible)
+    m_Boss = std::make_shared<Boss>(glm::vec2(0.0f, 450.0f)); // Spawn boss off-screen top
+    m_Renderer->AddChild(m_Boss); // Add to renderer, but it's invisible
 
-    m_ResultText = std::make_shared<ResultText>("YOU WIN!");
-
-    m_Renderer->Update();
+    m_ResultText = std::make_shared<ResultText>("YOU WIN!"); // Initialized but not shown
     m_CurrentState = State::UPDATE;
 }
 
@@ -213,8 +219,6 @@ void App::Update() {
     float x = m_Player->GetPosition().x;
     float y = m_Player->GetPosition().y;
 
-    // Check if the player is in bound     then accept the input
-
     if (Util::Input::IsKeyPressed(Util::Keycode::UP) || Util::Input::IsKeyPressed(Util::Keycode::W)) {
         if (m_Player->GetPosition().y < 300) {
             y += speed;
@@ -234,258 +238,339 @@ void App::Update() {
         if (m_Player->GetPosition().x < 400) {
             x += speed;
         }
-
     }
 
-    auto bullet_cooldown = std::clock(); // Use std::clock() for clarity
-    // 按空白鍵射擊
+    m_Player->SetPosition({x, y});
+
+    auto bullet_cooldown = std::clock();
     if (Util::Input::IsKeyPressed(Util::Keycode::SPACE)) {
-        LOG_INFO("Space key detected on key down!");
-        // 檢查子彈冷卻時間
-        if (static_cast<float>(bullet_cooldown - m_bulletCooldownTimer) / CLOCKS_PER_SEC > 0.2f) { // 0.2 秒冷卻時間
-            m_bulletCooldownTimer = bullet_cooldown; // 更新冷卻時間
+        if (static_cast<float>(bullet_cooldown - m_bulletCooldownTimer) / CLOCKS_PER_SEC > 0.2f)
+        {
+            m_bulletCooldownTimer = bullet_cooldown;
             m_Player->Shoot();
         }
     }
 
-    // 按 `Z` 鍵使用技能
     if (Util::Input::IsKeyPressed(Util::Keycode::Z)) {
         m_Player->UseSkill();
     }
 
-    // 設定新的玩家位置
-    m_Player->SetPosition({x, y});
-
-    // 更新玩家與子彈
     m_Player->Update();
-    // 更新畫面
+
     for (auto &bullet: m_Player->GetBullets()) {
         if (!bullet->IsInRenderer()) {
-            //LOG_INFO("Adding bullet to Renderer at position ({}, {})", bullet->GetPosition().x,
-                     //bullet->GetPosition().y);
             m_Renderer->AddChild(bullet);
             bullet->MarkAsInRenderer();
         }
         if (!bullet->InBound()) {
-            //LOG_INFO("Bullet removed at position ({}, {})", bullet->GetPosition().x, bullet->GetPosition().y);
             m_Player->RmBullets(bullet);
             m_Renderer->RemoveChild(bullet);
-            //LOG_INFO("Bullet Count: {}", m_Player->GetBullets().size());
         }
     }
 
-
-    m_Renderer->Update();
-
-    //敵機生成
-    const float enemySpawnInterval = 1.0f; // 每 1 秒生成一架敵機
-    auto currentTime_Enemy = std::time(nullptr);
-
     m_PRM->ScrollScene();
 
-    // 生成新敵機
-    if (std::difftime(currentTime_Enemy, m_EnemySpawnTimer) > enemySpawnInterval) {
-        // use srand to generate random number
-        std::srand(std::time(nullptr));
+    const float enemySpawnInterval = 2.5f;
+    auto currentTime_Enemy = std::time(nullptr);
 
-        // TODO: fit screen size
-        int randomX = (std::rand() % 800) - 400; // 在 0~800 之間隨機生成 X 座標
+    if (!m_Boss->IsActive() && (std::difftime(currentTime_Enemy, m_EnemySpawnTimer) > enemySpawnInterval))
+    {
+        int gameScreenWidth = 800;
+        int randomX = (std::rand() % (gameScreenWidth - 100)) - (gameScreenWidth / 2 - 50);
+        EnemyType type = static_cast<EnemyType>(std::rand() % 5);
 
-        //LOG_INFO("Current random x value", randomX);
-        // 隨機選擇敵機的移動模式
-        Enemy::MovePattern randomPattern = static_cast<Enemy::MovePattern>(std::rand() % 5);
+        std::shared_ptr<Enemy> newEnemy;
+        glm::vec2 spawnPosition = glm::vec2(static_cast<float>(randomX), 400.0f);
 
-        auto enemy = std::make_shared<Enemy>(glm::vec2(randomX, 350), randomPattern);
-        m_Enemies.push_back(enemy);
-        m_Renderer->AddChild(enemy);
-        //LOG_INFO("Spawned enemy at ({}, {}) with pattern {}", randomX, -50, static_cast<int>(randomPattern));
-
-        m_EnemySpawnTimer = std::time(nullptr); // 重置計時器
+        switch (type)
+        {
+        case EnemyType::STRAIGHT:
+            newEnemy = std::make_shared<StraightEnemy>(spawnPosition);
+            break;
+        case EnemyType::WAVE:
+            newEnemy = std::make_shared<WaveEnemy>(spawnPosition);
+            break;
+        case EnemyType::TRACK:
+            newEnemy = std::make_shared<TrackEnemy>(spawnPosition);
+            break;
+        case EnemyType::ZIGZAG:
+            newEnemy = std::make_shared<ZigzagEnemy>(spawnPosition);
+            break;
+        case EnemyType::RANDOM:
+        default:
+            newEnemy = std::make_shared<RandomEnemy>(spawnPosition);
+            break;
+        }
+        m_Enemies.push_back(newEnemy);
+        m_Renderer->AddChild(newEnemy);
+        m_EnemySpawnTimer = currentTime_Enemy;
     }
 
-    // 更新所有敵機
-    for (auto &enemy: m_Enemies) {
-        enemy->Update(m_Player->GetPosition()); // 讓敵機能夠追蹤玩家
-    }
-    // render all enemies bullets
-    for (auto &enemy: m_Enemies) {
-        for (auto &bullet: enemy->GetBullets()) {
-            if (!bullet->IsInRenderer()) {
-                LOG_INFO("Adding enemy bullet to Renderer at position ({}, {})", bullet->GetPosition().x,
-                         bullet->GetPosition().y);
+    for (auto it = m_Enemies.begin(); it != m_Enemies.end();)
+    {
+        auto& enemy = *it;
+        enemy->Update(m_Player->GetPosition());
+
+        auto& enemyBullets = enemy->GetBullets();
+        for (auto b_it = enemyBullets.begin(); b_it != enemyBullets.end();)
+        {
+            auto& bullet = *b_it;
+            if (!bullet->IsInRenderer())
+            {
                 m_Renderer->AddChild(bullet);
                 bullet->MarkAsInRenderer();
             }
             if (!bullet->InBound()) {
-                LOG_INFO("Enemy Bullet removed at position ({}, {})", bullet->GetPosition().x, bullet->GetPosition().y);
-                enemy->RmBullets(bullet);
                 m_Renderer->RemoveChild(bullet);
-                LOG_INFO("Enemy Bullet Count: {}", enemy->GetBullets().size());
+                b_it = enemyBullets.erase(b_it);
+            }
+            else
+            {
+                ++b_it;
             }
         }
+
+        if (enemy->IsOutOfScreen())
+        {
+            for (auto& bullet : enemy->GetBullets())
+            {
+                m_Renderer->RemoveChild(bullet);
+            }
+            m_Renderer->RemoveChild(enemy);
+            it = m_Enemies.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
     }
-    // 紀錄要移除的子彈與敵機
-    std::vector<std::shared_ptr<Bullet>> bulletsToRemove;
+
     std::vector<std::shared_ptr<Enemy>> enemiesToRemove;
+    std::vector<std::shared_ptr<Bullet>> playerBulletsToRemove;
 
-    for (auto &bullet: m_Player->GetBullets()) {
-        for (auto &enemy: m_Enemies) {
-            if (bullet->CollidesWith(enemy)) {
-                //LOG_INFO("Bullet hit enemy at ({}, {})", enemy->GetPosition().x, enemy->GetPosition().y);
-                bulletsToRemove.push_back(bullet);
+    for (auto& bullet : m_Player->GetBullets())
+    {
+        for (auto& enemy : m_Enemies)
+        {
+            if (enemy->IsVisible() && bullet->CollidesWith(std::static_pointer_cast<Util::GameObject>(enemy)))
+            {
+                playerBulletsToRemove.push_back(bullet);
                 enemiesToRemove.push_back(enemy);
+                break;
             }
         }
     }
-
-    // 移除子彈-------------------------------------
-    for (auto &bullet: bulletsToRemove) {
-        m_Player->RmBullets(bullet);           // 從子彈容器中移除
-        m_Renderer->RemoveChild(bullet);       // 從畫面上移除
+    for (auto& bullet : playerBulletsToRemove)
+    {
+        m_Player->RmBullets(bullet);
+        m_Renderer->RemoveChild(bullet);
     }
-
-    // Check if enemy is out of bound
-    for (auto &enemy: m_Enemies) {
-        if (enemy->IsOutOfScreen()) {
-            //LOG_INFO("Enemy removed at position ({}, {})", enemy->GetPosition().x, enemy->GetPosition().y);
-            enemiesToRemove.push_back(enemy);
+    for (auto& enemyHit : enemiesToRemove)
+    {
+        for (auto& bullet : enemyHit->GetBullets())
+        {
+            m_Renderer->RemoveChild(bullet);
+        }
+        m_Renderer->RemoveChild(enemyHit);
+        m_Enemies.erase(std::remove(m_Enemies.begin(), m_Enemies.end(), enemyHit), m_Enemies.end());
+        if (std::rand() % 2 == 0)
+        {
+            PowerUpType type = static_cast<PowerUpType>(std::rand() % 3);
+            auto pup = std::make_shared<PowerUp>(type, enemyHit->GetPosition(),
+                                                 glm::vec2{(std::rand() % 200 - 100) / 100.0f, 2.0f});
+            m_PowerUps.push_back(pup);
+            m_Renderer->AddChild(pup);
         }
     }
 
-    bool isPlayerHit = false;
-
-// Check if player collides with enemy or enemy bullet
-    for (auto &enemy: m_Enemies) {
-        if (m_Player->IfCollides(enemy)) {
+    bool isPlayerHitThisFrame = false;
+    for (auto& enemy : m_Enemies)
+    {
+        if (m_Player->IfCollides(std::static_pointer_cast<Util::GameObject>(enemy)))
+        {
             auto currentTime = std::time(nullptr);
-            if (currentTime - m_collisionTimer >= 3) { // 3 seconds cooldown
+            if (currentTime - m_collisionTimer >= 3)
+            {
                 LOG_INFO("Player collided with enemy at position ({}, {})", enemy->GetPosition().x,
                          enemy->GetPosition().y);
                 m_Player->modifyHealth(-1);
-                isPlayerHit = true;
+                isPlayerHitThisFrame = true;
                 m_collisionTimer = currentTime;
             }
+            if (isPlayerHitThisFrame) break;
         }
-        // check collides with enemy bullet
-        for (auto &bullet: enemy->GetBullets()) {
-            if (m_Player->IfCollides(bullet)) {
+        if (isPlayerHitThisFrame) break;
+        for (auto b_it = enemy->GetBullets().begin(); b_it != enemy->GetBullets().end();)
+        {
+            auto& bullet = *b_it;
+            if (m_Player->IfCollides(bullet))
+            {
                 auto currentTime = std::time(nullptr);
-                if (currentTime - m_collisionTimer >= 3) { // 3 seconds cooldown
+                if (currentTime - m_collisionTimer >= 3)
+                {
                     LOG_INFO("Player collided with enemy bullet at position ({}, {})", bullet->GetPosition().x,
                              bullet->GetPosition().y);
                     m_Player->modifyHealth(-1);
-                    isPlayerHit = true;
+                    isPlayerHitThisFrame = true;
                     m_collisionTimer = currentTime;
                     m_DefeatedThisLevel += 1;
 
+                    m_Renderer->RemoveChild(bullet);
+                    b_it = enemy->GetBullets().erase(b_it);
+                }
+                else { ++b_it; }
+                if (isPlayerHitThisFrame) break;
+            }
+            else
+            {
+                ++b_it;
+            }
+        }
+        if (isPlayerHitThisFrame) break;
+    }
+
+
+    auto currentTime_Boss = std::time(nullptr);
+
+    if (!m_Boss->IsActive() && !m_Boss->IsVisible() && (currentTime_Boss - m_Timer >= 15))
+    {
+        m_Boss->Activate();
+        m_Enemies.clear();
+        for (auto& enemy : m_Enemies)
+        {
+            m_Renderer->RemoveChild(enemy);
+            for (auto& bullet : enemy->GetBullets()) m_Renderer->RemoveChild(bullet);
+        }
+        LOG_INFO("Boss has been activated. Normal enemies cleared.");
+    }
+
+    if (m_Boss->IsActive() && !m_Boss->IsDead())
+    {
+        m_Boss->Update(m_Player->GetPosition());
+
+        auto& bossBullets = m_Boss->GetBullets();
+        for (auto b_it = bossBullets.begin(); b_it != bossBullets.end();)
+        {
+            auto& bullet = *b_it;
+            if (!bullet->IsInRenderer())
+            {
+                m_Renderer->AddChild(bullet);
+                bullet->MarkAsInRenderer();
+            }
+            if (!bullet->InBound())
+            {
+                m_Renderer->RemoveChild(bullet);
+                b_it = bossBullets.erase(b_it);
+            }
+            else
+            {
+                ++b_it;
+            }
+        }
+
+        std::vector<std::shared_ptr<Bullet>> playerBulletsHittingBossToRemove;
+        for (auto& bullet : m_Player->GetBullets())
+        {
+            if (bullet->CollidesWith(std::static_pointer_cast<Util::GameObject>(m_Boss)))
+            {
+                playerBulletsHittingBossToRemove.push_back(bullet);
+                m_Boss->TakeDamage(1);
+            }
+        }
+        for (auto& bullet : playerBulletsHittingBossToRemove)
+        {
+            m_Player->RmBullets(bullet);
+            m_Renderer->RemoveChild(bullet);
+        }
+
+        if (!isPlayerHitThisFrame && m_Player->IfCollides(std::static_pointer_cast<Util::GameObject>(m_Boss)))
+        {
+            auto currentTime = std::time(nullptr);
+            if (currentTime - m_collisionTimer >= 3)
+            {
+                LOG_INFO("Player collided with Boss body.");
+                m_Player->modifyHealth(-1);
+                isPlayerHitThisFrame = true;
+                m_collisionTimer = currentTime;
+            }
+        }
+
+        if (!isPlayerHitThisFrame)
+        {
+            for (auto b_it = m_Boss->GetBullets().begin(); b_it != m_Boss->GetBullets().end();)
+            {
+                auto& bullet = *b_it;
+                if (m_Player->IfCollides(bullet))
+                {
+                    auto currentTime = std::time(nullptr);
+                    if (currentTime - m_collisionTimer >= 3)
+                    {
+                        LOG_INFO("Player collided with Boss bullet.");
+                        m_Player->modifyHealth(-1);
+                        isPlayerHitThisFrame = true;
+                        m_collisionTimer = currentTime;
+                        m_Renderer->RemoveChild(bullet);
+                        b_it = m_Boss->GetBullets().erase(b_it);
+                    }
+                    else { ++b_it; }
+                    if (isPlayerHitThisFrame) break;
+                }
+                else
+                {
+                    ++b_it;
                 }
             }
         }
     }
 
-    // 移除敵機-------------------------------------
-    for (auto &enemy: enemiesToRemove) {
-        m_Enemies.erase(std::remove(m_Enemies.begin(), m_Enemies.end(), enemy), m_Enemies.end());
-        //remove bullet which enemy shooted
-        for (auto &bullet: enemy->GetBullets()) {
-            m_Renderer->RemoveChild(bullet);
-            LOG_INFO("Enemy Bullet removed at position ({}, {})", bullet->GetPosition().x, bullet->GetPosition().y);
+    if (isPlayerHitThisFrame && !m_Boss->IsActive())
+    {
+        for (auto& enemy : m_Enemies)
+        {
+            for (auto& bullet : enemy->GetBullets()) m_Renderer->RemoveChild(bullet);
+            m_Renderer->RemoveChild(enemy);
         }
-        m_Renderer->RemoveChild(enemy);
-        LOG_INFO("enemy Count: {}", m_Enemies.size());
-
-
-        // 移除enemy的同時掉落道具
-        if (std::rand() % 2 == 0) { // 50% 機率掉落道具
-            PowerUpType type = static_cast<PowerUpType>(std::rand() % 3);
-            glm::vec2 pos = enemy->GetPosition();
-            // 隨機初速度 (X 亂 -1~1, Y 往上 +2)
-            glm::vec2 vel = { (std::rand()%200 - 100) / 100.0f,  2.0f };
-            auto pup = std::make_shared<PowerUp>(type, pos, vel);
-            m_PowerUps.push_back(pup);
-            m_Renderer->AddChild(pup);
-        }
-
-        m_DefeatedThisLevel += 1;
-        m_Score = (m_Level - 1) * 0 + m_DefeatedThisLevel * 10; // 或直接累加：m_PlayerScore += 10;
-    }
-    for (auto &pup : m_PowerUps) {
-        pup->Update();
+        m_Enemies.clear();
+        LOG_INFO("All non-boss enemies cleared due to player hit.");
     }
 
-    // 🔄 然後才呼叫 Renderer 繪製
-    m_Renderer->Update();
-
-    if (m_Player->GetHealth() <= 0) {
-        m_ResultText= std::make_shared<ResultText>("YOU LOSE!");
-        m_CurrentState = State::RESULT;
-    }
-    // 更新畫面
-    m_Renderer->Update();
-
-
-
-    auto currentTime_Boss = std::time(nullptr);
-    if (!m_Boss->IsVisible() && currentTime_Boss - m_Timer >= 10) {
-
-        m_Boss->SetVisible(true);
-        m_Boss->SetZIndex(100);  // 確保在最上層
-        m_Boss->Activate();      // <<==== 加這行
-        LOG_INFO("Boss appears!");
-    }
-
-    // 更新 Boss 移動
-    if (m_Boss->IsVisible() && !m_Boss->IsDead()) {
-        m_Boss->Update();
-    }
-
-    if (m_Boss->IsDead()) {
+    if (m_Boss->IsActive() && m_Boss->IsDead())
+    {
         m_Renderer->RemoveChild(m_Boss);
 
         m_CurrentState        = State::RESULT;
         m_ResultShown         = false;    // 讓 result() 重新執行裡面的「只一次」邏輯
         m_WaitForSpaceRelease = true;     // 重置空白鍵偵測
     }
-
-
-    // Boss 碰撞檢查
-    if (m_Boss->IsVisible() && !m_Boss->IsDead()) {
-        for (auto &bullet: m_Player->GetBullets()) {
-            if (bullet->CollidesWith(m_Boss)) {
-                m_Player->RmBullets(bullet);
-                m_Renderer->RemoveChild(bullet);
-                m_Boss->TakeDamage(1);  // 每顆子彈傷害 1
-                break; // 一顆子彈最多打一個物件
-            }
-        }
-    }
-    //Check if player collides with boss
-    if (m_Player->IfCollides(m_Boss)) {
-        auto currentTime = std::time(nullptr);
-        if (currentTime - m_collisionTimer >= 3) { // 3 seconds cooldown
-//            LOG_INFO("Player collided with boss at position ({}, {})", m_Boss->GetPosition().x, m_Boss->GetPosition().y);
-            m_Player->modifyHealth(-1);
-            m_collisionTimer = currentTime;
-            isPlayerHit = true;
-        }
+    else if (m_Player->GetHealth() <= 0)
+    {
+        LOG_INFO("Player defeated! YOU LOSE!");
+        m_ResultText->SetText("YOU LOSE!");
+        m_CurrentState = State::RESULT;
     }
 
-    //Remove all enemy if player is hit(except boss)
-    if (isPlayerHit) {
-        for (auto &enemy: m_Enemies) {
-            m_Renderer->RemoveChild(enemy);
-            //remove bullet which enemy shooted
-            for (auto &bullet: enemy->GetBullets()) {
-                m_Renderer->RemoveChild(bullet);
-                LOG_INFO("Enemy Bullet removed at position ({}, {})", bullet->GetPosition().x, bullet->GetPosition().y);
-            }
-        }
-        m_Enemies.clear();
-        LOG_INFO("All enemies removed from Renderer.");
+    for (auto& pup : m_PowerUps)
+    {
+        pup->Update();
     }
+    m_PowerUps.erase(std::remove_if(m_PowerUps.begin(), m_PowerUps.end(),
+                                    [&](const std::shared_ptr<PowerUp>& pup)
+                                    {
+                                        if (m_Player->IfCollides(pup))
+                                        {
+                                            m_Player->ApplyPowerUp(pup->GetType());
+                                            m_Renderer->RemoveChild(pup);
+                                            return true;
+                                        }
+                                        if (pup->IsOutOfScreen())
+                                        {
+                                            m_Renderer->RemoveChild(pup);
+                                            return true;
+                                        }
+                                        return false;
+                                    }), m_PowerUps.end());
 
-
-
+    m_Renderer->Update();
     /*
      * Do not touch the code below as they serve the purpose for
      * closing the window.
