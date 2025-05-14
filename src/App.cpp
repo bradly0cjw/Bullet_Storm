@@ -85,6 +85,7 @@ void App::Start() {
 
     m_Player->SetZIndex(50); // 讓玩家顯示在最前面
     m_Root.AddChild(m_Player);
+    m_Renderer->AddChild(m_Player);
 
 
 

@@ -23,7 +23,7 @@ void Boss::Activate()
     LOG_INFO("Boss Activated!");
     // Reset any boss specific state if re-activating
     m_Transform.translation.y = 350; // Reset to entry Y if needed (original spawn Y was 350)
-    m_Health = 150; // Reset health if re-activating
+    m_Health = 10; // Reset health if re-activating
     m_AttackPhase = 0;
     m_PhaseTimer = 0.0f;
 }
