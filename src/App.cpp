@@ -111,9 +111,18 @@ void App::result() {
         // ——1. 清除所有舊遊戲物件（沿用你原本邏輯）——
         for (auto& enemy : m_Enemies) {
             m_Renderer->RemoveChild(enemy);
+
             for (auto& b : enemy->GetBullets())
                 m_Renderer->RemoveChild(b);
+            m_Enemies.erase(std::remove(m_Enemies.begin(), m_Enemies.end(), enemy), m_Enemies.end());
         }
+
+        // 如果有 Boss 子彈也要清
+        for (auto& b : m_Boss->GetBullets())
+            m_Renderer->RemoveChild(b);
+        m_Boss->GetBullets().clear();
+        m_Renderer->RemoveChild(m_Boss);
+
         m_Enemies.clear();
         m_Renderer->RemoveChild(m_Boss);
         for (auto& b : m_Player->GetBullets())
@@ -124,6 +133,9 @@ void App::result() {
         m_Renderer->RemoveChild(m_Player);
         m_Renderer->RemoveChild(m_PRM->GetChildren()[0]);
         m_Player->SetVisible(false);
+
+        m_Renderer->Update();
+
 
         // ——2. 血量檢查：顯示 GameOver 圖片或關卡結算——
         if (m_Player->GetHealth() <= 0) {
@@ -436,15 +448,8 @@ void App::Update() {
     if (!m_Boss->IsActive() && !m_Boss->IsVisible() && (currentTime_Boss - m_Timer >= 15))
     {
         m_Boss->Activate();
-        m_Enemies.clear();
-        for (auto& enemy : m_Enemies)
-        {
-            m_Renderer->RemoveChild(enemy);
-            for (auto& bullet : enemy->GetBullets()) m_Renderer->RemoveChild(bullet);
-        }
-        LOG_INFO("Boss has been activated. Normal enemies cleared.");
+        LOG_INFO("Boss has been activated.");
     }
-
     if (m_Boss->IsActive() && !m_Boss->IsDead())
     {
         m_Boss->Update(m_Player->GetPosition());
