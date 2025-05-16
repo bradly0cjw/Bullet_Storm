@@ -386,6 +386,7 @@ void App::Update() {
         }
         m_Renderer->RemoveChild(enemyHit);
         m_Enemies.erase(std::remove(m_Enemies.begin(), m_Enemies.end(), enemyHit), m_Enemies.end());
+        m_DefeatedThisLevel = m_DefeatedThisLevel + 1;
         if (std::rand() % 2 == 0)
         {
             PowerUpType type = static_cast<PowerUpType>(std::rand() % 3);
