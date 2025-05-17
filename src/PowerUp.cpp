@@ -12,7 +12,7 @@ PowerUp::PowerUp(PowerUpType type, const glm::vec2 &pos, const glm::vec2 &vel)
              type==PowerUpType::PURPLE  ?  "/powerUp/purple_bullet.png" :
              type==PowerUpType::H  ?  "/powerUp/H.png" :
              type==PowerUpType::P  ?  "/powerUp/P.png" :
-             type==PowerUpType::P  ?  "/powerUp/M.png" :
+             type==PowerUpType::M  ?  "/powerUp/M.png" :
                                      "/powerUp/B.png"
                                               )),
         /* zIndex */ 20

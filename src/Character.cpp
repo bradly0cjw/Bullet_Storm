@@ -79,8 +79,8 @@ void Character::ApplySpecialPowerUp(PowerUpType type) {
 
         case PowerUpType::M:
             // 例如增加一次技能（假設 m_skill.first 為技能數量）
-                std::get<0>(m_skill) += 1;
-        LOG_INFO("PowerUp M: Skill count is now {}", std::get<0>(m_skill));
+                isMissile = true;
+        LOG_INFO("PowerUp M: Skill count is now {}");
         break;
 
         case PowerUpType::P:
@@ -91,4 +91,43 @@ void Character::ApplySpecialPowerUp(PowerUpType type) {
         default:
             break;
     }
+}
+void Character::LaunchMissiles(
+    const std::vector<std::shared_ptr<Enemy>>& enemies,
+    Util::Renderer* renderer
+) {
+    if (!isMissile) {
+        LOG_INFO("No missiles available!");
+        return;
+    }
+    // 一次性消耗這個 M 道具
+    LOG_INFO("Missiles launched, isMissile reset to false");
+
+    glm::vec2 center = m_Transform.translation;
+    glm::vec2 offset{25.0f, 0.0f};
+    const float speed = 5.0f;
+
+    // 單一 spawn lambda：不論有無目標都呼叫 homing ctor
+    auto spawnMissile = [&](glm::vec2 start) {
+        // 找到最近的敵人（可能找不到，bestTgt 會是 nullptr）
+        std::shared_ptr<Enemy> bestTgt;
+        float bestDist = std::numeric_limits<float>::infinity();
+        for (auto& e : enemies) {
+            if (!e->IsVisible()) continue;
+            float d = glm::length(e->GetTransform().translation - start);
+            if (d < bestDist) {
+                bestDist = d;
+                bestTgt = e;
+            }
+        }
+
+        // 統一呼叫 homing constructor：有目標就追蹤，沒目標在 ctor 裡直射
+        auto msl = std::make_shared<Bullet>(start, speed, bestTgt);
+        m_Bullets.push_back(msl);
+        renderer->AddChild(msl);
+    };
+
+    // 從左右兩側各發一顆
+    spawnMissile(center - offset);
+    spawnMissile(center + offset);
 }

@@ -263,12 +263,18 @@ void App::Update() {
 
     auto bullet_cooldown = std::clock();
     if (Util::Input::IsKeyPressed(Util::Keycode::SPACE)) {
-        if (static_cast<float>(bullet_cooldown - m_bulletCooldownTimer) / CLOCKS_PER_SEC > 0.2f)
-        {
-            m_bulletCooldownTimer = bullet_cooldown;
+        // enforce your 0.2s cooldown as before…
+        if (static_cast<float>(std::clock() - m_bulletCooldownTimer) / CLOCKS_PER_SEC > 0.2f) {
+            m_bulletCooldownTimer = std::clock();
+            // **if** you have at least one M charge, fire missiles
+            if (m_Player->GetMissileCount() ) {
+                m_Player->LaunchMissiles(m_Enemies, m_Renderer.get());
+            }
+
             m_Player->Shoot();
         }
     }
+
 
     if (Util::Input::IsKeyPressed(Util::Keycode::Z)) {
         m_Player->UseSkill();
@@ -386,6 +392,10 @@ void App::Update() {
     }
     for (auto& enemyHit : enemiesToRemove)
     {
+        PowerUpType a = PowerUpType::M;
+        auto apup = std::make_shared<PowerUp>(a, enemyHit->GetPosition(), glm::vec2{(std::rand() % 200 - 100) / 100.0f, 2.0f});
+        m_PowerUps.push_back(apup);
+        m_Renderer->AddChild(apup);
         for (auto& bullet : enemyHit->GetBullets())
         {
             m_Renderer->RemoveChild(bullet);
@@ -414,11 +424,15 @@ void App::Update() {
                 special_type = PowerUpType::B;
             }
 
+
+
             glm::vec2 vel{ (std::rand() % 200 - 100) / 100.0f, 2.0f };
             auto specialPup = std::make_shared<PowerUp>(special_type, enemyHit->GetPosition(), vel);
             m_PowerUps.push_back(specialPup);
             m_Renderer->AddChild(specialPup);
+
         }
+
 
 
     }

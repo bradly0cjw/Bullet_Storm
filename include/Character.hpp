@@ -6,6 +6,8 @@
 #include "Util/GameObject.hpp"
 #include "Bullet.hpp"
 #include "PowerUp.hpp"
+#include "Enemy.hpp"      // for std::shared_ptr<Enemy>
+#include "Util/Renderer.hpp" // for Util::Renderer
 
 class Character : public Util::GameObject {
 public:
@@ -66,10 +68,14 @@ public:
 
     void ApplySpecialPowerUp(PowerUpType type) ;
 
+    void LaunchMissiles(const std::vector<std::shared_ptr<Enemy>>& enemies, Util::Renderer* renderer);
+    bool GetMissileCount() const { return isMissile; }
+
 private:
     void ResetPosition() { m_Transform.translation = {0, 0}; }
 
     int m_health = 3;
+    int isMissile = false;
     std::tuple<int, int> m_skill = std::make_tuple(0, 0);
     std::string m_ImagePath;
     std::vector<std::shared_ptr<Bullet>> m_Bullets;
