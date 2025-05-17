@@ -5,7 +5,7 @@
 #include "Util/Image.hpp"
 #include <glm/vec2.hpp>
 
-enum class PowerUpType { RED, PURPLE, BLUE };
+enum class PowerUpType { RED, PURPLE, BLUE,H,P,M,B };
 
 class PowerUp : public Util::GameObject {
 public:
@@ -14,7 +14,7 @@ public:
     void Update();                // 每 frame 更新位置與彈跳
     PowerUpType GetType() const;  // 拾取後觸發的效果
     bool IsOutOfScreen() { return false; }; //TODO: Unimplement
-
+    void ApplySpecialPowerUp(PowerUpType type);
 private:
     glm::vec2 m_Velocity;
     PowerUpType m_Type;

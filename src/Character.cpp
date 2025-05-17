@@ -68,3 +68,27 @@ void Character::Update() {
 
     }
 }
+
+void Character::ApplySpecialPowerUp(PowerUpType type) {
+    switch(type) {
+        case PowerUpType::H:
+            // 吃到 H 回 1 點血
+                modifyHealth(1);
+        LOG_INFO("PowerUp H: Health increased to {}", GetHealth());
+        break;
+
+        case PowerUpType::M:
+            // 例如增加一次技能（假設 m_skill.first 為技能數量）
+                std::get<0>(m_skill) += 1;
+        LOG_INFO("PowerUp M: Skill count is now {}", std::get<0>(m_skill));
+        break;
+
+        case PowerUpType::P:
+            // 你可以依需求加上 P 道具效果
+                LOG_INFO("PowerUp P collected");
+        break;
+
+        default:
+            break;
+    }
+}

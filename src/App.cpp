@@ -92,6 +92,12 @@ void App::Start() {
     m_PRM = std::make_shared<PhaseResourceManager>();
     m_Renderer->AddChildren(m_PRM->GetChildren());
 
+    //HP display init
+    m_HealthDisplay = std::make_shared<ResultText>("HP: " + std::to_string(m_Player->GetHealth()));
+    m_HealthDisplay->m_Transform.translation = { -390.0f, -290.0f };  // 左下角微調
+    m_Renderer->AddChild(m_HealthDisplay);
+
+
 
     m_EnemySpawnTimer = std::time(nullptr);
     m_Timer = std::time(nullptr); // Game timer for boss spawn etc.
@@ -387,14 +393,34 @@ void App::Update() {
         m_Renderer->RemoveChild(enemyHit);
         m_Enemies.erase(std::remove(m_Enemies.begin(), m_Enemies.end(), enemyHit), m_Enemies.end());
         m_DefeatedThisLevel = m_DefeatedThisLevel + 1;
-        if (std::rand() % 2 == 0)
-        {
+        if (std::rand() % 2 == 0) {
             PowerUpType type = static_cast<PowerUpType>(std::rand() % 3);
             auto pup = std::make_shared<PowerUp>(type, enemyHit->GetPosition(),
                                                  glm::vec2{(std::rand() % 200 - 100) / 100.0f, 2.0f});
             m_PowerUps.push_back(pup);
             m_Renderer->AddChild(pup);
         }
+        float r = static_cast<float>(std::rand()) / (RAND_MAX + 1.0f);
+        if ( r < 0.20f) {
+            PowerUpType special_type;
+            if (r < 0.05f) {
+                special_type = PowerUpType::H;    // H
+            } else if (r < 0.10f) {
+                special_type = PowerUpType::M;   // M
+            } else if (r < 0.15f) {
+                special_type = PowerUpType::P;     // P
+            }
+            else if ( r < 0.20f ) {
+                special_type = PowerUpType::B;
+            }
+
+            glm::vec2 vel{ (std::rand() % 200 - 100) / 100.0f, 2.0f };
+            auto specialPup = std::make_shared<PowerUp>(special_type, enemyHit->GetPosition(), vel);
+            m_PowerUps.push_back(specialPup);
+            m_Renderer->AddChild(specialPup);
+        }
+
+
     }
 
     bool isPlayerHitThisFrame = false;
@@ -565,7 +591,16 @@ void App::Update() {
                                     {
                                         if (m_Player->IfCollides(pup))
                                         {
-                                            m_Player->ApplyPowerUp(pup->GetType());
+                                            if ( pup->GetType() == PowerUpType::PURPLE ||
+                                                pup->GetType() == PowerUpType::RED ||
+                                                pup->GetType() == PowerUpType::BLUE ) {
+                                                m_Player->ApplyPowerUp(pup->GetType());
+                                            }
+                                            else {
+                                                m_Player->ApplySpecialPowerUp(pup->GetType());
+                                            }
+
+
                                             m_Renderer->RemoveChild(pup);
                                             return true;
                                         }
@@ -576,6 +611,10 @@ void App::Update() {
                                         }
                                         return false;
                                     }), m_PowerUps.end());
+
+    // 更新血量顯示
+    m_HealthDisplay->SetText("HP: " + std::to_string(m_Player->GetHealth()));
+
 
     m_Renderer->Update();
     /*

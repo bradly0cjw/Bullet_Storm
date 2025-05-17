@@ -64,6 +64,8 @@ public:
     {
     }; //TODO
 
+    void ApplySpecialPowerUp(PowerUpType type) ;
+
 private:
     void ResetPosition() { m_Transform.translation = {0, 0}; }
 
