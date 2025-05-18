@@ -448,6 +448,7 @@ void App::Update() {
                 LOG_INFO("Player collided with enemy at position ({}, {})", enemy->GetPosition().x,
                          enemy->GetPosition().y);
                 m_Player->modifyHealth(-1);
+                m_Player->SetMissileCount(false);
                 isPlayerHitThisFrame = true;
                 m_collisionTimer = currentTime;
             }
@@ -465,6 +466,7 @@ void App::Update() {
                     LOG_INFO("Player collided with enemy bullet at position ({}, {})", bullet->GetPosition().x,
                              bullet->GetPosition().y);
                     m_Player->modifyHealth(-1);
+                    m_Player->SetMissileCount(false);
                     isPlayerHitThisFrame = true;
                     m_collisionTimer = currentTime;
                     m_DefeatedThisLevel += 1;

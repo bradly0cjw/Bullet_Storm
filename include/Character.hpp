@@ -70,12 +70,13 @@ public:
 
     void LaunchMissiles(const std::vector<std::shared_ptr<Enemy>>& enemies, Util::Renderer* renderer);
     bool GetMissileCount() const { return isMissile; }
+    void SetMissileCount(bool isM) { isMissile = isM; }
 
 private:
     void ResetPosition() { m_Transform.translation = {0, 0}; }
 
     int m_health = 3;
-    int isMissile = false;
+    bool isMissile = false;
     std::tuple<int, int> m_skill = std::make_tuple(0, 0);
     std::string m_ImagePath;
     std::vector<std::shared_ptr<Bullet>> m_Bullets;

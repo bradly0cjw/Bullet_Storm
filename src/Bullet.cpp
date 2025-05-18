@@ -1,6 +1,8 @@
 #include "Bullet.hpp"
 #include "Util/Logger.hpp"
 #include "Boss.hpp"
+#include <cmath>    // for std::atan2, M_PI
+#include <glm/gtc/constants.hpp> // for glm::pi
 
 Bullet::Bullet(const glm::vec2& position, const glm::vec2& velocity)
     : Util::GameObject(std::make_shared<Util::Image>(RESOURCE_DIR "/character/bullet.png"), 1),
@@ -17,7 +19,7 @@ Bullet::Bullet(const glm::vec2& position, const glm::vec2& velocity)
 
 Bullet::Bullet(const glm::vec2& position, float speed, std::shared_ptr<Enemy> target)
   : Util::GameObject(
-      std::make_shared<Util::Image>(RESOURCE_DIR "/character/missile.png"),
+      std::make_shared<Util::Image>(RESOURCE_DIR "/character/missiles.png"),
       /*z=*/1
     ),
     m_HomingSpeed(speed),
