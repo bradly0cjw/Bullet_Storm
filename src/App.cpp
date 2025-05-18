@@ -97,7 +97,12 @@ void App::Start() {
     m_HealthDisplay->m_Transform.translation = { -390.0f, -290.0f };  // 左下角微調
     m_Renderer->AddChild(m_HealthDisplay);
 
-
+    m_SkillDisplay = std::make_shared<ResultText>(
+        "SKILL: " + std::to_string(m_Player->GetSkillCharges())
+    );
+    // 把它放在 HP 之上（往上 30 像素）
+    m_SkillDisplay->m_Transform.translation = { -370.0f, -230.0f };
+    m_Renderer->AddChild(m_SkillDisplay);
 
     m_EnemySpawnTimer = std::time(nullptr);
     m_Timer = std::time(nullptr); // Game timer for boss spawn etc.
@@ -139,6 +144,9 @@ void App::result() {
         m_Renderer->RemoveChild(m_Player);
         m_Renderer->RemoveChild(m_PRM->GetChildren()[0]);
         m_Player->SetVisible(false);
+
+        m_SkillDisplay->SetVisible(false);
+        m_HealthDisplay->SetVisible(false);
 
         m_Renderer->Update();
 
@@ -277,7 +285,21 @@ void App::Update() {
 
 
     if (Util::Input::IsKeyPressed(Util::Keycode::Z)) {
-        m_Player->UseSkill();
+        // 只在第一次按下時觸發
+        if (!m_ZPressedLastFrame && m_Player->GetSkillCharges() > 0) {
+            // 1️⃣ 清掉所有小兵與他們的子彈
+            for (auto& enemy : m_Enemies) {
+                for (auto& b : enemy->GetBullets())
+                    m_Renderer->RemoveChild(b);
+                m_Renderer->RemoveChild(enemy);
+            }
+            m_Enemies.clear();
+            // 2️⃣ 扣一次技能次數
+            m_Player->UseSkill();
+        }
+        m_ZPressedLastFrame = true;
+    } else {
+        m_ZPressedLastFrame = false;
     }
 
     m_Player->Update();
@@ -392,10 +414,7 @@ void App::Update() {
     }
     for (auto& enemyHit : enemiesToRemove)
     {
-        PowerUpType a = PowerUpType::M;
-        auto apup = std::make_shared<PowerUp>(a, enemyHit->GetPosition(), glm::vec2{(std::rand() % 200 - 100) / 100.0f, 2.0f});
-        m_PowerUps.push_back(apup);
-        m_Renderer->AddChild(apup);
+
         for (auto& bullet : enemyHit->GetBullets())
         {
             m_Renderer->RemoveChild(bullet);
@@ -449,6 +468,8 @@ void App::Update() {
                          enemy->GetPosition().y);
                 m_Player->modifyHealth(-1);
                 m_Player->SetMissileCount(false);
+                m_Player->ResetSkillCharges();
+                LOG_INFO("Player hit! Skill charges reset to 3");
                 isPlayerHitThisFrame = true;
                 m_collisionTimer = currentTime;
             }
@@ -631,6 +652,8 @@ void App::Update() {
     // 更新血量顯示
     m_HealthDisplay->SetText("HP: " + std::to_string(m_Player->GetHealth()));
 
+    m_SkillDisplay->SetText(
+    "SKILL: " + std::to_string(m_Player->GetSkillCharges()));
 
     m_Renderer->Update();
     /*

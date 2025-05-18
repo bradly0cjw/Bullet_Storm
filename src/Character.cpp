@@ -43,16 +43,13 @@ bool Character::IfCollides(const std::shared_ptr<Util::GameObject> &other) const
 }
 
 void Character::UseSkill() {
-    if (std::get<0>(m_skill) == 0) {
-        LOG_INFO("Skill not ready!");
+    if (m_skillCharges <= 0) {
+        LOG_INFO("No skill charges!");
         return;
     }
-    // 技能：發射 3 顆子彈
-    m_Bullets.push_back(std::make_shared<Bullet>(GetPosition(), glm::vec2(-3, 10))); // 左斜
-    m_Bullets.push_back(std::make_shared<Bullet>(GetPosition(), glm::vec2(0, 10)));  // 直線
-    m_Bullets.push_back(std::make_shared<Bullet>(GetPosition(), glm::vec2(3, 10)));  // 右斜
-    // subtract 1 from skill count
-    std::get<0>(m_skill) -= 1;
+    // 扣一次技能
+    DecSkillCharge();
+    LOG_INFO("UseSkill: remaining charges = {}", GetSkillCharges());
 }
 
 void Character::Update() {
@@ -86,6 +83,11 @@ void Character::ApplySpecialPowerUp(PowerUpType type) {
         case PowerUpType::P:
             // 你可以依需求加上 P 道具效果
                 LOG_INFO("PowerUp P collected");
+        break;
+
+        case PowerUpType::B:
+            IncSkillCharge();
+        LOG_INFO("PowerUp B: Skill charges = {}", GetSkillCharges());
         break;
 
         default:
