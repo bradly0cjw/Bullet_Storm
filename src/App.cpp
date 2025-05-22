@@ -467,6 +467,7 @@ void App::Update() {
                 LOG_INFO("Player collided with enemy at position ({}, {})", enemy->GetPosition().x,
                          enemy->GetPosition().y);
                 m_Player->modifyHealth(-1);
+                m_Player->ResetPowerUp();
                 m_Player->SetMissileCount(false);
                 m_Player->ResetSkillCharges();
                 LOG_INFO("Player hit! Skill charges reset to 3");

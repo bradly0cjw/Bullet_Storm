@@ -8,6 +8,7 @@
 #include "PowerUp.hpp"
 #include "Enemy.hpp"      // for std::shared_ptr<Enemy>
 #include "Util/Renderer.hpp" // for Util::Renderer
+#include "ShootingStrategy.hpp"
 
 class Character : public Util::GameObject {
 public:
@@ -37,12 +38,7 @@ public:
 
     std::vector<std::shared_ptr<Bullet>> GetBullets() { return m_Bullets; } // 取得子彈列表
 
-    void RmBullets(const std::shared_ptr<Bullet>& bullet) {
-        auto it = std::find(m_Bullets.begin(), m_Bullets.end(), bullet);
-        if (it != m_Bullets.end()) {
-            m_Bullets.erase(it);  // Remove the shared_ptr from m_Bullets
-        }
-    }
+    void RmBullets(const std::shared_ptr<Bullet>& bullet);
 
     bool IfCollides(const std::shared_ptr<Util::GameObject> &other) const;
 
@@ -62,9 +58,9 @@ public:
 
     void modifyHealth(int health) { m_health += health; }
 
-    void ApplyPowerUp(PowerUpType power_up)
-    {
-    }; //TODO
+    void ApplyPowerUp(PowerUpType power_up);
+
+    void ResetPowerUp();
 
     void ApplySpecialPowerUp(PowerUpType type) ;
 
@@ -78,6 +74,8 @@ public:
 
 private:
     void ResetPosition() { m_Transform.translation = {0, 0}; }
+    void UpdateShootingStrategy(); // Helper to set strategy based on current power-up state
+
 
     int m_health = 3;
     bool isMissile = false;
@@ -86,6 +84,9 @@ private:
     std::string m_ImagePath;
     std::vector<std::shared_ptr<Bullet>> m_Bullets;
 
+    PowerUpType m_CurrentPowerUpType = PowerUpType::RED; // Default power-up type
+    int m_PowerUpLevel = 1; // Default power-up level
+    std::unique_ptr<ShootingStrategy> m_ShootingStrategy;
 };
 
 

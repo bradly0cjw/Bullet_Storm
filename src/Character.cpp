@@ -4,11 +4,14 @@
 #include "Util/Logger.hpp"
 
 
-Character::Character(const std::string &ImagePath) {
+Character::Character(const std::string& ImagePath)
+{
+    // Initialize power-up state
     LOG_INFO("Character created with image path: {}", ImagePath);
     SetImage(ImagePath);
-
     ResetPosition();
+    m_CurrentPowerUpType = PowerUpType::RED; // Default, doesn't matter if m_PowerUpLevel is 0
+    m_ShootingStrategy = std::make_unique<RedPowerUpStage1Strategy>(); // Start with default
 }
 
 void Character::SetImage(const std::string &ImagePath) {
@@ -17,22 +20,28 @@ void Character::SetImage(const std::string &ImagePath) {
     m_Drawable = std::make_shared<Util::Image>(m_ImagePath);
 }
 
-void Character::Shoot() {
-    LOG_INFO("Shoot function called!");
-
-    // 取得當前 player 位置
+void Character::Shoot()
+{
+    //LOG_INFO("Shoot function called!"); // Logged by strategy now
     glm::vec2 playerPos = GetPosition();
+    glm::vec2 MuzzlePosition = playerPos + glm::vec2(0.0f, 50.0f); // Muzzle offset from player center
 
-    // 設定子彈起始位置（稍微往前，避免被 player 遮住）
-    glm::vec2 bulletStartPos = playerPos + glm::vec2(0, 50); // 改為 50px 正方向
-
-    // 讓子彈向前飛行
-    auto bullet = std::make_shared<Bullet>(bulletStartPos, glm::vec2(0, 10)); // 改為正方向
-
-    m_Bullets.push_back(bullet);
-    bullet->SetVisible(true); // 確保子彈可見
-    LOG_INFO("Bullet created at ({}, {})", bulletStartPos.x, bulletStartPos.y);
+    if (m_ShootingStrategy)
+    {
+        m_ShootingStrategy->Shoot(playerPos, MuzzlePosition, m_Bullets);
+        // Ensure new bullets are visible (Bullet constructor should handle this)
+        // for(const auto& bullet : m_Bullets) { // This might be inefficient if m_Bullets is large
+        //     if(bullet && !bullet->GetVisibility()) { // Assuming GetVisibility exists
+        //         // Bullet constructor should set visibility. Or strategy should.
+        //     }
+        // }
+    }
+    else
+    {
+        LOG_ERROR("No shooting strategy set for Character!");
+    }
 }
+
 
 bool Character::IfCollides(const std::shared_ptr<Util::GameObject> &other) const {
     glm::vec2 a = m_Transform.translation;
@@ -52,8 +61,10 @@ void Character::UseSkill() {
     LOG_INFO("UseSkill: remaining charges = {}", GetSkillCharges());
 }
 
-void Character::Update() {
+void Character::Update()
+{
     // 更新所有子彈
+    LOG_INFO("PowerUP Level: {}", m_PowerUpLevel);
     for (auto &bullet: m_Bullets) {
         if (!bullet->InBound()) {
             //TODO: Migrate delete logic to here
@@ -62,8 +73,81 @@ void Character::Update() {
             bullet->Update();
         }
         // remove if out of bound
-
     }
+}
+
+void Character::RmBullets(const std::shared_ptr<Bullet>& bullet_to_remove)
+{
+    auto it = std::find(m_Bullets.begin(), m_Bullets.end(), bullet_to_remove);
+    if (it != m_Bullets.end())
+    {
+        (*it)->SetVisible(false); // Mark for removal or hide
+        m_Bullets.erase(it);
+    }
+}
+
+void Character::ApplyPowerUp(PowerUpType power_up_type)
+{
+    // if (m_CurrentPowerUpType == power_up_type) {
+    //     // Same type, upgrade level
+    //     if (m_PowerUpLevel < 3) {
+    //         m_PowerUpLevel++;
+    //     }
+    // } else {
+    //     // Different type, switch to it at level 1
+    //     m_CurrentPowerUpType = power_up_type;
+    //     m_PowerUpLevel = 1;
+    // }
+    if (m_PowerUpLevel < 3)
+    {
+        m_PowerUpLevel++;
+    }
+    m_CurrentPowerUpType = power_up_type;
+    LOG_INFO("PowerUp Applied: Type {}, Level {}", static_cast<int>(m_CurrentPowerUpType), m_PowerUpLevel);
+    UpdateShootingStrategy();
+}
+
+
+void Character::UpdateShootingStrategy()
+{
+    if (m_PowerUpLevel == 0)
+    {
+        m_ShootingStrategy = std::make_unique<RedPowerUpStage1Strategy>();
+        return;
+    }
+
+    switch (m_CurrentPowerUpType)
+    {
+    case PowerUpType::RED:
+        if (m_PowerUpLevel == 1) m_ShootingStrategy = std::make_unique<RedPowerUpStage1Strategy>();
+        else if (m_PowerUpLevel == 2) m_ShootingStrategy = std::make_unique<RedPowerUpStage2Strategy>();
+        else if (m_PowerUpLevel == 3) m_ShootingStrategy = std::make_unique<RedPowerUpStage3Strategy>();
+        else m_ShootingStrategy = std::make_unique<RedPowerUpStage1Strategy>(); // Fallback
+        break;
+    case PowerUpType::PURPLE:
+        if (m_PowerUpLevel == 1) m_ShootingStrategy = std::make_unique<PurplePowerUpStage1Strategy>();
+        else if (m_PowerUpLevel == 2) m_ShootingStrategy = std::make_unique<PurplePowerUpStage2Strategy>();
+        else if (m_PowerUpLevel == 3) m_ShootingStrategy = std::make_unique<PurplePowerUpStage3Strategy>();
+        else m_ShootingStrategy = std::make_unique<RedPowerUpStage1Strategy>(); // Fallback
+        break;
+    case PowerUpType::BLUE:
+        if (m_PowerUpLevel == 1) m_ShootingStrategy = std::make_unique<BluePowerUpStage1Strategy>();
+        else if (m_PowerUpLevel == 2) m_ShootingStrategy = std::make_unique<BluePowerUpStage2Strategy>();
+        else if (m_PowerUpLevel == 3) m_ShootingStrategy = std::make_unique<BluePowerUpStage3Strategy>();
+        else m_ShootingStrategy = std::make_unique<RedPowerUpStage1Strategy>(); // Fallback
+        break;
+    default:
+        m_ShootingStrategy = std::make_unique<RedPowerUpStage1Strategy>();
+        break;
+    }
+    LOG_INFO("Shooting strategy updated.");
+}
+
+void Character::ResetPowerUp()
+{
+    m_CurrentPowerUpType = PowerUpType::RED; // Reset to default
+    m_PowerUpLevel = 1;
+    UpdateShootingStrategy();
 }
 
 void Character::ApplySpecialPowerUp(PowerUpType type) {
