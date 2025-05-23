@@ -92,6 +92,17 @@ void App::Start() {
     m_PRM = std::make_shared<PhaseResourceManager>();
     m_Renderer->AddChildren(m_PRM->GetChildren());
 
+    //HP display init
+    m_HealthDisplay = std::make_shared<ResultText>("HP: " + std::to_string(m_Player->GetHealth()));
+    m_HealthDisplay->m_Transform.translation = { -390.0f, -290.0f };  // 左下角微調
+    m_Renderer->AddChild(m_HealthDisplay);
+
+    m_SkillDisplay = std::make_shared<ResultText>(
+        "SKILL: " + std::to_string(m_Player->GetSkillCharges())
+    );
+    // 把它放在 HP 之上（往上 30 像素）
+    m_SkillDisplay->m_Transform.translation = { -370.0f, -230.0f };
+    m_Renderer->AddChild(m_SkillDisplay);
 
     m_EnemySpawnTimer = std::time(nullptr);
     m_Timer = std::time(nullptr); // Game timer for boss spawn etc.
@@ -133,6 +144,9 @@ void App::result() {
         m_Renderer->RemoveChild(m_Player);
         m_Renderer->RemoveChild(m_PRM->GetChildren()[0]);
         m_Player->SetVisible(false);
+
+        m_SkillDisplay->SetVisible(false);
+        m_HealthDisplay->SetVisible(false);
 
         m_Renderer->Update();
 
@@ -257,15 +271,35 @@ void App::Update() {
 
     auto bullet_cooldown = std::clock();
     if (Util::Input::IsKeyPressed(Util::Keycode::SPACE)) {
-        if (static_cast<float>(bullet_cooldown - m_bulletCooldownTimer) / CLOCKS_PER_SEC > 0.2f)
-        {
-            m_bulletCooldownTimer = bullet_cooldown;
+        // enforce your 0.2s cooldown as before…
+        if (static_cast<float>(std::clock() - m_bulletCooldownTimer) / CLOCKS_PER_SEC > 0.2f) {
+            m_bulletCooldownTimer = std::clock();
+            // **if** you have at least one M charge, fire missiles
+            if (m_Player->GetMissileCount() ) {
+                m_Player->LaunchMissiles(m_Enemies, m_Renderer.get());
+            }
+
             m_Player->Shoot();
         }
     }
 
+
     if (Util::Input::IsKeyPressed(Util::Keycode::Z)) {
-        m_Player->UseSkill();
+        // 只在第一次按下時觸發
+        if (!m_ZPressedLastFrame && m_Player->GetSkillCharges() > 0) {
+            // 1️⃣ 清掉所有小兵與他們的子彈
+            for (auto& enemy : m_Enemies) {
+                for (auto& b : enemy->GetBullets())
+                    m_Renderer->RemoveChild(b);
+                m_Renderer->RemoveChild(enemy);
+            }
+            m_Enemies.clear();
+            // 2️⃣ 扣一次技能次數
+            m_Player->UseSkill();
+        }
+        m_ZPressedLastFrame = true;
+    } else {
+        m_ZPressedLastFrame = false;
     }
 
     m_Player->Update();
@@ -380,6 +414,7 @@ void App::Update() {
     }
     for (auto& enemyHit : enemiesToRemove)
     {
+
         for (auto& bullet : enemyHit->GetBullets())
         {
             m_Renderer->RemoveChild(bullet);
@@ -387,14 +422,38 @@ void App::Update() {
         m_Renderer->RemoveChild(enemyHit);
         m_Enemies.erase(std::remove(m_Enemies.begin(), m_Enemies.end(), enemyHit), m_Enemies.end());
         m_DefeatedThisLevel = m_DefeatedThisLevel + 1;
-        if (std::rand() % 2 == 0)
-        {
+        if (std::rand() % 2 == 0) {
             PowerUpType type = static_cast<PowerUpType>(std::rand() % 3);
             auto pup = std::make_shared<PowerUp>(type, enemyHit->GetPosition(),
                                                  glm::vec2{(std::rand() % 200 - 100) / 100.0f, 2.0f});
             m_PowerUps.push_back(pup);
             m_Renderer->AddChild(pup);
         }
+        float r = static_cast<float>(std::rand()) / (RAND_MAX + 1.0f);
+        if ( r < 0.20f) {
+            PowerUpType special_type;
+            if (r < 0.05f) {
+                special_type = PowerUpType::H;    // H
+            } else if (r < 0.10f) {
+                special_type = PowerUpType::M;   // M
+            } else if (r < 0.15f) {
+                special_type = PowerUpType::P;     // P
+            }
+            else if ( r < 0.20f ) {
+                special_type = PowerUpType::B;
+            }
+
+
+
+            glm::vec2 vel{ (std::rand() % 200 - 100) / 100.0f, 2.0f };
+            auto specialPup = std::make_shared<PowerUp>(special_type, enemyHit->GetPosition(), vel);
+            m_PowerUps.push_back(specialPup);
+            m_Renderer->AddChild(specialPup);
+
+        }
+
+
+
     }
 
     bool isPlayerHitThisFrame = false;
@@ -408,6 +467,9 @@ void App::Update() {
                 LOG_INFO("Player collided with enemy at position ({}, {})", enemy->GetPosition().x,
                          enemy->GetPosition().y);
                 m_Player->modifyHealth(-1);
+                m_Player->SetMissileCount(false);
+                m_Player->ResetSkillCharges();
+                LOG_INFO("Player hit! Skill charges reset to 3");
                 isPlayerHitThisFrame = true;
                 m_collisionTimer = currentTime;
             }
@@ -425,6 +487,7 @@ void App::Update() {
                     LOG_INFO("Player collided with enemy bullet at position ({}, {})", bullet->GetPosition().x,
                              bullet->GetPosition().y);
                     m_Player->modifyHealth(-1);
+                    m_Player->SetMissileCount(false);
                     isPlayerHitThisFrame = true;
                     m_collisionTimer = currentTime;
                     m_DefeatedThisLevel += 1;
@@ -565,7 +628,16 @@ void App::Update() {
                                     {
                                         if (m_Player->IfCollides(pup))
                                         {
-                                            m_Player->ApplyPowerUp(pup->GetType());
+                                            if ( pup->GetType() == PowerUpType::PURPLE ||
+                                                pup->GetType() == PowerUpType::RED ||
+                                                pup->GetType() == PowerUpType::BLUE ) {
+                                                m_Player->ApplyPowerUp(pup->GetType());
+                                            }
+                                            else {
+                                                m_Player->ApplySpecialPowerUp(pup->GetType());
+                                            }
+
+
                                             m_Renderer->RemoveChild(pup);
                                             return true;
                                         }
@@ -576,6 +648,12 @@ void App::Update() {
                                         }
                                         return false;
                                     }), m_PowerUps.end());
+
+    // 更新血量顯示
+    m_HealthDisplay->SetText("HP: " + std::to_string(m_Player->GetHealth()));
+
+    m_SkillDisplay->SetText(
+    "SKILL: " + std::to_string(m_Player->GetSkillCharges()));
 
     m_Renderer->Update();
     /*

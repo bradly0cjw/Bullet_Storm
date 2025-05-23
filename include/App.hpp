@@ -57,9 +57,15 @@ private:
     int m_Score;              // 總分
     std::shared_ptr<Util::GameObject> m_GameOverImage;  // gameover 圖片
 
+    // 顯示血量用
+    std::shared_ptr<ResultText>    m_HealthDisplay;
+    std::shared_ptr<ResultText> m_SkillDisplay;
+    std::shared_ptr<Util::GameObject> m_HealthGO;
 
     // 通用文字顯示
     std::shared_ptr<Util::GameObject> m_LevelEndText ;
+
+    bool m_ZPressedLastFrame = false;
 
     std::shared_ptr<Util::GameObject> m_MenuTitle;
     std::shared_ptr<Util::GameObject> m_StartButton;
@@ -81,6 +87,8 @@ private:
     // 角色物件
     std::shared_ptr<Character> m_Player;
     std::shared_ptr<AnimatedCharacter> m_Enemy;
+
+
 
     // 遊戲渲染器
     std::unique_ptr<Util::Renderer> m_Renderer;

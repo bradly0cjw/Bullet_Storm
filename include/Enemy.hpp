@@ -8,8 +8,9 @@
 #include <string>
 #include <vector>
 #include <memory> // Required for std::shared_ptr
-#include <glm/glm.hpp> // Required for glm::vec2
 
+
+class Bullet;
 // Enum for App.cpp to decide which enemy type to spawn
 enum class EnemyType
 {

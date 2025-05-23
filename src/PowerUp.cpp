@@ -9,7 +9,12 @@ PowerUp::PowerUp(PowerUpType type, const glm::vec2 &pos, const glm::vec2 &vel)
             std::string(RESOURCE_DIR) +
             (type==PowerUpType::RED      ? "/powerUp/red_bullet.png"   :
              type==PowerUpType::BLUE  ? "/powerUp/blue_bullet.png"   :
-                                              "/powerUp/purple_bullet.png")),
+             type==PowerUpType::PURPLE  ?  "/powerUp/purple_bullet.png" :
+             type==PowerUpType::H  ?  "/powerUp/H.png" :
+             type==PowerUpType::P  ?  "/powerUp/P.png" :
+             type==PowerUpType::M  ?  "/powerUp/M.png" :
+                                     "/powerUp/B.png"
+                                              )),
         /* zIndex */ 20
     ),
     m_Velocity(vel), m_Type(type)
@@ -43,3 +48,5 @@ void PowerUp::Update() {
 PowerUpType PowerUp::GetType() const {
     return m_Type;
 }
+
+
