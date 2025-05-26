@@ -28,11 +28,13 @@ void RedPowerUpStage3Strategy::Shoot(const glm::vec2& characterPosition, const g
                                      std::vector<std::shared_ptr<Bullet>>& bullets, PowerUpType type)
 {
     bullets.push_back(std::make_shared<Bullet>(MuzzlePosition, glm::vec2(0, 10.0f), type)); // Center
-    bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(-15.0f, 0.0f), glm::vec2(-1.5f, 10.0f), type));
+    bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(-15.0f, 0.0f), glm::vec2(-1.5f, 10.0f),
+                                               type));
     // Mid left
     bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(15.0f, 0.0f), glm::vec2(1.5f, 10.0f), type));
     // Mid right
-    bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(-30.0f, 0.0f), glm::vec2(-2.5f, 10.0f), type));
+    bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(-30.0f, 0.0f), glm::vec2(-2.5f, 10.0f),
+                                               type));
     // Far left
     bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(30.0f, 0.0f), glm::vec2(2.5f, 10.0f), type));
     // Far right

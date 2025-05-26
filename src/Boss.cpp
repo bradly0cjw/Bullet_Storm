@@ -89,7 +89,8 @@ void Boss::Update(glm::vec2 playerPosition)
 
             // Pass true for isEnemyBullet and a default PowerUpType
             m_Bullets.push_back(
-                std::make_shared<Bullet>(baseStartPos + glm::vec2(-40.0f, 0.0f), vel + glm::vec2(-2.0f, 0.0f), PowerUpType::RED, true));
+                std::make_shared<Bullet>(baseStartPos + glm::vec2(-40.0f, 0.0f), vel + glm::vec2(-2.0f, 0.0f),
+                                         PowerUpType::RED, true));
             m_Bullets.push_back(std::make_shared<Bullet>(baseStartPos, vel, PowerUpType::RED, true));
             m_Bullets.push_back(
                 std::make_shared<Bullet>(baseStartPos + glm::vec2(40.0f, 0.0f), vel + glm::vec2(2.0f, 0.0f), PowerUpType::RED, true));
@@ -126,7 +127,8 @@ void Boss::Shoot(glm::vec2 playerPosition)
 
     // Example: Fire two bullets slightly angled
     // Pass true for isEnemyBullet and a default PowerUpType
-    auto bulletL = std::make_shared<Bullet>(bulletStartPos + glm::vec2(-50, 0), glm::vec2(-1.5f, -9.0f), PowerUpType::RED, true);
+    auto bulletL = std::make_shared<Bullet>(bulletStartPos + glm::vec2(-50, 0), glm::vec2(-1.5f, -9.0f),
+                                            PowerUpType::RED, true);
     auto bulletR = std::make_shared<Bullet>(bulletStartPos + glm::vec2(50, 0), glm::vec2(1.5f, -9.0f), PowerUpType::RED, true);
 
     m_Bullets.push_back(bulletL);

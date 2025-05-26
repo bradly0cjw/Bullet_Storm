@@ -6,25 +6,30 @@
 
 // Constructor for normal bullets, now selects image based on PowerUpType and isEnemyBullet flag
 Bullet::Bullet(const glm::vec2& position, const glm::vec2& velocity, PowerUpType type, bool isEnemyBullet)
-    : m_Velocity(velocity), m_IsHoming(false), m_HomingSpeed(0.0f) { // Initialize all members
+    : m_Velocity(velocity), m_IsHoming(false), m_HomingSpeed(0.0f)
+{
+    // Initialize all members
     std::string bulletImagePath;
-    if (isEnemyBullet) {
+    if (isEnemyBullet)
+    {
         bulletImagePath = RESOURCE_DIR "/enemy/bullet_enemy.png"; // Use enemy_plane.png for enemy bullets
     }
-    else {
-        switch (type) {
-            case PowerUpType::RED:
-                bulletImagePath = RESOURCE_DIR "/character/bullet_R.png";
-                break;
-            case PowerUpType::BLUE:
-                bulletImagePath = RESOURCE_DIR "/character/bullet_B.png";
-                break;
-            case PowerUpType::PURPLE:
-                bulletImagePath = RESOURCE_DIR "/character/bullet_P.png";
-                break;
-            default:
-                bulletImagePath = RESOURCE_DIR "/character/bullet_R.png"; // Default for player
-                break;
+    else
+    {
+        switch (type)
+        {
+        case PowerUpType::RED:
+            bulletImagePath = RESOURCE_DIR "/character/bullet_R.png";
+            break;
+        case PowerUpType::BLUE:
+            bulletImagePath = RESOURCE_DIR "/character/bullet_B.png";
+            break;
+        case PowerUpType::PURPLE:
+            bulletImagePath = RESOURCE_DIR "/character/bullet_P.png";
+            break;
+        default:
+            bulletImagePath = RESOURCE_DIR "/character/bullet_R.png"; // Default for player
+            break;
         }
     }
     m_Drawable = std::make_shared<Util::Image>(bulletImagePath);
@@ -32,21 +37,23 @@ Bullet::Bullet(const glm::vec2& position, const glm::vec2& velocity, PowerUpType
     SetVisible(true);
     SetZIndex(1); // Ensure z-index is set
 
-    if (!m_Drawable) {
+    if (!m_Drawable)
+    {
         LOG_ERROR("Bullet image failed to load: {}", bulletImagePath);
     }
 }
 
 // Constructor for homing missiles
 Bullet::Bullet(const glm::vec2& position, float speed, const std::shared_ptr<Enemy>& target)
-  : Util::GameObject(
-      std::make_shared<Util::Image>(RESOURCE_DIR "/character/missiles.png"),
-      /*zIndex=*/1 // Corrected comment for zIndex
-    ),
-    m_Velocity(0.0f, 0.0f), // m_Velocity is initialized below
-    m_HomingSpeed(speed),
-    m_HomingTarget(target),
-    m_IsHoming(true) {
+    : Util::GameObject(
+          std::make_shared<Util::Image>(RESOURCE_DIR "/character/missiles.png"),
+          /*zIndex=*/1 // Corrected comment for zIndex
+      ),
+      m_Velocity(0.0f, 0.0f), // m_Velocity is initialized below
+      m_HomingSpeed(speed),
+      m_HomingTarget(target),
+      m_IsHoming(true)
+{
     m_Transform.translation = position;
     SetVisible(true); // Ensure visibility is set
 
@@ -54,11 +61,13 @@ Bullet::Bullet(const glm::vec2& position, float speed, const std::shared_ptr<Ene
     if (auto t = m_HomingTarget.lock()) {
         glm::vec2 dir = glm::normalize(t->GetTransform().translation - position);
         m_Velocity = dir * speed; // Simplified velocity calculation
-    } else {
+    }
+    else {
         // Default velocity if no target (e.g., straight up)
         m_Velocity = glm::vec2(0.0f, speed);
     }
-    if (!m_Drawable) {
+    if (!m_Drawable)
+    {
         LOG_ERROR("Homing missile image failed to load!");
     }
 }
@@ -99,10 +108,11 @@ void Bullet::Update() {
 
 
     //LOG_INFO("Bullet position: ({}, {})", m_Transform.translation.x, m_Transform.translation.y);
-
 }
 
-[[nodiscard]] bool Bullet::InBound(){ // Added [[nodiscard]] here as well, as it was in the .hpp
+[[nodiscard]] bool Bullet::InBound()
+{
+    // Added [[nodiscard]] here as well, as it was in the .hpp
     if (m_Transform.translation.y < -400 || m_Transform.translation.y > 400) {
         SetVisible(false);
         return false;

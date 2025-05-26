@@ -101,36 +101,38 @@ void Character::ApplyPowerUp(PowerUpType power_up_type)
 
     // Change character image based on power-up type
     std::string imagePath = RESOURCE_DIR "/character/player_red.png"; // Default
-    switch (m_CurrentPowerUpType) {
-        case PowerUpType::RED:
-            imagePath = RESOURCE_DIR "/character/player_red.png";
-            break;
-        case PowerUpType::PURPLE:
-            imagePath = RESOURCE_DIR "/character/player_purple.png";
-            break;
-        case PowerUpType::BLUE:
-            imagePath = RESOURCE_DIR "/character/player_blue.png";
-            break;
-        // Add cases for other power-up types if they also change color
-        default:
-            // For H, P, M, B, or any other types that don't change the base color,
-            // or if we want a default color for them.
-            // If these types can be active concurrently with a color power-up,
-            // this logic might need adjustment to preserve the color.
-            // For now, assume they don't override the current color power-up's image,
-            // or they revert to a default if they are the *only* active power-up.
-            // This part depends on how power-ups are layered.
-            // Reverting to a default player.png if no specific color power-up is active.
-            // This might need to check the previous power up or have a base color state.
-            // For simplicity, let's assume special power-ups don't change the image from the last color power-up.
-            // Or, if you want them to have a default look:
-            // imagePath = "Resources/character/player.png";
-            break; // Keep current image or use default if no color power-up was active
+    switch (m_CurrentPowerUpType)
+    {
+    case PowerUpType::RED:
+        imagePath = RESOURCE_DIR "/character/player_red.png";
+        break;
+    case PowerUpType::PURPLE:
+        imagePath = RESOURCE_DIR "/character/player_purple.png";
+        break;
+    case PowerUpType::BLUE:
+        imagePath = RESOURCE_DIR "/character/player_blue.png";
+        break;
+    // Add cases for other power-up types if they also change color
+    default:
+        // For H, P, M, B, or any other types that don't change the base color,
+        // or if we want a default color for them.
+        // If these types can be active concurrently with a color power-up,
+        // this logic might need adjustment to preserve the color.
+        // For now, assume they don't override the current color power-up's image,
+        // or they revert to a default if they are the *only* active power-up.
+        // This part depends on how power-ups are layered.
+        // Reverting to a default player.png if no specific color power-up is active.
+        // This might need to check the previous power up or have a base color state.
+        // For simplicity, let's assume special power-ups don't change the image from the last color power-up.
+        // Or, if you want them to have a default look:
+        // imagePath = "Resources/character/player.png";
+        break; // Keep current image or use default if no color power-up was active
     }
     // Only set image if it's different, or always set if special powerups should revert.
     // To ensure special powerups don't change the color from an active RED/BLUE/PURPLE:
     LOG_ERROR("Current PowerUp Type: {}", static_cast<int>(m_CurrentPowerUpType));
-    if (power_up_type == PowerUpType::RED || power_up_type == PowerUpType::BLUE || power_up_type == PowerUpType::PURPLE) {
+    if (power_up_type == PowerUpType::RED || power_up_type == PowerUpType::BLUE || power_up_type == PowerUpType::PURPLE)
+    {
         SetImage(imagePath);
     }
 
@@ -182,7 +184,8 @@ void Character::ResetPowerUp()
     UpdateShootingStrategy();
 }
 
-void Character::ApplySpecialPowerUp(PowerUpType type) {
+void Character::ApplySpecialPowerUp(PowerUpType type)
+{
     switch(type) {
         case PowerUpType::H:
             // 吃到 H 回 1 點血

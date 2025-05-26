@@ -18,7 +18,8 @@ public:
     Bullet(const glm::vec2& position, const glm::vec2& velocity, PowerUpType type, bool isEnemyBullet = false);
 
     // Constructor for homing missiles
-    Bullet(const glm::vec2& position, float speed, const std::shared_ptr<Enemy>& target); // Made target a const reference
+    Bullet(const glm::vec2& position, float speed, const std::shared_ptr<Enemy>& target);
+    // Made target a const reference
 
     [[nodiscard]] const glm::vec2& GetPosition() const { return m_Transform.translation; }
 
@@ -27,7 +28,7 @@ public:
     void MarkAsInRenderer() { m_InRenderer = true; }
     [[nodiscard]] bool InBound(); // Should also be [[nodiscard]] if it returns a meaningful bool
 
-    [[nodiscard]] bool CollidesWith(const std::shared_ptr<Util::GameObject> &other) const; // Added [[nodiscard]]
+    [[nodiscard]] bool CollidesWith(const std::shared_ptr<Util::GameObject>& other) const; // Added [[nodiscard]]
 
 private:
     glm::vec2 m_Velocity;
