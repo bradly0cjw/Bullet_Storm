@@ -87,11 +87,12 @@ void Boss::Update(glm::vec2 playerPosition)
             glm::vec2 baseStartPos = GetPosition() + glm::vec2(0, -m_HitboxHeight_Private / 2.0f - 10.0f);
             glm::vec2 vel = glm::vec2(0.0f, -12.0f); // Faster bullets
 
+            // Pass true for isEnemyBullet and a default PowerUpType
             m_Bullets.push_back(
-                std::make_shared<Bullet>(baseStartPos + glm::vec2(-40.0f, 0.0f), vel + glm::vec2(-2.0f, 0.0f)));
-            m_Bullets.push_back(std::make_shared<Bullet>(baseStartPos, vel));
+                std::make_shared<Bullet>(baseStartPos + glm::vec2(-40.0f, 0.0f), vel + glm::vec2(-2.0f, 0.0f), PowerUpType::RED, true));
+            m_Bullets.push_back(std::make_shared<Bullet>(baseStartPos, vel, PowerUpType::RED, true));
             m_Bullets.push_back(
-                std::make_shared<Bullet>(baseStartPos + glm::vec2(40.0f, 0.0f), vel + glm::vec2(2.0f, 0.0f)));
+                std::make_shared<Bullet>(baseStartPos + glm::vec2(40.0f, 0.0f), vel + glm::vec2(2.0f, 0.0f), PowerUpType::RED, true));
             for (size_t i = m_Bullets.size() - 3; i < m_Bullets.size(); ++i)
             {
                 // Make new bullets visible
@@ -124,8 +125,9 @@ void Boss::Shoot(glm::vec2 playerPosition)
     // Adjust Y based on boss sprite
 
     // Example: Fire two bullets slightly angled
-    auto bulletL = std::make_shared<Bullet>(bulletStartPos + glm::vec2(-50, 0), glm::vec2(-1.5f, -9.0f));
-    auto bulletR = std::make_shared<Bullet>(bulletStartPos + glm::vec2(50, 0), glm::vec2(1.5f, -9.0f));
+    // Pass true for isEnemyBullet and a default PowerUpType
+    auto bulletL = std::make_shared<Bullet>(bulletStartPos + glm::vec2(-50, 0), glm::vec2(-1.5f, -9.0f), PowerUpType::RED, true);
+    auto bulletR = std::make_shared<Bullet>(bulletStartPos + glm::vec2(50, 0), glm::vec2(1.5f, -9.0f), PowerUpType::RED, true);
 
     m_Bullets.push_back(bulletL);
     m_Bullets.push_back(bulletR);
@@ -155,3 +157,4 @@ void Boss::TakeDamage(int amount)
 bool Boss::IsDead() const {
     return m_Health <= 0;
 }
+

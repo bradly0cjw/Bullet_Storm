@@ -16,8 +16,9 @@ public:
     virtual ~ShootingStrategy() = default;
     // MuzzlePosition is where the bullets originate from the character
     // Bullets vector is the character's list of active bullets to add to
+    // type is the current power-up type of the character to determine bullet appearance
     virtual void Shoot(const glm::vec2& characterPosition, const glm::vec2& MuzzlePosition,
-                       std::vector<std::shared_ptr<Bullet>>& bullets) = 0;
+                       std::vector<std::shared_ptr<Bullet>>& bullets, PowerUpType type) = 0; // Added PowerUpType
 };
 
 
@@ -26,21 +27,21 @@ class RedPowerUpStage1Strategy : public ShootingStrategy
 {
 public:
     void Shoot(const glm::vec2& characterPosition, const glm::vec2& MuzzlePosition,
-               std::vector<std::shared_ptr<Bullet>>& bullets) override;
+               std::vector<std::shared_ptr<Bullet>>& bullets, PowerUpType type) override; // Added PowerUpType
 };
 
 class RedPowerUpStage2Strategy : public ShootingStrategy
 {
 public:
     void Shoot(const glm::vec2& characterPosition, const glm::vec2& MuzzlePosition,
-               std::vector<std::shared_ptr<Bullet>>& bullets) override;
+               std::vector<std::shared_ptr<Bullet>>& bullets, PowerUpType type) override; // Added PowerUpType
 };
 
 class RedPowerUpStage3Strategy : public ShootingStrategy
 {
 public:
     void Shoot(const glm::vec2& characterPosition, const glm::vec2& MuzzlePosition,
-               std::vector<std::shared_ptr<Bullet>>& bullets) override;
+               std::vector<std::shared_ptr<Bullet>>& bullets, PowerUpType type) override; // Added PowerUpType
 };
 
 // Purple PowerUp Strategies (Placeholders)
@@ -48,43 +49,38 @@ class PurplePowerUpStage1Strategy : public ShootingStrategy
 {
 public:
     void Shoot(const glm::vec2& characterPosition, const glm::vec2& MuzzlePosition,
-               std::vector<std::shared_ptr<Bullet>>& bullets) override;
+               std::vector<std::shared_ptr<Bullet>>& bullets, PowerUpType type) override; // Added PowerUpType
 };
 
 class PurplePowerUpStage2Strategy : public ShootingStrategy
 {
 public:
     void Shoot(const glm::vec2& characterPosition, const glm::vec2& MuzzlePosition,
-               std::vector<std::shared_ptr<Bullet>>& bullets) override;
+               std::vector<std::shared_ptr<Bullet>>& bullets, PowerUpType type) override; // Added PowerUpType
 };
-
 class PurplePowerUpStage3Strategy : public ShootingStrategy
 {
 public:
     void Shoot(const glm::vec2& characterPosition, const glm::vec2& MuzzlePosition,
-               std::vector<std::shared_ptr<Bullet>>& bullets) override;
+               std::vector<std::shared_ptr<Bullet>>& bullets, PowerUpType type) override; // Added PowerUpType
 };
-
-// Blue PowerUp Strategies (Placeholders)
 class BluePowerUpStage1Strategy : public ShootingStrategy
 {
 public:
     void Shoot(const glm::vec2& characterPosition, const glm::vec2& MuzzlePosition,
-               std::vector<std::shared_ptr<Bullet>>& bullets) override;
+               std::vector<std::shared_ptr<Bullet>>& bullets, PowerUpType type) override; // Added PowerUpType
 };
-
 class BluePowerUpStage2Strategy : public ShootingStrategy
 {
 public:
     void Shoot(const glm::vec2& characterPosition, const glm::vec2& MuzzlePosition,
-               std::vector<std::shared_ptr<Bullet>>& bullets) override;
+               std::vector<std::shared_ptr<Bullet>>& bullets, PowerUpType type) override; // Added PowerUpType
 };
-
 class BluePowerUpStage3Strategy : public ShootingStrategy
 {
 public:
     void Shoot(const glm::vec2& characterPosition, const glm::vec2& MuzzlePosition,
-               std::vector<std::shared_ptr<Bullet>>& bullets) override;
+               std::vector<std::shared_ptr<Bullet>>& bullets, PowerUpType type) override; // Added PowerUpType
 };
 
-#endif // SHOOTING_STRATEGY_HPP
+# endif // SHOOTING_STRATEGY_HPP

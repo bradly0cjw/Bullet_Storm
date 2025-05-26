@@ -80,7 +80,7 @@ void App::Start() {
     LOG_INFO("Game Started!");
 
     // 1️⃣ 創建玩家角色 (戰機)
-    m_Player = std::make_shared<Character>(RESOURCE_DIR "/character/test_plane.png");
+    m_Player = std::make_shared<Character>(RESOURCE_DIR "/character/player_red.png");
     m_Player->SetPosition({-112.5f, -140.5f});  // 螢幕中央
 
     m_Player->SetZIndex(50); // 讓玩家顯示在最前面

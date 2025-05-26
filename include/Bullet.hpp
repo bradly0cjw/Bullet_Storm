@@ -7,24 +7,27 @@
 
 #include "Util/GameObject.hpp"
 #include "Util/Image.hpp"
+#include "PowerUp.hpp" // Added for PowerUpType
 
 
 class Enemy;
 
 class Bullet : public Util::GameObject {
 public:
-    Bullet(const glm::vec2& position, const glm::vec2& velocity);
-    // 新增：homing 建構子
-    Bullet(const glm::vec2& position, float speed, std::shared_ptr<Enemy> target);
+    // Constructor for normal bullets, now accepts PowerUpType and isEnemyBullet flag
+    Bullet(const glm::vec2& position, const glm::vec2& velocity, PowerUpType type, bool isEnemyBullet = false);
+
+    // Constructor for homing missiles
+    Bullet(const glm::vec2& position, float speed, const std::shared_ptr<Enemy>& target); // Made target a const reference
 
     [[nodiscard]] const glm::vec2& GetPosition() const { return m_Transform.translation; }
 
     void Update();
-    bool IsInRenderer() const { return m_InRenderer; }
+    [[nodiscard]] bool IsInRenderer() const { return m_InRenderer; } // Added [[nodiscard]]
     void MarkAsInRenderer() { m_InRenderer = true; }
-    bool InBound();
+    [[nodiscard]] bool InBound(); // Should also be [[nodiscard]] if it returns a meaningful bool
 
-    bool CollidesWith(const std::shared_ptr<Util::GameObject> &other) const;
+    [[nodiscard]] bool CollidesWith(const std::shared_ptr<Util::GameObject> &other) const; // Added [[nodiscard]]
 
 private:
     glm::vec2 m_Velocity;

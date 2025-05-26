@@ -73,10 +73,10 @@ void Enemy::Shoot(glm::vec2 playerPosition)
     glm::vec2 bulletStartPos = GetBulletStartPosition();
     glm::vec2 bulletVelocity = GetBulletVelocity(playerPosition);
 
-    auto bullet = std::make_shared<Bullet>(bulletStartPos, bulletVelocity);
+    // Create enemy bullets, passing true for isEnemyBullet
+    // PowerUpType for enemy bullets can be a default like RED, as it won't affect the image
+    auto bullet = std::make_shared<Bullet>(bulletStartPos, bulletVelocity, PowerUpType::RED, true);
     m_Bullets.push_back(bullet);
-    // Bullet visibility and adding to renderer is typically handled by App or a GameManager
-    // For now, let's assume bullet becomes visible.
     bullet->SetVisible(true);
     // LOG_INFO("Base Enemy Shoot at ({}, {})", bulletStartPos.x, bulletStartPos.y);
 }
@@ -235,3 +235,4 @@ void RandomEnemy::Update(glm::vec2 playerPosition)
         bullet->Update();
     }
 }
+
