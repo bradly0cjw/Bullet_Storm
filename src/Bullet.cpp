@@ -62,7 +62,8 @@ Bullet::Bullet(const glm::vec2& position, float speed, const std::shared_ptr<Ene
         glm::vec2 dir = glm::normalize(t->GetTransform().translation - position);
         m_Velocity = dir * speed; // Simplified velocity calculation
     }
-    else {
+    else
+    {
         // Default velocity if no target (e.g., straight up)
         m_Velocity = glm::vec2(0.0f, speed);
     }
