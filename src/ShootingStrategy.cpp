@@ -15,11 +15,17 @@ void RedPowerUpStage1Strategy::Shoot(const glm::vec2& characterPosition, const g
 void RedPowerUpStage2Strategy::Shoot(const glm::vec2& characterPosition, const glm::vec2& MuzzlePosition,
                                      std::vector<std::shared_ptr<Bullet>>& bullets, PowerUpType type)
 {
-    bullets.push_back(std::make_shared<Bullet>(MuzzlePosition, glm::vec2(0, 10.0f), type)); // Center
+    bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(-10.0f, 0.0f), glm::vec2(0, 10.0f), type));
+    bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(10.0f, 0.0f), glm::vec2(0, 10.0f), type));
+    // Center
     bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(-5.0f, 0.0f), glm::vec2(-0.5f, 10.0f), type));
-    // Slight left
+    // Slight left 1
+    bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(-7.0f, 0.0f), glm::vec2(-0.5f, 10.0f), type));
+    // Slight left 2
     bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(5.0f, 0.0f), glm::vec2(0.5f, 10.0f), type));
-    // Slight right
+    // Slight right 1
+    bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(7.0f, 0.0f), glm::vec2(0.5f, 10.0f), type));
+    // Slight right 2
     LOG_INFO("RedPowerUpStage2Strategy: Fired 3 bullets (narrow spread).");
 }
 
@@ -27,17 +33,16 @@ void RedPowerUpStage2Strategy::Shoot(const glm::vec2& characterPosition, const g
 void RedPowerUpStage3Strategy::Shoot(const glm::vec2& characterPosition, const glm::vec2& MuzzlePosition,
                                      std::vector<std::shared_ptr<Bullet>>& bullets, PowerUpType type)
 {
-    bullets.push_back(std::make_shared<Bullet>(MuzzlePosition, glm::vec2(0, 10.0f), type)); // Center
-    bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(-15.0f, 0.0f), glm::vec2(-1.5f, 10.0f),
-                                               type));
-    // Mid left
-    bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(15.0f, 0.0f), glm::vec2(1.5f, 10.0f), type));
-    // Mid right
-    bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(-30.0f, 0.0f), glm::vec2(-2.5f, 10.0f),
-                                               type));
-    // Far left
-    bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(30.0f, 0.0f), glm::vec2(2.5f, 10.0f), type));
-    // Far right
+    bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(-10.0f, 0.0f), glm::vec2(0, 10.0f), type));
+    bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(10.0f, 0.0f), glm::vec2(0, 10.0f), type));// Center
+    bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(-15.0f, 0.0f), glm::vec2(-1.5f, 10.0f),type));    // Mid left 1
+    bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(-5.0f, 0.0f), glm::vec2(-1.5f, 10.0f), type)); // Mid left 2
+    bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(15.0f, 0.0f), glm::vec2(1.5f, 10.0f), type));    // Mid right 1
+    bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(5.0f, 0.0f), glm::vec2(1.5f, 10.0f), type)); // Mid right 2
+    bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(-30.0f, 0.0f), glm::vec2(-2.5f, 10.0f),type));    // Far left 1
+    bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(-20.0f, 0.0f), glm::vec2(-2.5f, 10.0f), type)); // Far left 2
+    bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(30.0f, 0.0f), glm::vec2(2.5f, 10.0f), type));    // Far right
+    bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(20.0f, 0.0f), glm::vec2(2.5f, 10.0f), type)); // Far right 2
     LOG_INFO("RedPowerUpStage3Strategy: Fired 5 bullets (wide spread).");
 }
 
@@ -73,29 +78,41 @@ void PurplePowerUpStage3Strategy::Shoot(const glm::vec2& characterPosition, cons
 void BluePowerUpStage1Strategy::Shoot(const glm::vec2& characterPosition, const glm::vec2& MuzzlePosition,
                                       std::vector<std::shared_ptr<Bullet>>& bullets, PowerUpType type)
 {
-    // Example: Piercing shot (gameplay logic for piercing would be in bullet collision)
-    auto bullet = std::make_shared<Bullet>(MuzzlePosition, glm::vec2(0, 8.0f), type);
-    // bullet->SetPiercing(true); // This would require Bullet class modification
-    bullets.push_back(bullet);
-    LOG_INFO("BluePowerUpStage1Strategy: Placeholder - Fired 1 (concept: piercing) bullet.");
+    const float LASER_SPEED = 25.0f;
+    bullets.push_back(std::make_shared<Bullet>(MuzzlePosition, glm::vec2(0, LASER_SPEED), type));
+    LOG_INFO("BluePowerUpStage1Strategy: Fired 1 laser beam.");
 }
 
 // BluePowerUpStage2Strategy (Placeholder)
 void BluePowerUpStage2Strategy::Shoot(const glm::vec2& characterPosition, const glm::vec2& MuzzlePosition,
                                       std::vector<std::shared_ptr<Bullet>>& bullets, PowerUpType type)
 {
-    bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(-5.0f, 0.0f), glm::vec2(0, 8.0f), type));
-    bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(5.0f, 0.0f), glm::vec2(0, 8.0f), type));
-    LOG_INFO("BluePowerUpStage2Strategy: Placeholder - Fired 2 (concept: piercing) bullets.");
+    const float LASER_SPEED = 25.0f;
+    const float SPREAD_OFFSET = 10.0f; // Width for the side beams
+
+    // Center beam
+    bullets.push_back(std::make_shared<Bullet>(MuzzlePosition, glm::vec2(0, LASER_SPEED), type));
+    // Side beams
+    bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(-SPREAD_OFFSET, 0.0f), glm::vec2(0, LASER_SPEED), type));
+    bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(SPREAD_OFFSET, 0.0f), glm::vec2(0, LASER_SPEED), type));
+    LOG_INFO("BluePowerUpStage2Strategy: Fired 3 parallel laser beams.");
 }
 
 // BluePowerUpStage3Strategy (Placeholder)
 void BluePowerUpStage3Strategy::Shoot(const glm::vec2& characterPosition, const glm::vec2& MuzzlePosition,
                                       std::vector<std::shared_ptr<Bullet>>& bullets, PowerUpType type)
 {
-    // Example: Homing missile (gameplay logic for homing would be in bullet update)
-    auto bullet = std::make_shared<Bullet>(MuzzlePosition, glm::vec2(0, 7.0f), type);
-    // bullet->SetHoming(true); // This would require Bullet class modification
-    bullets.push_back(bullet);
-    LOG_INFO("BluePowerUpStage3Strategy: Placeholder - Fired 1 (concept: homing) bullet.");
+    const float LASER_SPEED = 25.0f;
+    const float INNER_SPREAD_OFFSET = 15.0f;
+    const float OUTER_SPREAD_OFFSET = 30.0f;
+
+    // Center beam
+    bullets.push_back(std::make_shared<Bullet>(MuzzlePosition, glm::vec2(0, LASER_SPEED), type));
+    // Inner side beams
+    bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(-INNER_SPREAD_OFFSET, 0.0f), glm::vec2(0, LASER_SPEED), type));
+    bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(INNER_SPREAD_OFFSET, 0.0f), glm::vec2(0, LASER_SPEED), type));
+    // Outer side beams
+    bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(-OUTER_SPREAD_OFFSET, 0.0f), glm::vec2(0, LASER_SPEED), type));
+    bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(OUTER_SPREAD_OFFSET, 0.0f), glm::vec2(0, LASER_SPEED), type));
+    LOG_INFO("BluePowerUpStage3Strategy: Fired 5 parallel laser beams (wide spread).");
 }

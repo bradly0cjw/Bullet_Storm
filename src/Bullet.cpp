@@ -22,7 +22,7 @@ Bullet::Bullet(const glm::vec2& position, const glm::vec2& velocity, PowerUpType
             bulletImagePath = RESOURCE_DIR "/character/bullet_R.png";
             break;
         case PowerUpType::BLUE:
-            bulletImagePath = RESOURCE_DIR "/character/bullet_B.png";
+            bulletImagePath = RESOURCE_DIR "/character/bullet_B1.png";
             break;
         case PowerUpType::PURPLE:
             bulletImagePath = RESOURCE_DIR "/character/bullet_P.png";
