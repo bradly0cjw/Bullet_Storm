@@ -20,7 +20,7 @@ void Character::SetImage(const std::string &ImagePath) {
     m_Drawable = std::make_shared<Util::Image>(m_ImagePath);
 }
 
-void Character::Shoot()
+void Character::Shoot(const std::vector<std::shared_ptr<Enemy>>& enemies)
 {
     //LOG_INFO("Shoot function called!"); // Logged by strategy now
     glm::vec2 playerPos = GetPosition();
@@ -29,7 +29,7 @@ void Character::Shoot()
     if (m_ShootingStrategy)
     {
         // Pass the current power-up type to the shooting strategy
-        m_ShootingStrategy->Shoot(playerPos, MuzzlePosition, m_Bullets, m_CurrentPowerUpType);
+        m_ShootingStrategy->Shoot(playerPos, MuzzlePosition, m_Bullets, m_CurrentPowerUpType,this, enemies);
     }
     else
     {
@@ -213,6 +213,22 @@ void Character::ApplySpecialPowerUp(PowerUpType type)
             break;
     }
 }
+
+// Finds the nearest visible enemy to the given position
+std::shared_ptr<Enemy> Character::FindNearestVisibleEnemy(const glm::vec2& start, const std::vector<std::shared_ptr<Enemy>>& enemies) const {
+    std::shared_ptr<Enemy> bestTgt;
+    float bestDist = std::numeric_limits<float>::infinity();
+    for (auto& e : enemies) {
+        if (!e->IsVisible()) continue;
+        float d = glm::length(e->GetTransform().translation - start);
+        if (d < bestDist) {
+            bestDist = d;
+            bestTgt = e;
+        }
+    }
+    return bestTgt;
+}
+
 void Character::LaunchMissiles(
     const std::vector<std::shared_ptr<Enemy>>& enemies,
     Util::Renderer* renderer
@@ -227,26 +243,18 @@ void Character::LaunchMissiles(
     const float speed = 5.0f;
 
     // 單一 spawn lambda：不論有無目標都呼叫 homing ctor
-    auto spawnMissile = [&](glm::vec2 start) {
-        // 找到最近的敵人（可能找不到，bestTgt 會是 nullptr）
-        std::shared_ptr<Enemy> bestTgt;
-        float bestDist = std::numeric_limits<float>::infinity();
-        for (auto& e : enemies) {
-            if (!e->IsVisible()) continue;
-            float d = glm::length(e->GetTransform().translation - start);
-            if (d < bestDist) {
-                bestDist = d;
-                bestTgt = e;
-            }
-        }
-
-        // 統一呼叫 homing constructor：有目標就追蹤，沒目標在 ctor 裡直射
-        auto msl = std::make_shared<Bullet>(start, speed, bestTgt);
-        m_Bullets.push_back(msl);
-        renderer->AddChild(msl);
+    auto spawnMissile = [&](glm::vec2 startPos) {
+        std::shared_ptr<Enemy> nearestEnemy = FindNearestVisibleEnemy(startPos, enemies);
+        // Create a homing missile using DEFAULT_MISSILE visual type
+        auto missile = std::make_shared<Bullet>(startPos, speed, nearestEnemy, PowerUpType::M);
+        m_Bullets.push_back(missile);
+        // The renderer->AddChild(missile) call should be handled by App::Update,
+        // which iterates m_Player->GetBullets() and adds new ones to the renderer.
+        // So, remove direct renderer interaction here.
     };
 
     // 從左右兩側各發一顆
     spawnMissile(center - offset);
     spawnMissile(center + offset);
 }
+

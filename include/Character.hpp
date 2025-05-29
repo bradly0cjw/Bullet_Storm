@@ -32,7 +32,7 @@ public:
 
     void SetPosition(const glm::vec2& Position) { m_Transform.translation = Position; }
 
-    void Shoot();  // 新增射擊
+    void Shoot(const std::vector<std::shared_ptr<Enemy>>& enemies);  // 新增射擊
     void UseSkill();  // 新增技能
     void Update();  // 更新所有子彈
 
@@ -71,11 +71,13 @@ public:
     void DecSkillCharge()         { if (m_skillCharges > 0) --m_skillCharges; }
     void IncSkillCharge()         { ++m_skillCharges; }
     void ResetSkillCharges()      { m_skillCharges = 3; }
+    std::shared_ptr<Enemy> FindNearestVisibleEnemy(const glm::vec2& start, const std::vector<std::shared_ptr<Enemy>>& enemies) const;
 
 private:
     void ResetPosition() { m_Transform.translation = {0, 0}; }
     void UpdateShootingStrategy(); // Helper to set strategy based on current power-up state
 
+    // Finds the nearest visible enemy to the given position
 
     int m_health = 3;
     bool isMissile = false;

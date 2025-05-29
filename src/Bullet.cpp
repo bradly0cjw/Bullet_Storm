@@ -1,75 +1,74 @@
 #include "Bullet.hpp"
 #include "Util/Logger.hpp"
-#include "Boss.hpp" // For dynamic_pointer_cast, consider forward declaration if only type is needed
-#include "Enemy.hpp"  // For std::shared_ptr<Enemy> in homing constructor
-#include <cmath>    // for std::atan2, M_PI
+#include "Boss.hpp"   // For dynamic_pointer_cast
+#include "Enemy.hpp"  // For std::shared_ptr<Enemy>
+#include <cmath>      // for std::atan2, M_PI (though not used in current snippet directly)
+#include "Util/Image.hpp" // Ensure this is included for std::make_shared<Util::Image>
 
-// Constructor for normal bullets, now selects image based on PowerUpType and isEnemyBullet flag
-Bullet::Bullet(const glm::vec2& position, const glm::vec2& velocity, PowerUpType type, bool isEnemyBullet)
-    : m_Velocity(velocity), m_IsHoming(false), m_HomingSpeed(0.0f)
-{
-    // Initialize all members
-    std::string bulletImagePath;
-    if (isEnemyBullet)
-    {
-        bulletImagePath = RESOURCE_DIR "/enemy/bullet_enemy.png"; // Use enemy_plane.png for enemy bullets
-    }
-    else
-    {
-        switch (type)
-        {
-        case PowerUpType::RED:
-            bulletImagePath = RESOURCE_DIR "/character/bullet_R.png";
-            break;
-        case PowerUpType::BLUE:
-            bulletImagePath = RESOURCE_DIR "/character/bullet_B1.png";
-            break;
-        case PowerUpType::PURPLE:
-            bulletImagePath = RESOURCE_DIR "/character/bullet_P.png";
-            break;
-        default:
-            bulletImagePath = RESOURCE_DIR "/character/bullet_R.png"; // Default for player
-            break;
+// Anonymous namespace for helper function
+namespace {
+    std::string GetImagePathForBullet(PowerUpType type, bool isEnemyBullet) {
+        std::string path;
+        if (isEnemyBullet) {
+            path = RESOURCE_DIR "/enemy/bullet_enemy.png";
+        } else { // Player's bullet
+            switch (type) {
+                case PowerUpType::RED:
+                    path = RESOURCE_DIR "/character/bullet_R.png";
+                    break;
+                case PowerUpType::BLUE:
+                    path = RESOURCE_DIR "/character/bullet_B1.png";
+                    break;
+                case PowerUpType::PURPLE: // This will be used by purple homing bullets
+                    path = RESOURCE_DIR "/character/bullet_P.png";
+                    break;
+                case PowerUpType::M:
+                    path = RESOURCE_DIR "/character/missiles.png"; // Assuming M is a special bullet type
+                    break;
+                default:
+                    LOG_WARN("GetImagePathForBullet: Unexpected PowerUpType {} for player bullet. Using default red bullet image.", static_cast<int>(type));
+                    path = RESOURCE_DIR "/character/bullet_R.png"; // Fallback player bullet
+                    break;
+            }
         }
+        return path;
     }
-    m_Drawable = std::make_shared<Util::Image>(bulletImagePath);
-    m_Transform.translation = position;
-    SetVisible(true);
-    SetZIndex(1); // Ensure z-index is set
+} // end anonymous namespace
 
-    if (!m_Drawable)
-    {
-        LOG_ERROR("Bullet image failed to load: {}", bulletImagePath);
-    }
+// Constructor for normal (non-homing) bullets
+Bullet::Bullet(const glm::vec2& position, const glm::vec2& velocity, PowerUpType type, bool isEnemyBullet)
+    : Util::GameObject(std::make_shared<Util::Image>(GetImagePathForBullet(type, isEnemyBullet)), 1), // zIndex 1
+      m_Velocity(velocity),
+      m_IsHoming(false),
+      m_HomingSpeed(0.0f)
+{
+    m_Transform.translation = position;
+    SetVisible(true); // Ensure visibility
+
+    // Check if drawable loaded successfully (example check, your Image class might differ)
+    auto imageDrawable = std::dynamic_pointer_cast<Util::Image>(m_Drawable);
 }
 
-// Constructor for homing missiles
-Bullet::Bullet(const glm::vec2& position, float speed, const std::shared_ptr<Enemy>& target)
-    : Util::GameObject(
-          std::make_shared<Util::Image>(RESOURCE_DIR "/character/missiles.png"),
-          /*zIndex=*/1 // Corrected comment for zIndex
-      ),
-      m_Velocity(0.0f, 0.0f), // m_Velocity is initialized below
+// Constructor for homing bullets/missiles
+Bullet::Bullet(const glm::vec2& position, float speed, const std::shared_ptr<Enemy>& target, PowerUpType visualTypeForHomingPlayerBullet)
+    : Util::GameObject(std::make_shared<Util::Image>(GetImagePathForBullet(visualTypeForHomingPlayerBullet, false)), 1), // isEnemyBullet is false for player's homing bullets
+      m_Velocity(glm::vec2(0.0f)), // Initialized properly below
       m_HomingSpeed(speed),
       m_HomingTarget(target),
       m_IsHoming(true)
 {
     m_Transform.translation = position;
-    SetVisible(true); // Ensure visibility is set
+    SetVisible(true); // Ensure visibility
 
-    // Initialize velocity for homing missiles
-    if (auto t = m_HomingTarget.lock()) {
-        glm::vec2 dir = glm::normalize(t->GetTransform().translation - position);
-        m_Velocity = dir * speed; // Simplified velocity calculation
-    }
-    else
-    {
-        // Default velocity if no target (e.g., straight up)
-        m_Velocity = glm::vec2(0.0f, speed);
-    }
-    if (!m_Drawable)
-    {
-        LOG_ERROR("Homing missile image failed to load!");
+    auto imageDrawable = std::dynamic_pointer_cast<Util::Image>(m_Drawable);
+
+    if (auto t_ptr = m_HomingTarget.lock()) { // Check if target still exists
+        glm::vec2 dir = glm::normalize(t_ptr->GetTransform().translation - m_Transform.translation);
+        m_Velocity = dir * m_HomingSpeed;
+    } else {
+        // If no target, or target is gone, define a default behavior (e.g., fly straight "up")
+        // Assuming positive Y is "up" for player bullets based on strategy code (e.g., glm::vec2(0, 10.0f))
+        m_Velocity = glm::vec2(0.0f, m_HomingSpeed);
     }
 }
 
@@ -77,15 +76,14 @@ bool Bullet::CollidesWith(const std::shared_ptr<Util::GameObject>& other) const 
     glm::vec2 bulletPos = m_Transform.translation;
     glm::vec2 targetPos = other->GetTransform().translation;
 
-    // 取得對方 hitbox（如果是 Boss，就用自定義範圍；否則預設）
-    float halfW = 32.0f;
-    float halfH = 32.0f;
+    float halfW = 32.0f; // Default hitbox half-width
+    float halfH = 32.0f; // Default hitbox half-height
 
-    // 判斷是否是 Boss 並轉型
     if (auto boss = std::dynamic_pointer_cast<Boss>(other)) {
         halfW = boss->GetHitboxWidth() / 2.0f;
         halfH = boss->GetHitboxHeight() / 2.0f;
     }
+    // TODO: Consider adding similar specific hitbox logic for Enemy if its visual size varies significantly from 64x64
 
     return (
         bulletPos.x > targetPos.x - halfW &&
@@ -95,29 +93,30 @@ bool Bullet::CollidesWith(const std::shared_ptr<Util::GameObject>& other) const 
     );
 }
 
-
 void Bullet::Update() {
     if (m_IsHoming) {
-        if (auto t = m_HomingTarget.lock()) {
-            // 取當前位置跟目標方向
+        if (auto t = m_HomingTarget.lock()) { // Target still exists
             glm::vec2 dir = glm::normalize(t->GetTransform().translation - m_Transform.translation);
-            // 分量乘速率
-            m_Velocity = glm::vec2(dir.x * m_HomingSpeed, dir.y * m_HomingSpeed);
+            m_Velocity = dir * m_HomingSpeed;
+        } else {
+            // Target lost, continue in the last known direction or stop homing
+            // Current behavior: continues in the last calculated velocity direction
         }
     }
     m_Transform.translation += m_Velocity;
-
-
-    //LOG_INFO("Bullet position: ({}, {})", m_Transform.translation.x, m_Transform.translation.y);
 }
 
-[[nodiscard]] bool Bullet::InBound()
-{
-    // Added [[nodiscard]] here as well, as it was in the .hpp
-    if (m_Transform.translation.y < -400 || m_Transform.translation.y > 400) {
-        SetVisible(false);
+[[nodiscard]] bool Bullet::InBound() { // Marked [[nodiscard]] in .hpp
+    // Screen boundaries (approximate, adjust to your game's world coordinates)
+    const float screenTop = 400.0f;
+    const float screenBottom = -400.0f;
+    const float screenLeft = -450.0f; // Wider for horizontal movement
+    const float screenRight = 450.0f;
+
+    if (m_Transform.translation.y < screenBottom || m_Transform.translation.y > screenTop ||
+        m_Transform.translation.x < screenLeft  || m_Transform.translation.x > screenRight) {
+        SetVisible(false); // Hide if out of bounds
         return false;
     }
     return true;
 }
-

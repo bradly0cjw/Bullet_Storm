@@ -279,7 +279,7 @@ void App::Update() {
                 m_Player->LaunchMissiles(m_Enemies, m_Renderer.get());
             }
 
-            m_Player->Shoot();
+            m_Player->Shoot(m_Enemies);
         }
     }
 
@@ -737,3 +737,4 @@ void App::End() { // NOLINT(this method will mutate members in the future)
     LOG_TRACE("End");
     exit(0);  // ✅ 或是切換回主選單（延伸功能）
 }
+
