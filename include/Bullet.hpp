@@ -18,7 +18,8 @@ public:
     Bullet(const glm::vec2& position, const glm::vec2& velocity, PowerUpType type, bool isEnemyBullet = false);
 
     // Constructor for homing missiles
-    Bullet(const glm::vec2& position, float speed, const std::shared_ptr<Enemy>& target, PowerUpType visualTypeForHomingPlayerBullet);
+    Bullet(const glm::vec2& position, float speed, const std::shared_ptr<Enemy>& target,
+           PowerUpType visualTypeForHomingPlayerBullet);
     // Made target a const reference
 
     [[nodiscard]] const glm::vec2& GetPosition() const { return m_Transform.translation; }

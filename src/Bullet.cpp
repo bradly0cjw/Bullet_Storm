@@ -6,29 +6,38 @@
 #include "Util/Image.hpp" // Ensure this is included for std::make_shared<Util::Image>
 
 // Anonymous namespace for helper function
-namespace {
-    std::string GetImagePathForBullet(PowerUpType type, bool isEnemyBullet) {
+namespace
+{
+    std::string GetImagePathForBullet(PowerUpType type, bool isEnemyBullet)
+    {
         std::string path;
-        if (isEnemyBullet) {
+        if (isEnemyBullet)
+        {
             path = RESOURCE_DIR "/enemy/bullet_enemy.png";
-        } else { // Player's bullet
-            switch (type) {
-                case PowerUpType::RED:
-                    path = RESOURCE_DIR "/character/bullet_R.png";
-                    break;
-                case PowerUpType::BLUE:
-                    path = RESOURCE_DIR "/character/bullet_B1.png";
-                    break;
-                case PowerUpType::PURPLE: // This will be used by purple homing bullets
-                    path = RESOURCE_DIR "/character/bullet_P.png";
-                    break;
-                case PowerUpType::M:
-                    path = RESOURCE_DIR "/character/missiles.png"; // Assuming M is a special bullet type
-                    break;
-                default:
-                    LOG_WARN("GetImagePathForBullet: Unexpected PowerUpType {} for player bullet. Using default red bullet image.", static_cast<int>(type));
-                    path = RESOURCE_DIR "/character/bullet_R.png"; // Fallback player bullet
-                    break;
+        }
+        else
+        {
+            // Player's bullet
+            switch (type)
+            {
+            case PowerUpType::RED:
+                path = RESOURCE_DIR "/character/bullet_R.png";
+                break;
+            case PowerUpType::BLUE:
+                path = RESOURCE_DIR "/character/bullet_B1.png";
+                break;
+            case PowerUpType::PURPLE: // This will be used by purple homing bullets
+                path = RESOURCE_DIR "/character/bullet_P.png";
+                break;
+            case PowerUpType::M:
+                path = RESOURCE_DIR "/character/missiles.png"; // Assuming M is a special bullet type
+                break;
+            default:
+                LOG_WARN(
+                    "GetImagePathForBullet: Unexpected PowerUpType {} for player bullet. Using default red bullet image.",
+                    static_cast<int>(type));
+                path = RESOURCE_DIR "/character/bullet_R.png"; // Fallback player bullet
+                break;
             }
         }
         return path;
@@ -50,8 +59,10 @@ Bullet::Bullet(const glm::vec2& position, const glm::vec2& velocity, PowerUpType
 }
 
 // Constructor for homing bullets/missiles
-Bullet::Bullet(const glm::vec2& position, float speed, const std::shared_ptr<Enemy>& target, PowerUpType visualTypeForHomingPlayerBullet)
-    : Util::GameObject(std::make_shared<Util::Image>(GetImagePathForBullet(visualTypeForHomingPlayerBullet, false)), 1), // isEnemyBullet is false for player's homing bullets
+Bullet::Bullet(const glm::vec2& position, float speed, const std::shared_ptr<Enemy>& target,
+               PowerUpType visualTypeForHomingPlayerBullet)
+    : Util::GameObject(std::make_shared<Util::Image>(GetImagePathForBullet(visualTypeForHomingPlayerBullet, false)), 1),
+      // isEnemyBullet is false for player's homing bullets
       m_Velocity(glm::vec2(0.0f)), // Initialized properly below
       m_HomingSpeed(speed),
       m_HomingTarget(target),
@@ -62,10 +73,14 @@ Bullet::Bullet(const glm::vec2& position, float speed, const std::shared_ptr<Ene
 
     auto imageDrawable = std::dynamic_pointer_cast<Util::Image>(m_Drawable);
 
-    if (auto t_ptr = m_HomingTarget.lock()) { // Check if target still exists
+    if (auto t_ptr = m_HomingTarget.lock())
+    {
+        // Check if target still exists
         glm::vec2 dir = glm::normalize(t_ptr->GetTransform().translation - m_Transform.translation);
         m_Velocity = dir * m_HomingSpeed;
-    } else {
+    }
+    else
+    {
         // If no target, or target is gone, define a default behavior (e.g., fly straight "up")
         // Assuming positive Y is "up" for player bullets based on strategy code (e.g., glm::vec2(0, 10.0f))
         m_Velocity = glm::vec2(0.0f, m_HomingSpeed);
@@ -93,12 +108,16 @@ bool Bullet::CollidesWith(const std::shared_ptr<Util::GameObject>& other) const 
     );
 }
 
-void Bullet::Update() {
-    if (m_IsHoming) {
+void Bullet::Update()
+{
+    if (m_IsHoming)
+    {
         if (auto t = m_HomingTarget.lock()) { // Target still exists
             glm::vec2 dir = glm::normalize(t->GetTransform().translation - m_Transform.translation);
             m_Velocity = dir * m_HomingSpeed;
-        } else {
+        }
+        else
+        {
             // Target lost, continue in the last known direction or stop homing
             // Current behavior: continues in the last calculated velocity direction
         }
@@ -106,7 +125,9 @@ void Bullet::Update() {
     m_Transform.translation += m_Velocity;
 }
 
-[[nodiscard]] bool Bullet::InBound() { // Marked [[nodiscard]] in .hpp
+[[nodiscard]] bool Bullet::InBound()
+{
+    // Marked [[nodiscard]] in .hpp
     // Screen boundaries (approximate, adjust to your game's world coordinates)
     const float screenTop = 400.0f;
     const float screenBottom = -400.0f;
@@ -114,7 +135,7 @@ void Bullet::Update() {
     const float screenRight = 450.0f;
 
     if (m_Transform.translation.y < screenBottom || m_Transform.translation.y > screenTop ||
-        m_Transform.translation.x < screenLeft  || m_Transform.translation.x > screenRight) {
+        m_Transform.translation.x < screenLeft || m_Transform.translation.x > screenRight) {
         SetVisible(false); // Hide if out of bounds
         return false;
     }

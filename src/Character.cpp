@@ -29,7 +29,7 @@ void Character::Shoot(const std::vector<std::shared_ptr<Enemy>>& enemies)
     if (m_ShootingStrategy)
     {
         // Pass the current power-up type to the shooting strategy
-        m_ShootingStrategy->Shoot(playerPos, MuzzlePosition, m_Bullets, m_CurrentPowerUpType,this, enemies);
+        m_ShootingStrategy->Shoot(playerPos, MuzzlePosition, m_Bullets, m_CurrentPowerUpType, this, enemies);
     }
     else
     {
@@ -215,13 +215,17 @@ void Character::ApplySpecialPowerUp(PowerUpType type)
 }
 
 // Finds the nearest visible enemy to the given position
-std::shared_ptr<Enemy> Character::FindNearestVisibleEnemy(const glm::vec2& start, const std::vector<std::shared_ptr<Enemy>>& enemies) const {
+std::shared_ptr<Enemy> Character::FindNearestVisibleEnemy(const glm::vec2& start,
+                                                          const std::vector<std::shared_ptr<Enemy>>& enemies) const
+{
     std::shared_ptr<Enemy> bestTgt;
     float bestDist = std::numeric_limits<float>::infinity();
-    for (auto& e : enemies) {
+    for (auto& e : enemies)
+    {
         if (!e->IsVisible()) continue;
         float d = glm::length(e->GetTransform().translation - start);
-        if (d < bestDist) {
+        if (d < bestDist)
+        {
             bestDist = d;
             bestTgt = e;
         }
@@ -243,7 +247,8 @@ void Character::LaunchMissiles(
     const float speed = 5.0f;
 
     // 單一 spawn lambda：不論有無目標都呼叫 homing ctor
-    auto spawnMissile = [&](glm::vec2 startPos) {
+    auto spawnMissile = [&](glm::vec2 startPos)
+    {
         std::shared_ptr<Enemy> nearestEnemy = FindNearestVisibleEnemy(startPos, enemies);
         // Create a homing missile using DEFAULT_MISSILE visual type
         auto missile = std::make_shared<Bullet>(startPos, speed, nearestEnemy, PowerUpType::M);
