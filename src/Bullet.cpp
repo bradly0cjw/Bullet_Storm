@@ -135,7 +135,8 @@ void Bullet::Update()
     const float screenRight = 450.0f;
 
     if (m_Transform.translation.y < screenBottom || m_Transform.translation.y > screenTop ||
-        m_Transform.translation.x < screenLeft || m_Transform.translation.x > screenRight) {
+        m_Transform.translation.x < screenLeft || m_Transform.translation.x > screenRight)
+    {
         SetVisible(false); // Hide if out of bounds
         return false;
     }

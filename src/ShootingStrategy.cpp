@@ -11,7 +11,7 @@ void RedPowerUpStage1Strategy::Shoot(const glm::vec2& characterPosition, const g
                                      Character* character, const std::vector<std::shared_ptr<Enemy>>& enemies)
 {
     (void)character; // Unused
-    (void)enemies;   // Unused
+    (void)enemies; // Unused
     bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(-10.0f, 0.0f), glm::vec2(0, 10.0f), type));
     bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(10.0f, 0.0f), glm::vec2(0, 10.0f), type));
     LOG_INFO("RedPowerUpStage1Strategy: Fired 2 bullets.");
@@ -23,7 +23,7 @@ void RedPowerUpStage2Strategy::Shoot(const glm::vec2& characterPosition, const g
                                      Character* character, const std::vector<std::shared_ptr<Enemy>>& enemies)
 {
     (void)character; // Unused
-    (void)enemies;   // Unused
+    (void)enemies; // Unused
     bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(-10.0f, 0.0f), glm::vec2(0, 10.0f), type));
     bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(10.0f, 0.0f), glm::vec2(0, 10.0f), type));
     bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(-5.0f, 0.0f), glm::vec2(-0.5f, 10.0f), type));
@@ -39,14 +39,16 @@ void RedPowerUpStage3Strategy::Shoot(const glm::vec2& characterPosition, const g
                                      Character* character, const std::vector<std::shared_ptr<Enemy>>& enemies)
 {
     (void)character; // Unused
-    (void)enemies;   // Unused
+    (void)enemies; // Unused
     bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(-10.0f, 0.0f), glm::vec2(0, 10.0f), type));
     bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(10.0f, 0.0f), glm::vec2(0, 10.0f), type));
-    bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(-15.0f, 0.0f), glm::vec2(-1.5f, 10.0f), type));
+    bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(-15.0f, 0.0f), glm::vec2(-1.5f, 10.0f),
+                                               type));
     bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(-5.0f, 0.0f), glm::vec2(-1.5f, 10.0f), type));
     bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(15.0f, 0.0f), glm::vec2(1.5f, 10.0f), type));
     bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(5.0f, 0.0f), glm::vec2(1.5f, 10.0f), type));
-    bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(-30.0f, 0.0f), glm::vec2(-2.5f, 10.0f), type));
+    bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(-30.0f, 0.0f), glm::vec2(-2.5f, 10.0f),
+                                               type));
     bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(-20.0f, 0.0f), glm::vec2(-2.5f, 10.0f), type));
     bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(30.0f, 0.0f), glm::vec2(2.5f, 10.0f), type));
     bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(20.0f, 0.0f), glm::vec2(2.5f, 10.0f), type));
@@ -58,14 +60,18 @@ void PurplePowerUpStage1Strategy::Shoot(const glm::vec2& characterPosition, cons
                                         Character* character, const std::vector<std::shared_ptr<Enemy>>& enemies)
 {
     std::shared_ptr<Enemy> targetEnemy = nullptr;
-    if (character) {
+    if (character)
+    {
         targetEnemy = character->FindNearestVisibleEnemy(MuzzlePosition, enemies);
     }
 
-    if (targetEnemy) {
+    if (targetEnemy)
+    {
         // Fire a homing bullet using the current power-up's visual type (type should be PURPLE)
         bullets.push_back(std::make_shared<Bullet>(MuzzlePosition, 12.0f, targetEnemy, type));
-    } else {
+    }
+    else
+    {
         // Fallback: shoot a normal bullet straight if no enemy or character is null
         bullets.push_back(std::make_shared<Bullet>(MuzzlePosition, glm::vec2(0, 12.0f), type, false));
     }
@@ -78,18 +84,25 @@ void PurplePowerUpStage2Strategy::Shoot(const glm::vec2& characterPosition, cons
                                         Character* character, const std::vector<std::shared_ptr<Enemy>>& enemies)
 {
     std::shared_ptr<Enemy> targetEnemy = nullptr;
-    if (character) {
+    if (character)
+    {
         targetEnemy = character->FindNearestVisibleEnemy(MuzzlePosition, enemies);
     }
 
-    if (targetEnemy) {
+    if (targetEnemy)
+    {
         bullets.push_back(std::make_shared<Bullet>(MuzzlePosition, 12.0f, targetEnemy, type));
-        bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(0.0f, -10.0f), 12.0f, targetEnemy, type)); // Staggered or offset
-    } else {
-        bullets.push_back(std::make_shared<Bullet>(MuzzlePosition, glm::vec2(0, 12.0f), type, false));
-        bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(0.0f, -10.0f), glm::vec2(0, 12.0f), type, false));
+        bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(0.0f, -10.0f), 12.0f, targetEnemy, type));
+        // Staggered or offset
     }
-    LOG_INFO("PurplePowerUpStage2Strategy: Fired 2 auto-targeting bullets with visuals for type {}.", static_cast<int>(type));
+    else
+    {
+        bullets.push_back(std::make_shared<Bullet>(MuzzlePosition, glm::vec2(0, 12.0f), type, false));
+        bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(0.0f, -10.0f), glm::vec2(0, 12.0f), type,
+                                                   false));
+    }
+    LOG_INFO("PurplePowerUpStage2Strategy: Fired 2 auto-targeting bullets with visuals for type {}.", static_cast<int>(
+                 type));
 }
 
 // PurplePowerUpStage3Strategy (Auto-lock)
@@ -98,20 +111,26 @@ void PurplePowerUpStage3Strategy::Shoot(const glm::vec2& characterPosition, cons
                                         Character* character, const std::vector<std::shared_ptr<Enemy>>& enemies)
 {
     std::shared_ptr<Enemy> targetEnemy = nullptr;
-    if (character) {
+    if (character)
+    {
         targetEnemy = character->FindNearestVisibleEnemy(MuzzlePosition, enemies);
     }
 
-    if (targetEnemy) {
+    if (targetEnemy)
+    {
         bullets.push_back(std::make_shared<Bullet>(MuzzlePosition, 15.0f, targetEnemy, type));
         bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(-10.0f, 0.0f), 15.0f, targetEnemy, type));
         bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(10.0f, 0.0f), 15.0f, targetEnemy, type));
-    } else {
+    }
+    else
+    {
         bullets.push_back(std::make_shared<Bullet>(MuzzlePosition, glm::vec2(0, 15.0f), type, false));
-        bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(-10.0f, 0.0f), glm::vec2(0, 15.0f), type, false));
+        bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(-10.0f, 0.0f), glm::vec2(0, 15.0f), type,
+                                                   false));
         bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(10.0f, 0.0f), glm::vec2(0, 15.0f), type, false));
     }
-    LOG_INFO("PurplePowerUpStage3Strategy: Fired 3 auto-targeting bullets with visuals for type {}.", static_cast<int>(type));
+    LOG_INFO("PurplePowerUpStage3Strategy: Fired 3 auto-targeting bullets with visuals for type {}.",
+             static_cast<int>(type));
 }
 
 // BluePowerUpStage1Strategy
@@ -139,7 +158,8 @@ void BluePowerUpStage2Strategy::Shoot(const glm::vec2& characterPosition, const 
     bullets.push_back(std::make_shared<Bullet>(MuzzlePosition, glm::vec2(0, LASER_SPEED), type));
     bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(-SPREAD_OFFSET, 0.0f),
                                                glm::vec2(0, LASER_SPEED), type));
-    bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(SPREAD_OFFSET, 0.0f), glm::vec2(0, LASER_SPEED), type));
+    bullets.push_back(std::make_shared<Bullet>(MuzzlePosition + glm::vec2(SPREAD_OFFSET, 0.0f),
+                                               glm::vec2(0, LASER_SPEED), type));
     LOG_INFO("BluePowerUpStage2Strategy: Fired 3 parallel laser beams.");
 }
 
