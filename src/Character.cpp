@@ -180,7 +180,7 @@ void Character::ResetPowerUp()
 {
     m_CurrentPowerUpType = PowerUpType::RED; // Reset to default
     m_PowerUpLevel = 1;
-    SetImage("Resources/character/player_red.png"); // Reset to default image
+    SetImage(RESOURCE_DIR "/character/player_red.png"); // Reset to default image
     UpdateShootingStrategy();
 }
 

@@ -23,20 +23,27 @@ enum class EnemyType
 
 class Enemy : public Util::GameObject {
 public:
-    Enemy(const glm::vec2& position, const std::string& imagePath, float speed);
-    virtual ~Enemy() = default;
+    // Constants for enemy speed scaling
+    static constexpr float BASE_MOVE_SPEED = 5.0f;  // Base movement speed
+    static constexpr float SPEED_LEVEL_INCREMENT = 2.0f;  // Speed increase per level
+
+    explicit Enemy(const glm::vec2& position, const std::string& imagePath, float speed, int level = 1); // Added level parameter with default
+    ~Enemy() override = default;
 
     virtual void Update(glm::vec2 playerPosition) = 0; // Pure virtual: subclasses must implement
     virtual void Shoot(glm::vec2 playerPosition); // Virtual: can be overridden, provides a default implementation
 
     std::vector<std::shared_ptr<Bullet>>& GetBullets() { return m_Bullets; }
     void RmBullets(const std::shared_ptr<Bullet>& bullet);
-    bool IsVisible() const { return m_Visible; } // Inherited from Util::GameObject
-    bool IsOutOfScreen() const;
+    [[nodiscard]] bool IsVisible() const { return m_Visible; } // Inherited from Util::GameObject
+    [[nodiscard]] bool IsOutOfScreen() const;
     bool CanShoot();
+    void TakeDamage(int damage);
+    [[nodiscard]] bool IsAlive() const;
+    [[nodiscard]] int GetLevel() const { return m_Level; }
 
 
-    glm::vec2 GetPosition() const { return m_Transform.translation; } // Get position of the enemy
+    [[nodiscard]] glm::vec2 GetPosition() const { return m_Transform.translation; } // Get position of the enemy
 
 
     // Using Util::GameObject::GetPosition(), no need to override typically unless custom logic.
@@ -44,13 +51,15 @@ public:
 
 protected:
     float m_Speed;
+    int m_HitPoints;
+    int m_Level; // Added level member
     std::vector<std::shared_ptr<Bullet>> m_Bullets;
     std::chrono::steady_clock::time_point m_LastShootTime;
     float m_ShootIntervalSeconds; // Shoot interval in seconds
 
     // Helper methods for shooting, can be overridden by subclasses for custom bullet behavior
-    virtual glm::vec2 GetBulletStartPosition() const;
-    virtual glm::vec2 GetBulletVelocity(glm::vec2 playerPosition) const; // playerPosition for homing etc.
+    [[nodiscard]] virtual glm::vec2 GetBulletStartPosition() const;
+    [[nodiscard]] virtual glm::vec2 GetBulletVelocity(glm::vec2 playerPosition) const; // playerPosition for homing etc.
 };
 
 // Derived Enemy Types
@@ -58,7 +67,7 @@ protected:
 class StraightEnemy : public Enemy
 {
 public:
-    StraightEnemy(const glm::vec2& position);
+    explicit StraightEnemy(const glm::vec2& position, int level = 1); // Added level parameter
     void Update(glm::vec2 playerPosition) override;
     // Optionally override Shoot for a unique pattern
 };
@@ -66,7 +75,7 @@ public:
 class WaveEnemy : public Enemy
 {
 public:
-    WaveEnemy(const glm::vec2& position);
+    explicit WaveEnemy(const glm::vec2& position, int level = 1); // Added level parameter
     void Update(glm::vec2 playerPosition) override;
 
 private:
@@ -76,7 +85,7 @@ private:
 class TrackEnemy : public Enemy
 {
 public:
-    TrackEnemy(const glm::vec2& position);
+    explicit TrackEnemy(const glm::vec2& position, int level = 1); // Added level parameter
     void Update(glm::vec2 playerPosition) override;
     // Example: Override Shoot for aiming at the player
     // void Shoot(glm::vec2 playerPosition) override; 
@@ -85,7 +94,7 @@ public:
 class ZigzagEnemy : public Enemy
 {
 public:
-    ZigzagEnemy(const glm::vec2& position);
+    explicit ZigzagEnemy(const glm::vec2& position, int level = 1);
     void Update(glm::vec2 playerPosition) override;
 
 private:
@@ -96,8 +105,9 @@ private:
 class RandomEnemy : public Enemy
 {
 public:
-    RandomEnemy(const glm::vec2& position);
+    explicit RandomEnemy(const glm::vec2& position, int level = 1);
     void Update(glm::vec2 playerPosition) override;
 };
 
 #endif //ENEMY_HPP
+

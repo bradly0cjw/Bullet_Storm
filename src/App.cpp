@@ -317,7 +317,10 @@ void App::Update() {
 
     m_PRM->ScrollScene();
 
-    const float enemySpawnInterval = 2.5f;
+    float baseEnemySpawnInterval = 1.2f; // Base interval at level 1
+    float spawnIntervalDecrement = 0.2f; // How much to decrease interval per level
+    float minSpawnInterval = 0.5f;       // Minimum spawn interval
+    float enemySpawnInterval = std::max(minSpawnInterval, baseEnemySpawnInterval - (m_Level - 1) * spawnIntervalDecrement);
     auto currentTime_Enemy = std::time(nullptr);
 
     if (!m_Boss->IsActive() && (std::difftime(currentTime_Enemy, m_EnemySpawnTimer) > enemySpawnInterval))

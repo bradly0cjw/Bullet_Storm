@@ -5,15 +5,21 @@
 #include <glm/gtx/vector_angle.hpp> // For aiming logic if needed, or just normalize
 
 // Base Enemy Class Implementation
-Enemy::Enemy(const glm::vec2& position, const std::string& imagePath, float speed)
+Enemy::Enemy(const glm::vec2& position, const std::string& imagePath, float speed, int level) // Added level parameter
     : Util::GameObject(std::make_shared<Util::Image>(imagePath), 10), // Default ZIndex for enemies
       m_Speed(speed),
+      m_Level(level), // Initialize level
       m_LastShootTime(std::chrono::steady_clock::now()),
       m_ShootIntervalSeconds(2.0f)
 {
     // Default shoot interval: 2 seconds
     m_Transform.translation = position;
     SetVisible(true); // Enemies are visible by default when created
+
+    // Adjust properties based on level
+    m_HitPoints = 10 * m_Level; // Example: HP scales with level
+    m_Speed = BASE_MOVE_SPEED + (m_Level - 1) * SPEED_LEVEL_INCREMENT; // Speed scales with level using constants
+    m_ShootIntervalSeconds = std::max(0.5f, 1.6f - (m_Level - 1) * 0.2f); // Example: Shoot interval decreases with level
 }
 
 void Enemy::RmBullets(const std::shared_ptr<Bullet>& bullet)
@@ -39,6 +45,17 @@ bool Enemy::IsOutOfScreen() const
 
     return m_Transform.translation.y < screenBottom || m_Transform.translation.y > screenTop ||
         m_Transform.translation.x < screenLeft || m_Transform.translation.x > screenRight;
+}
+
+void Enemy::TakeDamage(int damage)
+{
+    m_HitPoints -= damage;
+    if (m_HitPoints < 0) m_HitPoints = 0;
+}
+
+bool Enemy::IsAlive() const
+{
+    return m_HitPoints > 0;
 }
 
 bool Enemy::CanShoot()
@@ -82,11 +99,11 @@ void Enemy::Shoot(glm::vec2 playerPosition)
 }
 
 // StraightEnemy Implementation
-StraightEnemy::StraightEnemy(const glm::vec2& position)
-    : Enemy(position, RESOURCE_DIR "/enemy/enemy_plane.png", 3.5f)
+StraightEnemy::StraightEnemy(const glm::vec2& position, int level) // Added level parameter
+    : Enemy(position, RESOURCE_DIR "/enemy/enemy_plane.png", 3.5f, level) // Pass level to base
 {
-    // Slightly faster
-    m_ShootIntervalSeconds = 2.5f;
+    // Adjust properties based on level if specific to StraightEnemy
+    // Example: m_ShootIntervalSeconds = std::max(0.5f, 2.5f - (GetLevel() - 1) * 0.3f);
 }
 
 void StraightEnemy::Update(glm::vec2 playerPosition)
@@ -103,10 +120,10 @@ void StraightEnemy::Update(glm::vec2 playerPosition)
 }
 
 // WaveEnemy Implementation
-WaveEnemy::WaveEnemy(const glm::vec2& position)
-    : Enemy(position, RESOURCE_DIR "/enemy/e_tank2.png", 3.0f), m_WaveAngle(0.0f)
+WaveEnemy::WaveEnemy(const glm::vec2& position, int level) // Added level parameter
+    : Enemy(position, RESOURCE_DIR "/enemy/e_tank2.png", 3.0f, level), m_WaveAngle(0.0f) // Pass level to base
 {
-    m_ShootIntervalSeconds = 2.0f;
+    // Adjust properties based on level if specific to WaveEnemy
 }
 
 void WaveEnemy::Update(glm::vec2 playerPosition)
@@ -125,11 +142,10 @@ void WaveEnemy::Update(glm::vec2 playerPosition)
 }
 
 // TrackEnemy Implementation
-TrackEnemy::TrackEnemy(const glm::vec2& position)
-    : Enemy(position, RESOURCE_DIR "/enemy/enemy_plane.png", 2.5f)
+TrackEnemy::TrackEnemy(const glm::vec2& position, int level) // Added level parameter
+    : Enemy(position, RESOURCE_DIR "/enemy/enemy_plane.png", 2.5f, level) // Pass level to base
 {
-    // Slower for tracking
-    m_ShootIntervalSeconds = 3.0f;
+    // Adjust properties based on level if specific to TrackEnemy
 }
 
 void TrackEnemy::Update(glm::vec2 playerPosition)
@@ -175,10 +191,10 @@ void TrackEnemy::Update(glm::vec2 playerPosition)
 
 
 // ZigzagEnemy Implementation
-ZigzagEnemy::ZigzagEnemy(const glm::vec2& position)
-    : Enemy(position, RESOURCE_DIR "/enemy/e_tank1.png", 3.0f), m_ZigzagDirection(1), m_ZigzagCounter(0)
+ZigzagEnemy::ZigzagEnemy(const glm::vec2& position, int level) // Added level parameter
+    : Enemy(position, RESOURCE_DIR "/enemy/e_tank1.png", 3.0f, level), m_ZigzagDirection(1), m_ZigzagCounter(0) // Pass level to base
 {
-    m_ShootIntervalSeconds = 3.5f;
+    // Adjust properties based on level if specific to ZigzagEnemy
     if (std::rand() % 2 == 0) m_ZigzagDirection = -1; // Random initial direction
 }
 
@@ -211,24 +227,36 @@ void ZigzagEnemy::Update(glm::vec2 playerPosition)
 }
 
 // RandomEnemy Implementation
-RandomEnemy::RandomEnemy(const glm::vec2& position)
-    : Enemy(position, RESOURCE_DIR "/enemy/enemy_plane.png", 2.8f)
+RandomEnemy::RandomEnemy(const glm::vec2& position, int level) // Added level parameter
+    : Enemy(position, RESOURCE_DIR "/enemy/enemy_plane.png", 3.0f, level) // Pass level to base
 {
-    m_ShootIntervalSeconds = 2.2f;
+    // Adjust properties based on level if specific to RandomEnemy
+    // For example, change behavior or stats more significantly
+    // m_Speed += GetLevel() * 0.2f; // Different speed scaling for RandomEnemy
 }
 
 void RandomEnemy::Update(glm::vec2 playerPosition)
 {
-    m_Transform.translation.y -= m_Speed; // Moves down
-    // Small random horizontal drift
-    m_Transform.translation.x += (static_cast<float>(std::rand() % 200 - 100) / 100.0f) * 1.5f;
-    // Random drift between -1.5 and +1.5
-    // Clamp X to prevent drifting too far (optional)
-    // m_Transform.translation.x = glm::clamp(m_Transform.translation.x, -380.f, 380.f);
+    // Example: Random movement pattern that could change with level
+    if (GetLevel() > 2) {
+        // More erratic movement for higher levels
+        m_Transform.translation.y -= m_Speed * (1.0f + static_cast<float>(std::rand() % 100) / 200.0f);
+        m_Transform.translation.x += (std::rand() % 3 - 1) * m_Speed * 0.5f; // Random horizontal shift
+    } else {
+        m_Transform.translation.y -= m_Speed; // Simple downward movement
+    }
 
     if (CanShoot())
     {
-        Shoot(playerPosition);
+        // Example: Shooting pattern changes with level
+        if (GetLevel() > 1) {
+            // Shoot more bullets or different pattern
+            for (int i = 0; i < GetLevel(); ++i) { // Shoots more bullets based on level
+                 Shoot(playerPosition + glm::vec2(i * 10.0f - (GetLevel()-1)*5.0f , 0.0f)); // Spread shot
+            }
+        } else {
+            Shoot(playerPosition);
+        }
     }
     for (auto& bullet : m_Bullets)
     {
