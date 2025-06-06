@@ -52,8 +52,8 @@ private:
     int m_Health;
     bool m_Active; // Whether boss logic (movement, shooting) is active
 
-    int m_CurrentLevel;   // Current boss level
-    int m_MaxLevel;       // Maximum boss level
+    int m_CurrentLevel; // Current boss level
+    int m_MaxLevel; // Maximum boss level
 
     // Store hitbox dimensions privately
     float m_HitboxWidth_Private;

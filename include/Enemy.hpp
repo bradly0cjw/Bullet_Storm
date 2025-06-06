@@ -24,10 +24,11 @@ enum class EnemyType
 class Enemy : public Util::GameObject {
 public:
     // Constants for enemy speed scaling
-    static constexpr float BASE_MOVE_SPEED = 5.0f;  // Base movement speed
-    static constexpr float SPEED_LEVEL_INCREMENT = 2.0f;  // Speed increase per level
+    static constexpr float BASE_MOVE_SPEED = 5.0f; // Base movement speed
+    static constexpr float SPEED_LEVEL_INCREMENT = 2.0f; // Speed increase per level
 
-    explicit Enemy(const glm::vec2& position, const std::string& imagePath, float speed, int level = 1); // Added level parameter with default
+    explicit Enemy(const glm::vec2& position, const std::string& imagePath, float speed, int level = 1);
+    // Added level parameter with default
     ~Enemy() override = default;
 
     virtual void Update(glm::vec2 playerPosition) = 0; // Pure virtual: subclasses must implement

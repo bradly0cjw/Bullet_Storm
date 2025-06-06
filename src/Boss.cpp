@@ -7,7 +7,7 @@ Boss::Boss(const glm::vec2& position)
       m_Health(150), // Boss health
       m_Active(false),
       m_CurrentLevel(1), // Start at level 1
-      m_MaxLevel(3),     // Maximum of 3 levels
+      m_MaxLevel(3), // Maximum of 3 levels
       m_HitboxWidth_Private(600.0f), // Using dimensions from your snippet
       m_HitboxHeight_Private(291.0f),
       m_AttackPhase(0),
@@ -139,40 +139,49 @@ void Boss::ExecuteAttackPattern(int level, int phase, glm::vec2 playerPosition)
     // Route to the proper attack pattern based on level and phase
     switch (level)
     {
-        case 1:
-            switch (phase)
-            {
-                case 1: Level1Phase1(playerPosition); break;
-                case 2: Level1Phase2(playerPosition); break;
-                case 3: Level1Phase3(playerPosition); break;
-                default: LOG_ERROR("Invalid phase {} for level {}", phase, level);
-            }
+    case 1:
+        switch (phase)
+        {
+        case 1: Level1Phase1(playerPosition);
             break;
-
-        case 2:
-            switch (phase)
-            {
-                case 1: Level2Phase1(playerPosition); break;
-                case 2: Level2Phase2(playerPosition); break;
-                case 3: Level2Phase3(playerPosition); break;
-                default: LOG_ERROR("Invalid phase {} for level {}", phase, level);
-            }
+        case 2: Level1Phase2(playerPosition);
             break;
-
-        case 3:
-            switch (phase)
-            {
-                case 1: Level3Phase1(playerPosition); break;
-                case 2: Level3Phase2(playerPosition); break;
-                case 3: Level3Phase3(playerPosition); break;
-                default: LOG_ERROR("Invalid phase {} for level {}", phase, level);
-            }
+        case 3: Level1Phase3(playerPosition);
             break;
+        default: LOG_ERROR("Invalid phase {} for level {}", phase, level);
+        }
+        break;
 
-        default:
-            LOG_ERROR("Invalid boss level: {}", level);
-            // Fallback to level 1 patterns
-            ExecuteAttackPattern(1, phase, playerPosition);
+    case 2:
+        switch (phase)
+        {
+        case 1: Level2Phase1(playerPosition);
+            break;
+        case 2: Level2Phase2(playerPosition);
+            break;
+        case 3: Level2Phase3(playerPosition);
+            break;
+        default: LOG_ERROR("Invalid phase {} for level {}", phase, level);
+        }
+        break;
+
+    case 3:
+        switch (phase)
+        {
+        case 1: Level3Phase1(playerPosition);
+            break;
+        case 2: Level3Phase2(playerPosition);
+            break;
+        case 3: Level3Phase3(playerPosition);
+            break;
+        default: LOG_ERROR("Invalid phase {} for level {}", phase, level);
+        }
+        break;
+
+    default:
+        LOG_ERROR("Invalid boss level: {}", level);
+        // Fallback to level 1 patterns
+        ExecuteAttackPattern(1, phase, playerPosition);
     }
 }
 
@@ -200,9 +209,11 @@ void Boss::Level1Phase2(glm::vec2 playerPosition)
         glm::vec2 vel = glm::vec2(0.0f, -10.0f);
 
         // 3-bullet spread
-        m_Bullets.push_back(std::make_shared<Bullet>(baseStartPos + glm::vec2(-40.0f, 0.0f), vel + glm::vec2(-2.0f, 0.0f), PowerUpType::RED, true));
+        m_Bullets.push_back(std::make_shared<Bullet>(baseStartPos + glm::vec2(-40.0f, 0.0f),
+                                                     vel + glm::vec2(-2.0f, 0.0f), PowerUpType::RED, true));
         m_Bullets.push_back(std::make_shared<Bullet>(baseStartPos, vel, PowerUpType::RED, true));
-        m_Bullets.push_back(std::make_shared<Bullet>(baseStartPos + glm::vec2(40.0f, 0.0f), vel + glm::vec2(2.0f, 0.0f), PowerUpType::RED, true));
+        m_Bullets.push_back(std::make_shared<Bullet>(baseStartPos + glm::vec2(40.0f, 0.0f), vel + glm::vec2(2.0f, 0.0f),
+                                                     PowerUpType::RED, true));
 
         for (size_t i = m_Bullets.size() - 3; i < m_Bullets.size(); ++i)
         {
@@ -250,15 +261,15 @@ void Boss::Level2Phase1(glm::vec2 playerPosition)
 
         // Left spread
         m_Bullets.push_back(std::make_shared<Bullet>(baseStartPos + glm::vec2(-30.0f, 0.0f),
-                                                    glm::vec2(-3.0f, -10.0f), PowerUpType::RED, true));
+                                                     glm::vec2(-3.0f, -10.0f), PowerUpType::RED, true));
         m_Bullets.push_back(std::make_shared<Bullet>(baseStartPos + glm::vec2(-10.0f, 0.0f),
-                                                    glm::vec2(-1.0f, -10.0f), PowerUpType::RED, true));
+                                                     glm::vec2(-1.0f, -10.0f), PowerUpType::RED, true));
 
         // Right spread
         m_Bullets.push_back(std::make_shared<Bullet>(baseStartPos + glm::vec2(10.0f, 0.0f),
-                                                    glm::vec2(1.0f, -10.0f), PowerUpType::RED, true));
+                                                     glm::vec2(1.0f, -10.0f), PowerUpType::RED, true));
         m_Bullets.push_back(std::make_shared<Bullet>(baseStartPos + glm::vec2(30.0f, 0.0f),
-                                                    glm::vec2(3.0f, -10.0f), PowerUpType::RED, true));
+                                                     glm::vec2(3.0f, -10.0f), PowerUpType::RED, true));
 
         for (size_t i = m_Bullets.size() - 4; i < m_Bullets.size(); ++i)
         {
@@ -276,15 +287,19 @@ void Boss::Level2Phase2(glm::vec2 playerPosition)
     chargeTimer += 1.0f / 60.0f;
 
     // Alternates between pausing and charging horizontally
-    if (chargeTimer > 2.0f) {
+    if (chargeTimer > 2.0f)
+    {
         chargeDirection *= -1;
         chargeTimer = 0.0f;
     }
 
     // Fast horizontal movement with brief pauses
-    if (chargeTimer < 0.5f) {
+    if (chargeTimer < 0.5f)
+    {
         // Pause
-    } else {
+    }
+    else
+    {
         // Charge
         m_Transform.translation.x += chargeDirection * 5.0f;
 
@@ -299,7 +314,8 @@ void Boss::Level2Phase2(glm::vec2 playerPosition)
         glm::vec2 baseStartPos = GetPosition() + glm::vec2(0, -m_HitboxHeight_Private / 2.0f - 10.0f);
 
         // Create 5 bullets in a vertical line
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 5; i++)
+        {
             float offsetY = -20.0f * i;
             m_Bullets.push_back(std::make_shared<Bullet>(
                 baseStartPos + glm::vec2(0.0f, offsetY),
@@ -353,10 +369,14 @@ void Boss::Level3Phase1(glm::vec2 playerPosition)
     float moveSpeed = 2.5f;
 
     // Move toward player's X position
-    if (std::abs(targetX - currentX) > 10.0f) {
-        if (targetX > currentX) {
+    if (std::abs(targetX - currentX) > 10.0f)
+    {
+        if (targetX > currentX)
+        {
             m_Transform.translation.x += moveSpeed;
-        } else {
+        }
+        else
+        {
             m_Transform.translation.x -= moveSpeed;
         }
     }
@@ -388,7 +408,8 @@ void Boss::Level3Phase2(glm::vec2 playerPosition)
     static float teleportTimer = 0.0f;
     teleportTimer += 1.0f / 60.0f;
 
-    if (teleportTimer > 1.5f) {
+    if (teleportTimer > 1.5f)
+    {
         // "Teleport" to a new position
         m_Transform.translation.x = std::rand() % 500 - 250.0f; // Random X between -250 and 250
         teleportTimer = 0.0f;
@@ -400,7 +421,8 @@ void Boss::Level3Phase2(glm::vec2 playerPosition)
         glm::vec2 baseStartPos = GetPosition();
         float bulletSpeed = 10.0f;
 
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < 8; i++)
+        {
             float angle = i * (2.0f * M_PI / 8.0f);
             glm::vec2 velocity(std::cos(angle) * bulletSpeed, std::sin(angle) * bulletSpeed);
 

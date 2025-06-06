@@ -19,7 +19,8 @@ Enemy::Enemy(const glm::vec2& position, const std::string& imagePath, float spee
     // Adjust properties based on level
     m_HitPoints = 10 * m_Level; // Example: HP scales with level
     m_Speed = BASE_MOVE_SPEED + (m_Level - 1) * SPEED_LEVEL_INCREMENT; // Speed scales with level using constants
-    m_ShootIntervalSeconds = std::max(0.5f, 1.6f - (m_Level - 1) * 0.2f); // Example: Shoot interval decreases with level
+    m_ShootIntervalSeconds = std::max(0.5f, 1.6f - (m_Level - 1) * 0.2f);
+    // Example: Shoot interval decreases with level
 }
 
 void Enemy::RmBullets(const std::shared_ptr<Bullet>& bullet)
@@ -192,7 +193,8 @@ void TrackEnemy::Update(glm::vec2 playerPosition)
 
 // ZigzagEnemy Implementation
 ZigzagEnemy::ZigzagEnemy(const glm::vec2& position, int level) // Added level parameter
-    : Enemy(position, RESOURCE_DIR "/enemy/e_tank1.png", 3.0f, level), m_ZigzagDirection(1), m_ZigzagCounter(0) // Pass level to base
+    : Enemy(position, RESOURCE_DIR "/enemy/e_tank1.png", 3.0f, level), m_ZigzagDirection(1), m_ZigzagCounter(0)
+// Pass level to base
 {
     // Adjust properties based on level if specific to ZigzagEnemy
     if (std::rand() % 2 == 0) m_ZigzagDirection = -1; // Random initial direction
@@ -238,23 +240,31 @@ RandomEnemy::RandomEnemy(const glm::vec2& position, int level) // Added level pa
 void RandomEnemy::Update(glm::vec2 playerPosition)
 {
     // Example: Random movement pattern that could change with level
-    if (GetLevel() > 2) {
+    if (GetLevel() > 2)
+    {
         // More erratic movement for higher levels
         m_Transform.translation.y -= m_Speed * (1.0f + static_cast<float>(std::rand() % 100) / 200.0f);
         m_Transform.translation.x += (std::rand() % 3 - 1) * m_Speed * 0.5f; // Random horizontal shift
-    } else {
+    }
+    else
+    {
         m_Transform.translation.y -= m_Speed; // Simple downward movement
     }
 
     if (CanShoot())
     {
         // Example: Shooting pattern changes with level
-        if (GetLevel() > 1) {
+        if (GetLevel() > 1)
+        {
             // Shoot more bullets or different pattern
-            for (int i = 0; i < GetLevel(); ++i) { // Shoots more bullets based on level
-                 Shoot(playerPosition + glm::vec2(i * 10.0f - (GetLevel()-1)*5.0f , 0.0f)); // Spread shot
+            for (int i = 0; i < GetLevel(); ++i)
+            {
+                // Shoots more bullets based on level
+                Shoot(playerPosition + glm::vec2(i * 10.0f - (GetLevel() - 1) * 5.0f, 0.0f)); // Spread shot
             }
-        } else {
+        }
+        else
+        {
             Shoot(playerPosition);
         }
     }
