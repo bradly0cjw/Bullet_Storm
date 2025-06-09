@@ -302,6 +302,43 @@ void App::Update() {
         m_ZPressedLastFrame = false;
     }
 
+    // —— 作弊鍵 ——
+    // H：切換武器顏色（RED → BLUE → PURPLE → RED）
+    if (Util::Input::IsKeyDown(Util::Keycode::H)) {
+        // 你需要在 Character.hpp 裡加一個 getter:
+        // PowerUpType GetPowerUpType() const { return m_CurrentPowerUpType; }
+        PowerUpType cur = m_Player->GetPowerUpType();
+        PowerUpType next;
+        switch (cur) {
+            case PowerUpType::RED:    next = PowerUpType::BLUE;  break;
+            case PowerUpType::BLUE:   next = PowerUpType::PURPLE;break;
+            case PowerUpType::PURPLE: next = PowerUpType::RED;   break;
+            default:                  next = PowerUpType::RED;   break;
+        }
+        m_Player->ApplyPowerUp(next);
+    }
+
+    // J：加一點血
+    if (Util::Input::IsKeyDown(Util::Keycode::J)) {
+        m_Player->modifyHealth(1);
+    }
+
+    // K：強化（升級）當前武器一次
+    if (Util::Input::IsKeyDown(Util::Keycode::K)) {
+        // 再次對當前種類呼叫 ApplyPowerUp 會讓 m_PowerUpLevel++
+        m_Player->ApplyPowerUp(m_Player->GetPowerUpType());
+    }
+
+    // L：直接跳到下一關（沒有 boss 就直接 ResetLevel）
+    if (Util::Input::IsKeyDown(Util::Keycode::L)) {
+        if (m_Level < MAX_LEVEL) {
+            m_Level++;
+            ResetLevel();
+        } else {
+            m_CurrentState = State::RESULT;
+        }
+    }
+
     m_Player->Update();
 
     for (auto &bullet: m_Player->GetBullets()) {
@@ -471,6 +508,7 @@ void App::Update() {
                 LOG_INFO("Player collided with enemy at position ({}, {})", enemy->GetPosition().x,
                          enemy->GetPosition().y);
                 m_Player->modifyHealth(-1);
+                m_Player->SetPosition({-112.5f, -140.5f});
                 m_Player->ResetPowerUp();
                 m_Player->SetMissileCount(false);
                 m_Player->ResetSkillCharges();
@@ -492,6 +530,7 @@ void App::Update() {
                     LOG_INFO("Player collided with enemy bullet at position ({}, {})", bullet->GetPosition().x,
                              bullet->GetPosition().y);
                     m_Player->modifyHealth(-1);
+                    m_Player->SetPosition({-112.5f, -140.5f});
                     m_Player->SetMissileCount(false);
                     isPlayerHitThisFrame = true;
                     m_collisionTimer = currentTime;
@@ -565,6 +604,7 @@ void App::Update() {
             {
                 LOG_INFO("Player collided with Boss body.");
                 m_Player->modifyHealth(-1);
+                m_Player->SetPosition({-112.5f, -140.5f});
                 isPlayerHitThisFrame = true;
                 m_collisionTimer = currentTime;
             }
@@ -582,6 +622,7 @@ void App::Update() {
                     {
                         LOG_INFO("Player collided with Boss bullet.");
                         m_Player->modifyHealth(-1);
+                        m_Player->SetPosition({-112.5f, -140.5f});
                         isPlayerHitThisFrame = true;
                         m_collisionTimer = currentTime;
                         m_Renderer->RemoveChild(bullet);
@@ -731,6 +772,14 @@ void App::ResetLevel() {
     // 10. 重置計時器
     m_EnemySpawnTimer = std::time(nullptr);
     m_Timer           = std::time(nullptr);
+
+    //重製變數
+    m_HealthDisplay->SetVisible(true);
+    m_SkillDisplay->SetVisible(true);
+
+    // 在 result() 裡，按下 SPACE 要進關卡前：
+    m_HealthDisplay->SetVisible(true);
+    m_SkillDisplay->SetVisible(true);
 }
 
 

@@ -63,6 +63,7 @@ public:
     void ResetPowerUp();
 
     void ApplySpecialPowerUp(PowerUpType type) ;
+    PowerUpType GetPowerUpType() const { return m_CurrentPowerUpType; }
 
     void LaunchMissiles(const std::vector<std::shared_ptr<Enemy>>& enemies, Util::Renderer* renderer);
     bool GetMissileCount() const { return isMissile; }
