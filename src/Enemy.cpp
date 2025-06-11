@@ -237,6 +237,45 @@ RandomEnemy::RandomEnemy(const glm::vec2& position, int level) // Added level pa
     // m_Speed += GetLevel() * 0.2f; // Different speed scaling for RandomEnemy
 }
 
+ChargerEnemy::ChargerEnemy(const glm::vec2& position, int level)
+  : Enemy(position,
+          RESOURCE_DIR "/enemy/small_enemy.png",   // 請準備一個衝鋒用的貼圖
+          BASE_MOVE_SPEED * 10.0f,              // 速度是基礎 3 倍
+          level)
+{
+    // 不開火
+    m_ShootIntervalSeconds = std::numeric_limits<float>::infinity();
+}
+
+// ❸ 每幀直接朝玩家位置前進
+void ChargerEnemy::Update(glm::vec2 playerPosition)
+{
+    // 計算指向玩家的單位向量
+    glm::vec2 dir = glm::normalize(playerPosition - m_Transform.translation);
+    // 直接以 m_Speed 衝刺
+    m_Transform.translation += dir * m_Speed*1.5f;
+
+    // 如果超出畫面，自行隱藏或留給 App::Update 處理
+    for (auto& b : m_Bullets) b->Update();
+}
+
+// ❷ 实现构造与 Update
+RiseEnemy::RiseEnemy(const glm::vec2& /*position*/, float speed)
+  : Enemy(glm::vec2( 0,
+                    -450.0f ),          // Y 放到屏幕下方 (-halfHeight)
+          RESOURCE_DIR "/enemy/back_enemy.png", // 贴图自行选择
+          speed)
+{
+    SetVisible(true);
+}
+
+void RiseEnemy::Update(glm::vec2 /*playerPosition*/) {
+    // 只向上跑
+    m_Transform.translation.y += m_Speed;
+    // 更新所有子弹（如果有发射逻辑，也可 override Shoot）
+    for (auto& b : m_Bullets) b->Update();
+}
+
 void RandomEnemy::Update(glm::vec2 playerPosition)
 {
     // Example: Random movement pattern that could change with level

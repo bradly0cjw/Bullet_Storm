@@ -82,6 +82,7 @@ void App::Start() {
     // 1️⃣ 創建玩家角色 (戰機)
     m_Player = std::make_shared<Character>(RESOURCE_DIR "/character/player_red.png");
     m_Player->SetPosition({-112.5f, -140.5f});  // 螢幕中央
+    m_Player->m_Transform.scale = { 0.5f, 0.5f };
 
     m_Player->SetZIndex(50); // 讓玩家顯示在最前面
     m_Root.AddChild(m_Player);
@@ -365,7 +366,7 @@ void App::Update() {
     {
         int gameScreenWidth = 800;
         int randomX = (std::rand() % (gameScreenWidth - 100)) - (gameScreenWidth / 2 - 50);
-        EnemyType type = static_cast<EnemyType>(std::rand() % 5);
+        EnemyType type = static_cast<EnemyType>(std::rand() % 7);
 
         std::shared_ptr<Enemy> newEnemy;
         glm::vec2 spawnPosition = glm::vec2(static_cast<float>(randomX), 400.0f);
@@ -384,6 +385,16 @@ void App::Update() {
         case EnemyType::ZIGZAG:
             newEnemy = std::make_shared<ZigzagEnemy>(spawnPosition);
             break;
+        case EnemyType::CHARGER:
+            newEnemy = std::make_shared<ChargerEnemy>(spawnPosition);
+            break;
+        case EnemyType::RISE:
+            // 这里 spawnPosition.x 用随机 X，但 Y 由 RiseEnemy 构造决定
+            newEnemy = std::make_shared<RiseEnemy>(
+          glm::vec2(spawnPosition.x, 0.0f),
+          /*speed*/ 4.0f
+            );
+      break;
         case EnemyType::RANDOM:
         default:
             newEnemy = std::make_shared<RandomEnemy>(spawnPosition);
@@ -530,6 +541,7 @@ void App::Update() {
                     LOG_INFO("Player collided with enemy bullet at position ({}, {})", bullet->GetPosition().x,
                              bullet->GetPosition().y);
                     m_Player->modifyHealth(-1);
+                    m_Player->ResetPowerUp();
                     m_Player->SetPosition({-112.5f, -140.5f});
                     m_Player->SetMissileCount(false);
                     isPlayerHitThisFrame = true;
@@ -604,6 +616,7 @@ void App::Update() {
             {
                 LOG_INFO("Player collided with Boss body.");
                 m_Player->modifyHealth(-1);
+                m_Player->ResetPowerUp();
                 m_Player->SetPosition({-112.5f, -140.5f});
                 isPlayerHitThisFrame = true;
                 m_collisionTimer = currentTime;
@@ -622,6 +635,7 @@ void App::Update() {
                     {
                         LOG_INFO("Player collided with Boss bullet.");
                         m_Player->modifyHealth(-1);
+                        m_Player->ResetPowerUp();
                         m_Player->SetPosition({-112.5f, -140.5f});
                         isPlayerHitThisFrame = true;
                         m_collisionTimer = currentTime;

@@ -18,7 +18,9 @@ enum class EnemyType
     WAVE,
     TRACK,
     ZIGZAG,
-    RANDOM
+    RANDOM,
+    CHARGER,
+    RISE
 };
 
 class Enemy : public Util::GameObject {
@@ -107,6 +109,19 @@ class RandomEnemy : public Enemy
 {
 public:
     explicit RandomEnemy(const glm::vec2& position, int level = 1);
+    void Update(glm::vec2 playerPosition) override;
+};
+
+class ChargerEnemy : public Enemy {
+public:
+    explicit ChargerEnemy(const glm::vec2& position, int level = 1);
+    void Update(glm::vec2 playerPosition) override;
+};
+
+class RiseEnemy : public Enemy {
+public:
+    // position.y 会被无视，直接放到屏幕下方
+    RiseEnemy(const glm::vec2& position, float speed);
     void Update(glm::vec2 playerPosition) override;
 };
 
