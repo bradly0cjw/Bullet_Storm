@@ -35,31 +35,36 @@ void Boss::Activate()
     m_PhaseTimer = 0.0f;
     // ClearMinions(); // Clear any existing minions
 
-    if (m_CurrentLevel == 2) {
+    if (m_CurrentLevel == 2)
+    {
         // For Level 2, we don't use phases in the same way.
         // The boss might have a simple movement pattern, and continuously spawns minions.
         // No bullets will be shot by the boss itself in L2.
         m_ShootIntervalSeconds = std::numeric_limits<float>::infinity(); // Disable standard shooting for L2
         LOG_INFO("Boss Level 2 activated: Minion summoning mode.");
-    } else {
+    }
+    else
+    {
         // Reset shoot interval for L1/L3
         m_ShootIntervalSeconds = std::max(0.3f, 1.0f - (m_CurrentLevel - 1) * 0.2f);
     }
 }
 
-std::vector<std::shared_ptr<Enemy>> Boss::GetSpawnedMinions() {
+std::vector<std::shared_ptr<Enemy>> Boss::GetSpawnedMinions()
+{
     return m_NewlySpawnedMinions;
 }
 
 void Boss::Update(glm::vec2 playerPosition)
 {
     m_NewlySpawnedMinions.clear();
-    LOG_INFO("Current Boss Level: {}" , m_CurrentLevel);
+    LOG_INFO("Current Boss Level: {}", m_CurrentLevel);
     LOG_INFO("Current Attack Phase: {}", m_AttackPhase);
     if (!m_Active || IsDead())
     {
         // If dead, clear minions and bullets
-        if(IsDead()){
+        if (IsDead())
+        {
             // ClearMinions();
             m_Bullets.clear(); // Clear boss's own bullets
         }
@@ -118,11 +123,15 @@ void Boss::Update(glm::vec2 playerPosition)
     }
 
     // Update all boss bullets (if any, L2 boss won't shoot)
-    for (auto it = m_Bullets.begin(); it != m_Bullets.end();) {
+    for (auto it = m_Bullets.begin(); it != m_Bullets.end();)
+    {
         (*it)->Update();
-        if (!(*it)->InBound()) {
+        if (!(*it)->InBound())
+        {
             it = m_Bullets.erase(it);
-        } else {
+        }
+        else
+        {
             ++it;
         }
     }
@@ -188,12 +197,15 @@ void Boss::SetLevel(int level)
         // ClearMinions(); // Clear minions when level changes
         m_Bullets.clear(); // Clear existing bullets
 
-        if (m_CurrentLevel == 2) {
+        if (m_CurrentLevel == 2)
+        {
             m_ShootIntervalSeconds = std::numeric_limits<float>::infinity(); // Disable standard shooting
             m_AttackPhase = 0; // Level 2 doesn't use phases, reset for safety
             m_PhaseTimer = 0.0f;
             LOG_INFO("Boss level set to: {}. Minion summoning mode.", m_CurrentLevel);
-        } else {
+        }
+        else
+        {
             // Reset shoot interval and phase logic for L1/L3
             m_ShootIntervalSeconds = std::max(0.3f, 1.0f - (m_CurrentLevel - 1) * 0.2f);
             m_AttackPhase = 0; // Reset to entry phase for L1/L3
@@ -356,11 +368,16 @@ void Boss::Level1Phase1(glm::vec2 playerPosition)
 
         // Create 5 bullets in a cone aimed at the player.
         // The angles are in radians. 15 degrees = 0.26 radians.
-        m_Bullets.push_back(std::make_shared<Bullet>(bulletStartPos, glm::rotate(dirToPlayer, -0.52f) * bulletSpeed, PowerUpType::RED, true)); // -30 deg
-        m_Bullets.push_back(std::make_shared<Bullet>(bulletStartPos, glm::rotate(dirToPlayer, -0.26f) * bulletSpeed, PowerUpType::RED, true)); // -15 deg
-        m_Bullets.push_back(std::make_shared<Bullet>(bulletStartPos, dirToPlayer * bulletSpeed, PowerUpType::RED, true));                       //   0 deg
-        m_Bullets.push_back(std::make_shared<Bullet>(bulletStartPos, glm::rotate(dirToPlayer, 0.26f) * bulletSpeed, PowerUpType::RED, true));  // +15 deg
-        m_Bullets.push_back(std::make_shared<Bullet>(bulletStartPos, glm::rotate(dirToPlayer, 0.52f) * bulletSpeed, PowerUpType::RED, true));  // +30 deg
+        m_Bullets.push_back(std::make_shared<Bullet>(bulletStartPos, glm::rotate(dirToPlayer, -0.52f) * bulletSpeed,
+                                                     PowerUpType::RED, true)); // -30 deg
+        m_Bullets.push_back(std::make_shared<Bullet>(bulletStartPos, glm::rotate(dirToPlayer, -0.26f) * bulletSpeed,
+                                                     PowerUpType::RED, true)); // -15 deg
+        m_Bullets.push_back(std::make_shared<Bullet>(bulletStartPos, dirToPlayer * bulletSpeed, PowerUpType::RED,
+                                                     true)); //   0 deg
+        m_Bullets.push_back(std::make_shared<Bullet>(bulletStartPos, glm::rotate(dirToPlayer, 0.26f) * bulletSpeed,
+                                                     PowerUpType::RED, true)); // +15 deg
+        m_Bullets.push_back(std::make_shared<Bullet>(bulletStartPos, glm::rotate(dirToPlayer, 0.52f) * bulletSpeed,
+                                                     PowerUpType::RED, true)); // +30 deg
 
         // Make the new bullets visible
         for (size_t i = m_Bullets.size() - 5; i < m_Bullets.size(); ++i)
@@ -454,18 +471,20 @@ void Boss::SpawnChargerMinion(const glm::vec2& playerPosition)
     // Spawn 5 charger minions spread horizontally
     int numMinions = 5;
     float totalWidth = m_HitboxWidth_Private + 200.0f; // Total width for minions to spread
-    float spacing = totalWidth / (numMinions -1); // Spacing between minions
+    float spacing = totalWidth / (numMinions - 1); // Spacing between minions
 
     glm::vec2 baseSpawnPos = GetPosition() + glm::vec2(-totalWidth / 2.0f, 0.0f); // Start from the left
 
-    for (int i = 0; i < numMinions; ++i) {
+    for (int i = 0; i < numMinions; ++i)
+    {
         glm::vec2 spawnPos = baseSpawnPos + glm::vec2(i * spacing, 0.0f);
 
         // ChargerEnemy level could be fixed or based on boss's current state/level
         auto charger = std::make_shared<ChargerEnemy>(spawnPos, 1); // Spawn level 1 chargers for now
         charger->SetVisible(true);
         m_NewlySpawnedMinions.push_back(charger);
-        LOG_INFO("Boss spawned a Charger minion at ({}, {}). Player at ({},{})", spawnPos.x, spawnPos.y, playerPosition.x, playerPosition.y);
+        LOG_INFO("Boss spawned a Charger minion at ({}, {}). Player at ({},{})", spawnPos.x, spawnPos.y,
+                 playerPosition.x, playerPosition.y);
     }
 }
 

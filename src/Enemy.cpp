@@ -17,7 +17,7 @@ Enemy::Enemy(const glm::vec2& position, const std::string& imagePath, float spee
     SetVisible(true); // Enemies are visible by default when created
 
     // Adjust properties based on level
-    m_HitPoints = 10 * m_Level; // Example: HP scales with level
+    m_HitPoints = 20 * m_Level; // Example: HP scales with level
     m_Speed = BASE_MOVE_SPEED + (m_Level - 1) * SPEED_LEVEL_INCREMENT; // Speed scales with level using constants
     m_ShootIntervalSeconds = std::max(0.5f, 1.6f - (m_Level - 1) * 0.2f);
     // Example: Shoot interval decreases with level
