@@ -30,7 +30,7 @@ void Boss::Activate()
     SetVisible(true);
     LOG_INFO("Boss Activated!");
     m_Transform.translation.y = 350;
-    m_Health = 100 * m_CurrentLevel;
+    m_Health = 250 * m_CurrentLevel;
     m_AttackPhase = 0; // Reset phase for L1/L3 entry
     m_PhaseTimer = 0.0f;
     // ClearMinions(); // Clear any existing minions

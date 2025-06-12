@@ -31,6 +31,7 @@ public:
 
     [[nodiscard]] bool CollidesWith(const std::shared_ptr<Util::GameObject>& other) const; // Added [[nodiscard]]
 
+    [[nodiscard]] int GetDamage() const { return m_Damage; }
 private:
     glm::vec2 m_Velocity;
     bool m_InRenderer = false;
@@ -38,6 +39,8 @@ private:
     bool m_IsHoming = false;
     float m_HomingSpeed = 0.0f;
     std::weak_ptr<Enemy> m_HomingTarget;
+
+    int m_Damage;
 
 };
 

@@ -305,8 +305,21 @@ void App::Update()
     auto bullet_cooldown = std::clock();
     if (Util::Input::IsKeyPressed(Util::Keycode::SPACE))
     {
+        float threshold;
+        if (m_Player->GetPowerUpType() == PowerUpType::PURPLE)
+        {
+            threshold = 0.1f; // 更快的冷卻時間
+        }
+        else if (m_Player->GetPowerUpType() == PowerUpType::BLUE)
+        {
+            threshold = 0.4f; // 默認冷卻時間
+        }
+        else
+        {
+            threshold = 0.2f; // RED 的冷卻時間
+        }
         // enforce your 0.2s cooldown as before…
-        if (static_cast<float>(std::clock() - m_bulletCooldownTimer) / CLOCKS_PER_SEC > 0.2f)
+        if (static_cast<float>(std::clock() - m_bulletCooldownTimer) / CLOCKS_PER_SEC > threshold)
         {
             m_bulletCooldownTimer = std::clock();
             // **if** you have at least one M charge, fire missiles
@@ -502,7 +515,7 @@ void App::Update()
         }
     }
 
-    std::vector<std::shared_ptr<Enemy>> enemiesToRemove;
+    std::vector<std::shared_ptr<Enemy>> defeatedEnemies;
     std::vector<std::shared_ptr<Bullet>> playerBulletsToRemove;
 
     for (auto& bullet : m_Player->GetBullets())
@@ -512,7 +525,11 @@ void App::Update()
             if (enemy->IsVisible() && bullet->CollidesWith(std::static_pointer_cast<Util::GameObject>(enemy)))
             {
                 playerBulletsToRemove.push_back(bullet);
-                enemiesToRemove.push_back(enemy);
+                enemy->TakeDamage(bullet->GetDamage());
+                if (!enemy->IsAlive())
+                {
+                    defeatedEnemies.push_back(enemy);
+                }
                 break;
             }
         }
@@ -522,7 +539,7 @@ void App::Update()
         m_Player->RmBullets(bullet);
         m_Renderer->RemoveChild(bullet);
     }
-    for (auto& enemyHit : enemiesToRemove)
+    for (auto& enemyHit : defeatedEnemies)
     {
         for (auto& bullet : enemyHit->GetBullets())
         {
@@ -678,7 +695,7 @@ void App::Update()
             if (bullet->CollidesWith(std::static_pointer_cast<Util::GameObject>(m_Boss)))
             {
                 playerBulletsHittingBossToRemove.push_back(bullet);
-                m_Boss->TakeDamage(1);
+                m_Boss->TakeDamage(bullet->GetDamage());
             }
         }
         for (auto& bullet : playerBulletsHittingBossToRemove)

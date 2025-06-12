@@ -43,7 +43,22 @@ namespace
         return path;
     }
 } // end anonymous namespace
-
+int GetDamageForType(PowerUpType type)
+{
+    switch (type)
+    {
+    case PowerUpType::BLUE:
+        return 20; // Powerful
+    case PowerUpType::RED:
+        return 2; // Normal
+    case PowerUpType::PURPLE:
+        return 1; // Weak
+    case PowerUpType::M: // Missile
+        return 5; // Extra powerful
+    default:
+        return 1; // Default/fallback for other types like H, P, B
+    }
+}
 // Constructor for normal (non-homing) bullets
 Bullet::Bullet(const glm::vec2& position, const glm::vec2& velocity, PowerUpType type, bool isEnemyBullet)
     : Util::GameObject(std::make_shared<Util::Image>(GetImagePathForBullet(type, isEnemyBullet)), 1), // zIndex 1
@@ -53,7 +68,7 @@ Bullet::Bullet(const glm::vec2& position, const glm::vec2& velocity, PowerUpType
 {
     m_Transform.translation = position;
     SetVisible(true); // Ensure visibility
-
+    m_Damage = isEnemyBullet ? 1 : GetDamageForType(type);
     // Check if drawable loaded successfully (example check, your Image class might differ)
     auto imageDrawable = std::dynamic_pointer_cast<Util::Image>(m_Drawable);
 }
@@ -70,7 +85,7 @@ Bullet::Bullet(const glm::vec2& position, float speed, const std::shared_ptr<Ene
 {
     m_Transform.translation = position;
     SetVisible(true); // Ensure visibility
-
+    m_Damage = GetDamageForType(visualTypeForHomingPlayerBullet);
     auto imageDrawable = std::dynamic_pointer_cast<Util::Image>(m_Drawable);
 
     if (auto t_ptr = m_HomingTarget.lock())
