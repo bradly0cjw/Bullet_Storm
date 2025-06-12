@@ -29,8 +29,8 @@ void PowerUp::Update() {
 
     // 取得視窗尺寸
     auto ctx = Core::Context::GetInstance();
-    float halfW = ctx->GetWindowWidth() * 0.5f;
-    float halfH = ctx->GetWindowHeight() * 0.5f;
+    float halfW = 400.0f; // ctx->GetWindowWidth() * 0.5f;
+    float halfH = 300.0f; // ctx->GetWindowHeight() * 0.5f;
 
     auto &p = m_Transform.translation;
     // 左右邊界反彈
