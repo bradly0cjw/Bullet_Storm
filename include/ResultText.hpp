@@ -15,7 +15,7 @@ public:
     ResultText(const std::string& initialMessage)
         : GameObject(
             std::make_shared<Util::Text>( // Use make_shared since m_Drawable is shared_ptr
-                RESOURCE_DIR "/Font/236_Smudger.ttf", // Font path
+                RESOURCE_DIR "/Font/Inkfree.ttf", // Font path
                 64, // Font size
                 initialMessage, // Initial text message
                 Util::Color::FromName(Util::Colors::WHITE) // Text color

@@ -13,6 +13,10 @@ PhaseResourceManager::PhaseResourceManager() {
 void PhaseResourceManager::ScrollScene() {
     m_Background->ScrollScene();
 }
+void PhaseResourceManager::ShakeMap()
+{
+    m_Background->ShakeMap();
+}
 
 void PhaseResourceManager::SetPosition(const glm::vec2 &Position) {
     m_Background->SetPosition(Position);

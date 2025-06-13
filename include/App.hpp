@@ -18,7 +18,7 @@
 
 // App.hpp (或 App.cpp 最上方)
 static constexpr int MAX_LEVEL = 3;
-
+constexpr int BOSS_SPAWN_TIME = 60;
 
 class App {
 public:
@@ -115,6 +115,7 @@ private:
     // powerup
     std::vector<std::shared_ptr<PowerUp>> m_PowerUps;
 
+    bool isSkillActive = false; // 是否啟用技能
 };
 
 #endif

@@ -284,9 +284,6 @@ void App::Update()
         {
             x -= speed;
         }
-        {
-            x -= speed;
-        }
     }
     if (Util::Input::IsKeyPressed(Util::Keycode::RIGHT) || Util::Input::IsKeyPressed(Util::Keycode::D))
     {
@@ -597,7 +594,7 @@ void App::Update()
                 LOG_INFO("Player collided with enemy at position ({}, {})", enemy->GetPosition().x,
                          enemy->GetPosition().y);
                 m_Player->modifyHealth(-1);
-                m_Player->SetPosition({-112.5f, -140.5f});
+                m_Player->SetPosition({-0.0f, -200.0f});
                 m_Player->ResetPowerUp();
                 m_Player->SetMissileCount(false);
                 m_Player->ResetSkillCharges();
@@ -620,7 +617,7 @@ void App::Update()
                              bullet->GetPosition().y);
                     m_Player->modifyHealth(-1);
                     m_Player->ResetPowerUp();
-                    m_Player->SetPosition({-112.5f, -140.5f});
+                    m_Player->SetPosition({0.0f, -200.0f});
                     m_Player->SetMissileCount(false);
                     isPlayerHitThisFrame = true;
                     m_collisionTimer = currentTime;
@@ -643,7 +640,7 @@ void App::Update()
 
     auto currentTime_Boss = std::time(nullptr);
 
-    if (!m_Boss->IsActive() && !m_Boss->IsVisible() && (currentTime_Boss - m_Timer >= 15))
+    if (!m_Boss->IsActive() && !m_Boss->IsVisible() && (currentTime_Boss - m_Timer >= BOSS_SPAWN_TIME))
     {
         m_Boss->Activate();
         LOG_INFO("Boss has been activated.");
@@ -708,7 +705,7 @@ void App::Update()
                 LOG_INFO("Player collided with Boss body.");
                 m_Player->modifyHealth(-1);
                 m_Player->ResetPowerUp();
-                m_Player->SetPosition({-112.5f, -140.5f});
+                m_Player->SetPosition({-0.0f, -200.0f});
                 isPlayerHitThisFrame = true;
                 m_collisionTimer = currentTime;
             }
@@ -727,7 +724,7 @@ void App::Update()
                         LOG_INFO("Player collided with Boss bullet.");
                         m_Player->modifyHealth(-1);
                         m_Player->ResetPowerUp();
-                        m_Player->SetPosition({-112.5f, -140.5f});
+                        m_Player->SetPosition({-0.0f, -200.0f});
                         isPlayerHitThisFrame = true;
                         m_collisionTimer = currentTime;
                         m_Renderer->RemoveChild(bullet);
@@ -766,7 +763,7 @@ void App::Update()
     else if (m_Player->GetHealth() <= 0)
     {
         LOG_INFO("Player defeated! YOU LOSE!");
-        m_ResultText->SetText("YOU LOSE!");
+        // m_ResultText->SetText("YOU LOSE!");
         m_CurrentState = State::RESULT;
     }
 

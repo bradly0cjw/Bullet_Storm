@@ -59,6 +59,7 @@ int GetDamageForType(PowerUpType type)
         return 1; // Default/fallback for other types like H, P, B
     }
 }
+
 // Constructor for normal (non-homing) bullets
 Bullet::Bullet(const glm::vec2& position, const glm::vec2& velocity, PowerUpType type, bool isEnemyBullet)
     : Util::GameObject(std::make_shared<Util::Image>(GetImagePathForBullet(type, isEnemyBullet)), 1), // zIndex 1

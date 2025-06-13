@@ -22,6 +22,8 @@ public:
 
     void ScrollScene();
 
+    void ShakeMap();
+
     void SetPosition(const glm::vec2 &Position);
 private:
 //    std::shared_ptr<TaskText> m_TaskText;

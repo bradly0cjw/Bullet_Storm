@@ -32,6 +32,7 @@ public:
     [[nodiscard]] bool CollidesWith(const std::shared_ptr<Util::GameObject>& other) const; // Added [[nodiscard]]
 
     [[nodiscard]] int GetDamage() const { return m_Damage; }
+
 private:
     glm::vec2 m_Velocity;
     bool m_InRenderer = false;
@@ -41,7 +42,6 @@ private:
     std::weak_ptr<Enemy> m_HomingTarget;
 
     int m_Damage;
-
 };
 
 #endif //BULLET_H

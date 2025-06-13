@@ -24,6 +24,8 @@ public:
 
     void NextPhase(const int phase);
 
+    void ShakeMap();
+
     void ScrollScene();
 //    void ScrollScene(){
 //        auto init = GetPosition();

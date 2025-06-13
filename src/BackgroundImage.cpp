@@ -36,6 +36,18 @@ void BackgroundImage::ScrollScene() {
     m_Transform.translation.y -= 1;
 }
 
+void BackgroundImage::ShakeMap()
+{
+    // if the background is on y = 0, then don't shake
+    if (m_Transform.translation.y == -(m_ImageSize.y / 2))
+    {
+        return;
+    }
+    m_Transform.translation.y += 1;
+    m_Transform.translation.x += (std::rand() % 3 - 1) * 0.5f; // Random horizontal shake
+}
+
+
 std::string BackgroundImage::ImagePath(const int phase) {
     return RESOURCE_DIR"/image1" + std::to_string(phase) + ".jpg";
 }
