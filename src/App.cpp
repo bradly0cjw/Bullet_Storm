@@ -126,25 +126,21 @@ void App::result()
     if (!m_ResultShown)
     {
         // ——1. 清除所有舊遊戲物件（沿用你原本邏輯）——
-        for (auto& enemy : m_Enemies)
-        {
+        // ——App::result() 首段清場邏輯——
+        for (auto& enemy : m_Enemies) {
             m_Renderer->RemoveChild(enemy);
-            if (enemy != nullptr)
-            {
-                // 清除敵機的子彈
-                for (auto& b : enemy->GetBullets())
-                    m_Renderer->RemoveChild(b);
+            for (auto& b : enemy->GetBullets()) {
+                m_Renderer->RemoveChild(b);
             }
-            m_Enemies.erase(std::remove(m_Enemies.begin(), m_Enemies.end(), enemy), m_Enemies.end());
         }
+        // 一次把 vector 清空
+        m_Enemies.clear();
 
-        // 如果有 Boss 子彈也要清
+        // 同理清掉 Boss 的子彈
         for (auto& b : m_Boss->GetBullets())
             m_Renderer->RemoveChild(b);
         m_Boss->GetBullets().clear();
         m_Renderer->RemoveChild(m_Boss);
-
-        m_Enemies.clear();
         m_Renderer->RemoveChild(m_Boss);
         for (auto& b : m_Player->GetBullets())
             m_Renderer->RemoveChild(b);
@@ -284,7 +280,7 @@ void App::Update()
     }
     if (Util::Input::IsKeyPressed(Util::Keycode::LEFT) || Util::Input::IsKeyPressed(Util::Keycode::A))
     {
-        if (m_Player->GetPosition().x > -halfW)
+        if (m_Player->GetPosition().x > -400)
         {
             x -= speed;
         }
